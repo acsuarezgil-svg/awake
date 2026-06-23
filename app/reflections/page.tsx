@@ -98,7 +98,7 @@ function toggleFavorite(id: string) {
           >
             <p className="mb-3 text-sm text-gray-500">
               {new Date(reflection.date).toLocaleString()}
-            </p>npm run build
+            </p>
 
             {editingId === reflection.id && editReflection ? (
               <div className="space-y-3">

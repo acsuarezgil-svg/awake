@@ -187,19 +187,6 @@ function toggleFavorite(id: string) {
                 </div>
               </>
             )}
-
-            <p className="font-semibold">{t.observe}</p>
-            <p className="mb-2">{reflection.happened}</p>
-            <p className="mb-4 text-gray-700">{reflection.feeling}</p>
-
-            <p className="font-semibold">{t.choose}</p>
-            <p className="mb-4">{reflection.seeking}</p>
-
-            <p className="font-semibold">{t.act}</p>
-            <p className="mb-4">{reflection.action}</p>
-
-            <p className="font-semibold">{t.learn}</p>
-            <p>{reflection.learned}</p>
           </article>
         ))}
       </div>

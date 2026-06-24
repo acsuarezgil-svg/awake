@@ -6,7 +6,9 @@ import { translations, type Language } from "./translations";
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
 
+
 export default function Home() {
+  const [perspective, setPerspective] = useState(4);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [patterns, setPatterns] = useState(defaultPatterns);
   const [investments, setInvestments] = useState(defaultInvestments);
@@ -189,6 +191,29 @@ export default function Home() {
     (total, item) => total + (counts[item] || 0),
     0
   );
+  function getPerspectiveEmoji(value: number) {
+    if (value === 1) return "🔬";
+    if (value === 2) return "🏠";
+    if (value === 3) return "🏙️";
+    if (value === 4) return "🌎";
+    if (value === 5) return "🌙";
+    if (value === 6) return "☀️";
+    return "🌌";
+  }
+
+  function getPerspectiveLabel(value: number) {
+    if (value === 1) return "This Moment";
+    if (value === 2) return "Home";
+    if (value === 3) return "My World";
+    if (value === 4) return "Earth";
+    if (value === 5) return "Moon";
+    if (value === 6) return "Solar System";
+    return "Milky Way";
+  }
+
+  function getPerspectiveSize(value: number) {
+    return 48 + value * 16;
+  }
   function getBarWidth(item: string) {
     const value = counts[item] || 0;
 
@@ -256,6 +281,41 @@ export default function Home() {
         >
           {t.createAwareness} →
         </a>
+      </section>
+      <section className="mt-8 rounded-3xl border bg-gray-50 p-5 text-center">
+        <h2 className="text-xl font-bold">Perspective</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Move the slider and notice what changes.
+        </p>
+
+        <div className="my-6 flex h-40 items-center justify-center">
+          <div
+            className="flex items-center justify-center rounded-full transition-all duration-300"
+            style={{
+              fontSize: `${getPerspectiveSize(perspective)}px`,
+            }}
+          >
+            {getPerspectiveEmoji(perspective)}
+          </div>
+        </div>
+
+        <input
+          type="range"
+          min="1"
+          max="7"
+          value={perspective}
+          onChange={(e) => setPerspective(Number(e.target.value))}
+          className="w-full"
+        />
+
+        <div className="mt-3 flex justify-between text-xs text-gray-500">
+          <span>This Moment</span>
+          <span>More Perspective</span>
+        </div>
+
+        <p className="mt-4 text-sm font-medium text-gray-700">
+          {getPerspectiveLabel(perspective)}
+        </p>
       </section>
       <div className="rounded-2xl border bg-blue-50 p-4 mb-6">
   <p className="text-sm text-gray-500 mb-2">

@@ -20,7 +20,8 @@ export default function ReflectionsPage() {
   const [language, setLanguage] = useState<Language>("en");
   const t = translations[language];
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editReflection, setEditReflection] = useState<Reflection | null>(null);   
+  const [editReflection, setEditReflection] = useState<Reflection | null>(null);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);   
 
   useEffect(() => {
     const saved = localStorage.getItem("awake-reflections");
@@ -74,6 +75,9 @@ function toggleFavorite(id: string) {
     )
   );
 }
+const displayedReflections = showFavoritesOnly
+  ? reflections.filter((reflection) => reflection.favorite)
+  : reflections;
 
   return (
     <main className="min-h-screen bg-white p-6 w-full max-w-md mx-auto">
@@ -85,13 +89,38 @@ function toggleFavorite(id: string) {
       <p className="text-gray-600 mb-8">
         {t.journeyDescription}.
       </p>
+      <div className="mb-6 flex gap-2">
+        <button
+          onClick={() => setShowFavoritesOnly(false)}
+          className={`rounded-full px-4 py-2 text-sm ${
+            !showFavoritesOnly
+              ? "bg-black text-white"
+              : "border text-gray-600"
+          }`}
+        >
+          All
+        </button>
+
+        <button
+          onClick={() => setShowFavoritesOnly(true)}
+          className={`rounded-full px-4 py-2 text-sm ${
+            showFavoritesOnly
+              ? "bg-black text-white"
+              : "border text-gray-600"
+          }`}
+        >
+          ⭐ Favorites
+        </button>
+      </div>
 
       <div className="space-y-4">
-        {reflections.length === 0 && (
-          <p className="text-gray-500">{t.noReflections}</p>
+        {displayedReflections.length === 0 && (
+          <p className="text-gray-500">
+            {showFavoritesOnly ? "No favorites yet." : t.noReflections}
+          </p>
         )}
-
-        {reflections.map((reflection) => (
+        
+        {displayedReflections.map((reflection) => (
           <article
             key={reflection.id}
             className="rounded-2xl border bg-gray-50 p-4"

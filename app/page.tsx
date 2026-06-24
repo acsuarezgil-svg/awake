@@ -21,6 +21,8 @@ export default function Home() {
   const visualMax = trendScale * 1.5; 
   const [language, setLanguage] = useState<Language>("en");
   const t = translations[language];
+  const [showAllPatterns, setShowAllPatterns] = useState(false);
+  const [showAllInvestments, setShowAllInvestments] = useState(false);
 
   useEffect(() => {
     const savedCounts = localStorage.getItem("awake-counts");
@@ -225,13 +227,21 @@ export default function Home() {
     return `${percent}%`;
   }
 
-  const topPatterns = [...patterns]
+  const sortedPatterns = [...patterns]
   .sort((a, b) => (counts[b] || 0) - (counts[a] || 0))
-  .slice(0, 3);
+  .filter((item) => (counts[item] || 0) > 0);
 
-  const topInvestments = [...investments]
+  const sortedInvestments = [...investments]
     .sort((a, b) => (counts[b] || 0) - (counts[a] || 0))
-    .slice(0, 3);
+    .filter((item) => (counts[item] || 0) > 0);
+
+  const visiblePatterns = showAllPatterns
+    ? sortedPatterns
+    : sortedPatterns.slice(0, 5);
+
+  const visibleInvestments = showAllInvestments
+    ? sortedInvestments
+    : sortedInvestments.slice(0, 5);
 
   return (
     <main className="min-h-screen bg-white p-6 w-full max-w-md mx-auto">
@@ -372,7 +382,7 @@ export default function Home() {
     <p className="font-semibold mb-3">{t.patterns}</p>
 
     <div className="space-y-3">
-      {topPatterns.map((item) => (
+      {visiblePatterns.map((item) => (
         <div key={item} className="grid grid-cols-[1fr_2fr_auto] items-center gap-3">
           <span className="text-sm">{item}</span>
 
@@ -389,13 +399,22 @@ export default function Home() {
         </div>
       ))}
     </div>
+
+    {sortedPatterns.length > 5 && (
+      <button
+        onClick={() => setShowAllPatterns(!showAllPatterns)}
+        className="mt-3 text-sm text-blue-600"
+      >
+        {showAllPatterns ? "Show Less" : "Show All"}
+      </button>
+    )}
   </div>
 
   <div>
     <p className="font-semibold mb-3">{t.investments}</p>
 
     <div className="space-y-3">
-      {topInvestments.map((item) => (
+      {visibleInvestments.map((item) => (
         <div key={item} className="grid grid-cols-[1fr_2fr_auto] items-center gap-3">
           <span className="text-sm">{item}</span>
 
@@ -413,6 +432,14 @@ export default function Home() {
       ))}
     </div>
   </div>
+  {sortedInvestments.length > 5 && (
+    <button
+      onClick={() => setShowAllInvestments(!showAllInvestments)}
+      className="mt-3 text-sm text-green-600"
+    >
+      {showAllInvestments ? "Show Less" : "Show All"}
+    </button>
+  )}
 </div>
 
 

@@ -21,7 +21,8 @@ export default function ReflectionsPage() {
   const t = translations[language];
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editReflection, setEditReflection] = useState<Reflection | null>(null);
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);   
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [timeFilter, setTimeFilter] = useState("all");
 
   useEffect(() => {
     const saved = localStorage.getItem("awake-reflections");
@@ -75,9 +76,47 @@ function toggleFavorite(id: string) {
     )
   );
 }
+let filteredReflections = [...reflections];
+
+const now = new Date();
+
+if (timeFilter === "today") {
+  filteredReflections = filteredReflections.filter((reflection) => {
+    const date = new Date(reflection.date);
+
+    return (
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate()
+    );
+  });
+}
+
+if (timeFilter === "7days") {
+  filteredReflections = filteredReflections.filter((reflection) => {
+    const date = new Date(reflection.date);
+
+    return (
+      now.getTime() - date.getTime() <=
+      7 * 24 * 60 * 60 * 1000
+    );
+  });
+}
+
+if (timeFilter === "month") {
+  filteredReflections = filteredReflections.filter((reflection) => {
+    const date = new Date(reflection.date);
+
+    return (
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear()
+    );
+  });
+}
+
 const displayedReflections = showFavoritesOnly
-  ? reflections.filter((reflection) => reflection.favorite)
-  : reflections;
+  ? filteredReflections.filter((reflection) => reflection.favorite)
+  : filteredReflections;
 
   return (
     <main className="min-h-screen bg-white p-6 w-full max-w-md mx-auto">
@@ -119,8 +158,46 @@ const displayedReflections = showFavoritesOnly
             {showFavoritesOnly ? "No favorites yet." : t.noReflections}
           </p>
         )}
-        
-        {displayedReflections.map((reflection) => (
+
+                <div className="mb-6 flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setTimeFilter("today")}
+                    className={`rounded-full px-3 py-1 text-sm ${
+                      timeFilter === "today" ? "bg-green-600 text-white" : "border"
+                    }`}
+                  >
+                    Today
+                  </button>
+
+                  <button
+                    onClick={() => setTimeFilter("7days")}
+                    className={`rounded-full px-3 py-1 text-sm ${
+                      timeFilter === "7days" ? "bg-green-600 text-white" : "border"
+                    }`}
+                  >
+                    7 Days
+                  </button>
+
+                  <button
+                    onClick={() => setTimeFilter("month")}
+                    className={`rounded-full px-3 py-1 text-sm ${
+                      timeFilter === "month" ? "bg-green-600 text-white" : "border"
+                    }`}
+                  >
+                    Month
+                  </button>
+
+                  <button
+                    onClick={() => setTimeFilter("all")}
+                    className={`rounded-full px-3 py-1 text-sm ${
+                      timeFilter === "all" ? "bg-green-600 text-white" : "border"
+                    }`}
+                  >
+                    All
+                  </button>
+                </div>
+
+                {displayedReflections.map((reflection) => (
           <article
             key={reflection.id}
             className="rounded-2xl border bg-gray-50 p-4"

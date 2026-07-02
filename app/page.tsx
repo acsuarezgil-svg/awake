@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { translations, type Language } from "./translations";
+import WordPlayground from "./components/WordPlayground";
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
@@ -243,6 +244,12 @@ export default function Home() {
     ? sortedInvestments
     : sortedInvestments.slice(0, 5);
 
+  const playgroundPatterns =
+  visiblePatterns.length > 0 ? visiblePatterns : patterns.slice(0, 10);
+
+  const playgroundInvestments =
+    visibleInvestments.length > 0 ? visibleInvestments : investments.slice(0, 10);
+
   return (
     <main className="min-h-screen bg-white p-6 w-full max-w-md mx-auto">
       <div className="mb-4 flex justify-end gap-2">
@@ -327,6 +334,12 @@ export default function Home() {
           {getPerspectiveLabel(perspective)}
         </p>
       </section>
+
+      <WordPlayground
+        patterns={playgroundPatterns}
+        investments={playgroundInvestments}
+      />
+
       <div className="rounded-2xl border bg-blue-50 p-4 mb-6">
   <p className="text-sm text-gray-500 mb-2">
     {t.currentDirection}

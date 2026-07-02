@@ -6,16 +6,22 @@ import { translations, type Language } from "../translations";
 type Reflection = {
   id: string;
   date: string;
-  happened: string;
-  feeling: string;
-  seeking: string;
-  action: string;
-  learned: string;
+  mode?: "guided" | "free";
+  text?: string;
+  happened?: string;
+  feeling?: string;
+  seeking?: string;
+  action?: string;
+  learned?: string;
+  updatedAt?: string;
+  favorite?: boolean;
 };
 
 export default function ReflectionPage() {
   const [language, setLanguage] = useState<Language>("en");
   const t = translations[language];
+  const [mode, setMode] = useState<"free" | "guided">("free");
+  const [text, setText] = useState("");
 
   const [happened, setHappened] = useState("");
   const [feeling, setFeeling] = useState("");
@@ -35,15 +41,25 @@ export default function ReflectionPage() {
     const saved = localStorage.getItem("awake-reflections");
     const existingReflections: Reflection[] = saved ? JSON.parse(saved) : [];
 
-    const newReflection: Reflection = {
-      id: crypto.randomUUID(),
-      date: new Date().toISOString(),
-      happened,
-      feeling,
-      seeking,
-      action,
-      learned,
-    };
+    const newReflection: Reflection =
+      mode === "free"
+        ? {
+            id: crypto.randomUUID(),
+            date: new Date().toISOString(),
+            mode: "free",
+            text,
+          }
+        : {
+            id: crypto.randomUUID(),
+            date: new Date().toISOString(),
+            mode: "guided",
+            happened,
+            feeling,
+            seeking,
+            action,
+            learned,
+            
+          };
 
     localStorage.setItem(
       "awake-reflections",
@@ -55,6 +71,7 @@ export default function ReflectionPage() {
     setSeeking("");
     setAction("");
     setLearned("");
+    setText("");
   }
 
   return (
@@ -70,6 +87,42 @@ export default function ReflectionPage() {
       <p className="text-gray-600 mb-8">
         {t.observeChooseActLearn}
       </p>
+
+      <div className="mb-6 flex gap-2">
+        <button
+          type="button"
+          onClick={() => setMode("free")}
+          className={`rounded-full px-4 py-2 text-sm ${
+            mode === "free" ? "bg-black text-white" : "border text-gray-600"
+          }`}
+        >
+          Free Write
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMode("guided")}
+          className={`rounded-full px-4 py-2 text-sm ${
+            mode === "guided" ? "bg-black text-white" : "border text-gray-600"
+          }`}
+        >
+          Guided
+        </button>
+      </div>
+
+      {mode === "free" && (
+          <section className="mb-8">
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Write whatever stayed with you..."
+              className="w-full rounded-2xl border p-4 min-h-64"
+            />
+          </section>
+        )}
+
+        {mode === "guided" && (
+          <>
 
       <section className="mb-6">
         <h2 className="text-xl font-semibold mb-3">
@@ -129,6 +182,8 @@ export default function ReflectionPage() {
           className="w-full rounded-xl border p-3 min-h-24"
         />
       </section>
+      </>
+      )}
 
       <button
         onClick={saveReflection}

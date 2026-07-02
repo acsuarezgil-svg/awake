@@ -6,11 +6,13 @@ import { translations, type Language } from "../translations";
 type Reflection = {
   id: string;
   date: string;
-  happened: string;
-  feeling: string;
-  seeking: string;
-  action: string;
-  learned: string;
+  mode?: "guided" | "free";
+  text?: string;
+  happened?: string;
+  feeling?: string;
+  seeking?: string;
+  action?: string;
+  learned?: string;
   updatedAt?: string;
   favorite?: boolean;
 };
@@ -208,50 +210,66 @@ const displayedReflections = showFavoritesOnly
 
             {editingId === reflection.id && editReflection ? (
               <div className="space-y-3">
-                <input
-                  value={editReflection.happened}
-                  onChange={(e) =>
-                    setEditReflection({ ...editReflection, happened: e.target.value })
-                  }
-                  className="w-full rounded-xl border p-3"
-                  placeholder={t.observe}
-                />
+                {editReflection.mode === "free" ? (
+                  <textarea
+                    value={editReflection.text || ""}
+                    onChange={(e) =>
+                      setEditReflection({
+                        ...editReflection,
+                        text: e.target.value,
+                      })
+                    }
+                    className="min-h-72 w-full rounded-2xl border p-4"
+                    placeholder="Write whatever stayed with you..."
+                  />
+                ) : (
+                  <>
+                    <input
+                      value={editReflection.happened || ""}
+                      onChange={(e) =>
+                        setEditReflection({ ...editReflection, happened: e.target.value })
+                      }
+                      className="w-full rounded-xl border p-3"
+                      placeholder={t.observe}
+                    />
 
-                <input
-                  value={editReflection.feeling}
-                  onChange={(e) =>
-                    setEditReflection({ ...editReflection, feeling: e.target.value })
-                  }
-                  className="w-full rounded-xl border p-3"
-                  placeholder="Feeling"
-                />
+                    <input
+                      value={editReflection.feeling || ""}
+                      onChange={(e) =>
+                        setEditReflection({ ...editReflection, feeling: e.target.value })
+                      }
+                      className="w-full rounded-xl border p-3"
+                      placeholder="Feeling"
+                    />
 
-                <input
-                  value={editReflection.seeking}
-                  onChange={(e) =>
-                    setEditReflection({ ...editReflection, seeking: e.target.value })
-                  }
-                  className="w-full rounded-xl border p-3"
-                  placeholder={t.choose}
-                />
+                    <input
+                      value={editReflection.seeking || ""}
+                      onChange={(e) =>
+                        setEditReflection({ ...editReflection, seeking: e.target.value })
+                      }
+                      className="w-full rounded-xl border p-3"
+                      placeholder={t.choose}
+                    />
 
-                <input
-                  value={editReflection.action}
-                  onChange={(e) =>
-                    setEditReflection({ ...editReflection, action: e.target.value })
-                  }
-                  className="w-full rounded-xl border p-3"
-                  placeholder={t.act}
-                />
+                    <input
+                      value={editReflection.action || ""}
+                      onChange={(e) =>
+                        setEditReflection({ ...editReflection, action: e.target.value })
+                      }
+                      className="w-full rounded-xl border p-3"
+                      placeholder={t.act}
+                    />
 
-                <textarea
-                  value={editReflection.learned}
-                  onChange={(e) =>
-                    setEditReflection({ ...editReflection, learned: e.target.value })
-                  }
-                  className="w-full rounded-xl border p-3"
-                  placeholder={t.learn}
-                />
+                    <textarea
+                      value={editReflection.learned || ""}
+                      onChange={(e) =>
+                        setEditReflection({ ...editReflection, learned: e.target.value })
+                      }
+                      className="w-full rounded-xl border p-3"
+                      placeholder={t.learn}
+                    />
+                  </>
+                )}
 
                 <div className="flex gap-2">
                   <button onClick={saveEdit} className="rounded-xl bg-black px-4 py-2 text-white">
@@ -265,18 +283,29 @@ const displayedReflections = showFavoritesOnly
               </div>
             ) : (
               <>
-                <p className="font-semibold">{t.observe}</p>
-                <p className="mb-2">{reflection.happened}</p>
-                <p className="mb-4 text-gray-700">{reflection.feeling}</p>
+                {reflection.mode === "free" ? (
+                  <>
+                    <p className="font-semibold text-lg">📖 Reflection</p>
+                    <p className="mt-3 whitespace-pre-wrap">
+                      {reflection.text}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-semibold">{t.observe}</p>
+                    <p className="mb-2">{reflection.happened}</p>
+                    <p className="mb-4 text-gray-700">{reflection.feeling}</p>
 
-                <p className="font-semibold">{t.choose}</p>
-                <p className="mb-4">{reflection.seeking}</p>
+                    <p className="font-semibold">{t.choose}</p>
+                    <p className="mb-4">{reflection.seeking}</p>
 
-                <p className="font-semibold">{t.act}</p>
-                <p className="mb-4">{reflection.action}</p>
+                    <p className="font-semibold">{t.act}</p>
+                    <p className="mb-4">{reflection.action}</p>
 
-                <p className="font-semibold">{t.learn}</p>
-                <p>{reflection.learned}</p>
+                    <p className="font-semibold">{t.learn}</p>
+                    <p>{reflection.learned}</p>
+                  </>
+                )}
 
                 {reflection.updatedAt && (
                   <p className="mt-3 text-xs text-gray-400">Edited</p>

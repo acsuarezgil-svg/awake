@@ -25,6 +25,7 @@ export default function ReflectionsPage() {
   const [editReflection, setEditReflection] = useState<Reflection | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [timeFilter, setTimeFilter] = useState("all");
+  const [editText, setEditText] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("awake-reflections");
@@ -45,6 +46,27 @@ export default function ReflectionsPage() {
   function startEdit(reflection: Reflection) {
   setEditingId(reflection.id);
   setEditReflection({ ...reflection });
+
+  if (reflection.mode === "free") {
+    setEditText(reflection.text || "");
+  } else {
+    setEditText(
+      `Observe
+${reflection.happened || ""}
+
+Feeling
+${reflection.feeling || ""}
+
+Choose
+${reflection.seeking || ""}
+
+Act
+${reflection.action || ""}
+
+Learn
+${reflection.learned || ""}`
+    );
+  }
 }
 
 function cancelEdit() {
@@ -60,6 +82,13 @@ function saveEdit() {
       reflection.id === editReflection.id
         ? {
             ...editReflection,
+            mode: "free",
+            text: editText,
+            happened: "",
+            feeling: "",
+            seeking: "",
+            action: "",
+            learned: "",
             updatedAt: new Date().toISOString(),
           }
         : reflection
@@ -67,6 +96,7 @@ function saveEdit() {
   );
 
   cancelEdit();
+  setEditText("");
 }
 
 function toggleFavorite(id: string) {
@@ -210,66 +240,12 @@ const displayedReflections = showFavoritesOnly
 
             {editingId === reflection.id && editReflection ? (
               <div className="space-y-3">
-                {editReflection.mode === "free" ? (
-                  <textarea
-                    value={editReflection.text || ""}
-                    onChange={(e) =>
-                      setEditReflection({
-                        ...editReflection,
-                        text: e.target.value,
-                      })
-                    }
-                    className="min-h-72 w-full rounded-2xl border p-4"
-                    placeholder="Write whatever stayed with you..."
-                  />
-                ) : (
-                  <>
-                    <input
-                      value={editReflection.happened || ""}
-                      onChange={(e) =>
-                        setEditReflection({ ...editReflection, happened: e.target.value })
-                      }
-                      className="w-full rounded-xl border p-3"
-                      placeholder={t.observe}
-                    />
-
-                    <input
-                      value={editReflection.feeling || ""}
-                      onChange={(e) =>
-                        setEditReflection({ ...editReflection, feeling: e.target.value })
-                      }
-                      className="w-full rounded-xl border p-3"
-                      placeholder="Feeling"
-                    />
-
-                    <input
-                      value={editReflection.seeking || ""}
-                      onChange={(e) =>
-                        setEditReflection({ ...editReflection, seeking: e.target.value })
-                      }
-                      className="w-full rounded-xl border p-3"
-                      placeholder={t.choose}
-                    />
-
-                    <input
-                      value={editReflection.action || ""}
-                      onChange={(e) =>
-                        setEditReflection({ ...editReflection, action: e.target.value })
-                      }
-                      className="w-full rounded-xl border p-3"
-                      placeholder={t.act}
-                    />
-
-                    <textarea
-                      value={editReflection.learned || ""}
-                      onChange={(e) =>
-                        setEditReflection({ ...editReflection, learned: e.target.value })
-                      }
-                      className="w-full rounded-xl border p-3"
-                      placeholder={t.learn}
-                    />
-                  </>
-                )}
+                <textarea
+                  value={editText}
+                  onChange={(e) => setEditText(e.target.value)}
+                  className="min-h-80 w-full rounded-2xl border p-4"
+                  placeholder="Write whatever stayed with you..."
+                />
 
                 <div className="flex gap-2">
                   <button onClick={saveEdit} className="rounded-xl bg-black px-4 py-2 text-white">
@@ -286,9 +262,7 @@ const displayedReflections = showFavoritesOnly
                 {reflection.mode === "free" ? (
                   <>
                     <p className="font-semibold text-lg">📖 Reflection</p>
-                    <p className="mt-3 whitespace-pre-wrap">
-                      {reflection.text}
-                    </p>
+                    <p className="mt-3 whitespace-pre-wrap">{reflection.text}</p>
                   </>
                 ) : (
                   <>
@@ -322,7 +296,7 @@ const displayedReflections = showFavoritesOnly
                 </div>
               </>
             )}
-          </article>
+                      </article>
         ))}
       </div>
     </main>

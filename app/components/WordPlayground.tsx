@@ -5,6 +5,10 @@ import { useEffect, useMemo, useState} from "react";
 type WordPlaygroundProps = {
   patterns: string[];
   investments: string[];
+  t: {
+    focusGrows: string;
+    focusGardenDescription: string;
+  };
 };
 
 type Area = "less" | "center" | "more";
@@ -19,6 +23,7 @@ type Word = {
 export default function WordPlayground({
   patterns,
   investments,
+  t,
 }: WordPlaygroundProps) {
   const initialWords = useMemo<Word[]>(() => {
     return [
@@ -62,11 +67,11 @@ export default function WordPlayground({
   return (
     <section className="mb-6 rounded-3xl border bg-green-50/40 p-5">
       <h2 className="text-2xl font-bold text-green-900">
-        🌱 What you focus on grows
+        🌱 {t.focusGrows}
       </h2>
 
       <p className="mt-2 text-sm text-gray-600">
-        Tap a word to move it around your focus.
+        {t.focusGardenDescription}
       </p>
 
       <div className="relative mt-6 min-h-[430px] rounded-3xl bg-white/70 p-4">

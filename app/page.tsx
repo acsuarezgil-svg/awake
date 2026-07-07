@@ -205,14 +205,15 @@ export default function Home() {
   }
 
   function getPerspectiveLabel(value: number) {
-    if (value === 1) return "This Moment";
-    if (value === 2) return "Home";
-    if (value === 3) return "My World";
-    if (value === 4) return "Earth";
-    if (value === 5) return "Moon";
-    if (value === 6) return "Solar System";
-    return "Milky Way";
+    if (value === 1) return t.thisMoment;
+    if (value === 2) return t.home;
+    if (value === 3) return t.myWorld;
+    if (value === 4) return t.earth;
+    if (value === 5) return t.moon;
+    if (value === 6) return t.solarSystem;
+    return t.milkyWay;
   }
+  
 
   function getPerspectiveSize(value: number) {
     return 48 + value * 16;
@@ -300,9 +301,12 @@ export default function Home() {
         </a>
       </section>
       <section className="mt-8 rounded-3xl border bg-gray-50 p-5 text-center">
-        <h2 className="text-xl font-bold">Perspective</h2>
+        <h2 className="text-xl font-bold">
+          🌍 {t.perspective}
+        </h2>
+
         <p className="mt-1 text-sm text-gray-600">
-          Move the slider and notice what changes.
+          {t.perspectiveDescription}
         </p>
 
         <div className="my-6 flex h-40 items-center justify-center">
@@ -326,8 +330,8 @@ export default function Home() {
         />
 
         <div className="mt-3 flex justify-between text-xs text-gray-500">
-          <span>This Moment</span>
-          <span>More Perspective</span>
+          <span>{t.thisMoment}</span>
+          <span>{t.morePerspective}</span>
         </div>
 
         <p className="mt-4 text-sm font-medium text-gray-700">
@@ -338,6 +342,7 @@ export default function Home() {
       <WordPlayground
         patterns={playgroundPatterns}
         investments={playgroundInvestments}
+        t={t}
       />
 
       <div className="rounded-2xl border bg-blue-50 p-4 mb-6">

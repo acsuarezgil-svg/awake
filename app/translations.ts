@@ -75,6 +75,22 @@ export const translations = {
 
     viewDashboard: "View Dashboard",
 
+    perspective: "Perspective",
+    perspectiveDescription: "Move the slider and notice what changes.",
+
+    focusGrows: "What you focus on grows.",
+    focusGardenDescription: "Choose where your attention belongs.",
+
+    thisMoment: "This Moment",
+    morePerspective: "More Perspective",
+
+    home: "Home",
+    myWorld: "My World",
+    earth: "Earth",
+    moon: "Moon",
+    solarSystem: "Solar System",
+    milkyWay: "Milky Way",
+
   },
   es: {
     appName: "Awake",
@@ -135,8 +151,7 @@ export const translations = {
     saveReflection: "Guardar Reflexión",
 
     journeyTitle: "Camino",
-    journeyDescription:
-    "Cosas que observaste, elegiste, hiciste y aprendiste.",
+    journeyDescription: "Cosas que observaste, elegiste, hiciste y aprendiste.",
 
     noReflections: "Aún no hay reflexiones guardadas.",
 
@@ -149,5 +164,22 @@ export const translations = {
     createAwareness: "Crea Tu Conciencia",
 
     viewDashboard: "Ver Panel",
+
+    perspective: "Perspectiva",
+    perspectiveDescription: "Mueve el control y observa cómo cambia tu perspectiva.",
+
+    focusGrows: "En lo que te enfocas, crece.",
+    focusGardenDescription:"Elige dónde quieres poner tu atención.",
+
+    thisMoment: "Este Momento",
+    morePerspective: "Más Perspectiva",
+
+    home: "Hogar",
+    myWorld: "Mi Mundo",
+    earth: "Tierra",
+    moon: "Luna",
+    solarSystem: "Sistema Solar",
+    milkyWay: "Vía Láctea",
+
   },
 };

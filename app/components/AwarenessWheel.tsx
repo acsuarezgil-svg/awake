@@ -103,7 +103,6 @@ export default function AwarenessWheel() {
       type,
       date: new Date().toISOString(),
     };
-<div className="relative mx-auto h-[340px] w-[340px]"></div>
 
     const nextEvents = [nextEvent, ...events];
 
@@ -152,7 +151,7 @@ export default function AwarenessWheel() {
       </div>
 
       <div className="relative mx-auto h-[340px] w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner">
-        <div className="absolute inset-0 animate-pulse rounded-full bg-white/20" />
+        <div className="absolute inset-0 rounded-full bg-white/20" />
         {rippleKey !== null && (
           <div
             key={rippleKey}
@@ -220,7 +219,13 @@ export default function AwarenessWheel() {
             );
           })}
 
-          <circle cx="50" cy="50" r="22" fill="rgba(255,255,255,0.9)" />
+          <circle
+            cx="50"
+            cy="50"
+            r="22"
+            fill="rgba(255,255,255,0.9)"
+            className="origin-center animate-[breathe_7s_ease-in-out_infinite]"
+          />
 
           <text
             x="50"
@@ -258,6 +263,18 @@ export default function AwarenessWheel() {
           </p>
         </div>
       )}
+      <style jsx global>{`
+        @keyframes breathe {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 0.92;
+          }
+          50% {
+            transform: scale(1.035);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </section>
   );
 }

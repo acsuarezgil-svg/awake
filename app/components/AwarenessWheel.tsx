@@ -3,295 +3,264 @@
 import { useEffect, useMemo, useState } from "react";
 
 type Counts = Record<string, number>;
-type ViewRange = "today" | "7days" | "month" | "all";
 
 type NoticeEvent = {
   id: string;
-  item: string;
+  name: string;
   type: "pattern" | "investment";
-  createdAt: string;
+  date: string;
 };
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
 
+const filters = ["Today", "7 Days", "Month", "All"] as const;
+type Filter = (typeof filters)[number];
+
+function isInFilter(dateString: string, filter: Filter) {
+  const eventDate = new Date(dateString);
+  const now = new Date();
+
+  if (filter === "All") return true;
+
+  if (filter === "Today") {
+    return eventDate.toDateString() === now.toDateString();
+  }
+
+  const diffDays =
+    (now.getTime() - eventDate.getTime()) / (1000 * 60 * 60 * 24);
+
+  if (filter === "7 Days") return diffDays <= 7;
+
+  if (filter === "Month") {
+    return (
+      eventDate.getMonth() === now.getMonth() &&
+      eventDate.getFullYear() === now.getFullYear()
+    );
+  }
+
+  return true;
+}
+
 export default function AwarenessWheel() {
   const [counts, setCounts] = useState<Counts>({});
-  const [events, setEvents] = useState<NoticeEvent[]>([]);
   const [patterns, setPatterns] = useState(defaultPatterns);
   const [investments, setInvestments] = useState(defaultInvestments);
+  const [events, setEvents] = useState<NoticeEvent[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Filter>("Today");
   const [message, setMessage] = useState("");
-  const [selectedItem, setSelectedItem] = useState<string | null>(null);
-  const [viewRange, setViewRange] = useState<ViewRange>("today");
-  const [showAllPatterns, setShowAllPatterns] = useState(false);
-  const [showAllInvestments, setShowAllInvestments] = useState(false);
 
   useEffect(() => {
-    const savedCounts = localStorage.getItem("awake-counts");
-    const savedEvents = localStorage.getItem("awake-notice-events");
-    const savedPatterns = localStorage.getItem("awake-patterns");
-    const savedInvestments = localStorage.getItem("awake-investments");
-
-    if (savedCounts) setCounts(JSON.parse(savedCounts));
-    if (savedEvents) setEvents(JSON.parse(savedEvents));
-    if (savedPatterns) setPatterns(JSON.parse(savedPatterns));
-    if (savedInvestments) setInvestments(JSON.parse(savedInvestments));
+    setCounts(JSON.parse(localStorage.getItem("awake-counts") || "{}"));
+    setPatterns(
+      JSON.parse(localStorage.getItem("awake-patterns") || "null") ||
+        defaultPatterns
+    );
+    setInvestments(
+      JSON.parse(localStorage.getItem("awake-investments") || "null") ||
+        defaultInvestments
+    );
+    setEvents(JSON.parse(localStorage.getItem("awake-notice-events") || "[]"));
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("awake-counts", JSON.stringify(counts));
-  }, [counts]);
+  const filteredEvents = useMemo(
+    () => events.filter((event) => isInFilter(event.date, filter)),
+    [events, filter]
+  );
 
-  useEffect(() => {
-    localStorage.setItem("awake-notice-events", JSON.stringify(events));
-  }, [events]);
+  const wheelItems = useMemo(() => {
+    const allItems = [
+      ...patterns.map((name) => ({ name, type: "pattern" as const })),
+      ...investments.map((name) => ({ name, type: "investment" as const })),
+    ];
 
-  function isInRange(dateString: string) {
-    if (viewRange === "all") return true;
+    return allItems.map((item) => {
+      const count = filteredEvents.filter(
+        (event) => event.name === item.name && event.type === item.type
+      ).length;
 
-    const created = new Date(dateString);
-    const now = new Date();
-
-    if (viewRange === "today") {
-      return created.toDateString() === now.toDateString();
-    }
-
-    const daysAgo = new Date();
-    daysAgo.setDate(now.getDate() - (viewRange === "7days" ? 7 : 30));
-
-    return created >= daysAgo;
-  }
-
-  const filteredCounts = useMemo(() => {
-    const nextCounts: Counts = {};
-
-    events.filter((event) => isInRange(event.createdAt)).forEach((event) => {
-      nextCounts[event.item] = (nextCounts[event.item] || 0) + 1;
+      return {
+        ...item,
+        count,
+        value: Math.max(count, 1),
+      };
     });
+  }, [patterns, investments, filteredEvents]);
 
-    return nextCounts;
-  }, [events, viewRange]);
+  const totalValue = wheelItems.reduce((sum, item) => sum + item.value, 0);
 
-  function notice(item: string, type: "pattern" | "investment") {
-    setCounts((current) => ({
-      ...current,
-      [item]: (current[item] || 0) + 1,
-    }));
+  function notice(name: string, type: "pattern" | "investment") {
+    const nextCounts = {
+      ...counts,
+      [name]: (counts[name] || 0) + 1,
+    };
 
-    setEvents((current) => [
-      ...current,
-      {
-        id: crypto.randomUUID(),
-        item,
-        type,
-        createdAt: new Date().toISOString(),
-      },
-    ]);
+    const nextEvent: NoticeEvent = {
+      id: crypto.randomUUID(),
+      name,
+      type,
+      date: new Date().toISOString(),
+    };
 
-    setSelectedItem(item);
-    setMessage("Noticed.");
+    const nextEvents = [nextEvent, ...events];
 
-    setTimeout(() => {
-      setMessage("");
-    }, 1200);
+    setCounts(nextCounts);
+    setEvents(nextEvents);
+    setSelected(name);
+    setMessage(`Noticed ${name}`);
+
+    localStorage.setItem("awake-counts", JSON.stringify(nextCounts));
+    localStorage.setItem("awake-notice-events", JSON.stringify(nextEvents));
+
+    setTimeout(() => setMessage(""), 1400);
   }
 
-  const sortedPatterns = [...patterns].sort(
-    (a, b) => (filteredCounts[b] || 0) - (filteredCounts[a] || 0)
-  );
-
-  const sortedInvestments = [...investments].sort(
-    (a, b) => (filteredCounts[b] || 0) - (filteredCounts[a] || 0)
-  );
-
-  const visiblePatterns = showAllPatterns
-    ? sortedPatterns
-    : sortedPatterns.slice(0, 4);
-
-  const visibleInvestments = showAllInvestments
-    ? sortedInvestments
-    : sortedInvestments.slice(0, 4);
-
-  const wheelItems = [
-    ...visiblePatterns.map((item) => ({
-      name: item,
-      type: "pattern" as const,
-    })),
-    ...visibleInvestments.map((item) => ({
-      name: item,
-      type: "investment" as const,
-    })),
-  ];
-
-  const radius = 125;
-
-  const selectedCount = selectedItem ? filteredCounts[selectedItem] || 0 : 0;
+  let currentAngle = 0;
 
   return (
-    <section className="rounded-3xl border bg-gradient-to-br from-rose-50 via-white to-emerald-50 p-6 shadow-sm">
-      <h1 className="mb-2 text-3xl font-bold">Awareness Wheel</h1>
+    <section className="mx-auto max-w-4xl px-4 py-8 text-center">
+      <div className="mb-6">
+        <p className="text-sm uppercase tracking-[0.3em] text-stone-400">
+          Awareness Wheel
+        </p>
+        <h1 className="mt-2 text-3xl font-light text-stone-800">
+          This moment has information.
+        </h1>
+        <p className="mt-3 text-sm text-stone-500">
+          Tap what you notice. No judgment. Just awareness.
+        </p>
+      </div>
 
-      <p className="mb-6 text-gray-600">
-        What is taking space in this moment?
-      </p>
-
-      <div className="mb-6 flex flex-wrap gap-2">
-        {[
-          ["today", "Today"],
-          ["7days", "7 Days"],
-          ["month", "Month"],
-          ["all", "All"],
-        ].map(([value, label]) => (
+      <div className="mb-6 flex justify-center gap-2">
+        {filters.map((item) => (
           <button
-            key={value}
-            onClick={() => setViewRange(value as ViewRange)}
+            key={item}
+            onClick={() => setFilter(item)}
             className={`rounded-full px-4 py-2 text-sm transition ${
-              viewRange === value
-                ? "bg-white shadow text-gray-800"
-                : "bg-white/50 text-gray-500"
+              filter === item
+                ? "bg-stone-800 text-white"
+                : "bg-white text-stone-500 shadow-sm"
             }`}
           >
-            {label}
+            {item}
           </button>
         ))}
       </div>
 
-      <div className="relative mx-auto mb-8 h-80 w-80 rounded-full bg-gradient-to-br from-rose-100 via-yellow-50 to-emerald-100 shadow-inner">
-        <div className="absolute inset-6 rounded-full border border-white/70" />
-        <div className="absolute inset-12 rounded-full border border-white/60" />
-        <div className="absolute inset-20 rounded-full border border-white/50" />
+      <div className="relative mx-auto h-[340px] w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner">
+        <div className="absolute inset-0 animate-pulse rounded-full bg-white/20" />
 
-        {wheelItems.map((item, index) => {
-          const angle = (index / wheelItems.length) * 2 * Math.PI - Math.PI / 2;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
+        <svg viewBox="0 0 100 100" className="relative h-full w-full">
+          {wheelItems.map((item) => {
+            const sliceAngle = (item.value / totalValue) * 360;
+            const startAngle = currentAngle;
+            const endAngle = currentAngle + sliceAngle;
+            currentAngle = endAngle;
 
-          return (
-            <button
-              key={`${item.type}-${item.name}`}
-              onClick={() => notice(item.name, item.type)}
-              className={`absolute rounded-full px-3 py-2 text-xs shadow-sm transition active:scale-95 ${
-                item.type === "pattern"
-                  ? "bg-rose-50 text-rose-800"
-                  : "bg-emerald-50 text-emerald-800"
-              }`}
-              style={{
-                left: `calc(50% + ${x}px)`,
-                top: `calc(50% + ${y}px)`,
-                transform: "translate(-50%, -50%)",
-              }}
-            >
-              {item.name}
-            </button>
-          );
-        })}
+            const largeArc = sliceAngle > 180 ? 1 : 0;
 
-        <div className="absolute left-1/2 top-1/2 z-10 flex h-28 w-28 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-center font-semibold text-gray-700 shadow">
-          This Moment
-        </div>
+            const startOuter = polarToCartesian(50, 50, 48, endAngle);
+            const endOuter = polarToCartesian(50, 50, 48, startAngle);
+            const startInner = polarToCartesian(50, 50, 25, endAngle);
+            const endInner = polarToCartesian(50, 50, 25, startAngle);
 
-        {message && (
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 rounded-full bg-white/90 px-4 py-2 text-sm text-gray-600 shadow">
-            {message}
-          </div>
-        )}
+            const path = [
+              `M ${startOuter.x} ${startOuter.y}`,
+              `A 48 48 0 ${largeArc} 0 ${endOuter.x} ${endOuter.y}`,
+              `L ${endInner.x} ${endInner.y}`,
+              `A 25 25 0 ${largeArc} 1 ${startInner.x} ${startInner.y}`,
+              "Z",
+            ].join(" ");
+
+            const midAngle = startAngle + sliceAngle / 2;
+            const label = polarToCartesian(50, 50, 38, midAngle);
+
+            const fill =
+              item.type === "pattern"
+                ? "rgba(251, 113, 133, 0.45)"
+                : "rgba(52, 211, 153, 0.45)";
+
+            return (
+              <g
+                key={`${item.type}-${item.name}`}
+                onClick={() => notice(item.name, item.type)}
+                className="cursor-pointer transition hover:opacity-80"
+              >
+                <path
+                  d={path}
+                  fill={fill}
+                  stroke="rgba(255,255,255,0.8)"
+                  strokeWidth="0.8"
+                />
+
+                <text
+                  x={label.x}
+                  y={label.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="pointer-events-none fill-stone-700 text-[3px]"
+                >
+                  {item.name.length > 10
+                    ? `${item.name.slice(0, 9)}…`
+                    : item.name}
+                </text>
+              </g>
+            );
+          })}
+
+          <circle cx="50" cy="50" r="22" fill="rgba(255,255,255,0.9)" />
+
+          <text
+            x="50"
+            y="47"
+            textAnchor="middle"
+            className="fill-stone-700 text-[4px] font-light"
+          >
+            This
+          </text>
+          <text
+            x="50"
+            y="53"
+            textAnchor="middle"
+            className="fill-stone-700 text-[4px] font-light"
+          >
+            Moment
+          </text>
+        </svg>
       </div>
 
-      {selectedItem && (
-        <div className="mb-6 rounded-2xl border bg-white/80 p-4 shadow-sm">
-          <p className="text-sm text-gray-500">Recently noticed</p>
-          <p className="mt-1 text-xl font-semibold text-gray-800">
-            {selectedItem}
+      {message && (
+        <p className="mt-5 text-sm text-stone-500 transition">{message}</p>
+      )}
+
+      {selected && (
+        <div className="mx-auto mt-8 max-w-md rounded-3xl bg-white/80 p-6 text-left shadow-sm">
+          <p className="text-xs uppercase tracking-[0.25em] text-stone-400">
+            Noticed
           </p>
-          <p className="mt-1 text-sm text-gray-600">
-            Seen {selectedCount} {selectedCount === 1 ? "time" : "times"} in this view.
-          </p>
-          <p className="mt-3 text-sm text-gray-500">
-            What helped create a little more space?
+          <h2 className="mt-2 text-2xl font-light text-stone-800">
+            {selected}
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-stone-500">
+            This is not a score. It is simply something your awareness touched.
           </p>
         </div>
       )}
-
-      <div className="grid gap-4">
-        <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
-          <p className="mb-3 font-semibold text-rose-700">
-            Soft Coral · Patterns
-          </p>
-
-          <div className="flex flex-wrap gap-2">
-            {visiblePatterns.map((item) => (
-              <button
-                key={item}
-                onClick={() => notice(item, "pattern")}
-                className="rounded-full bg-white px-4 py-2 text-sm shadow-sm"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          {sortedPatterns.length > 4 && (
-            <button
-              onClick={() => setShowAllPatterns(!showAllPatterns)}
-              className="mt-3 text-sm text-rose-700"
-            >
-              {showAllPatterns ? "Show top" : "View all patterns"}
-            </button>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-          <p className="mb-3 font-semibold text-emerald-700">
-            Soft Green · Investments
-          </p>
-
-          <div className="flex flex-wrap gap-2">
-            {visibleInvestments.map((item) => (
-              <button
-                key={item}
-                onClick={() => notice(item, "investment")}
-                className="rounded-full bg-white px-4 py-2 text-sm shadow-sm"
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          {sortedInvestments.length > 4 && (
-            <button
-              onClick={() => setShowAllInvestments(!showAllInvestments)}
-              className="mt-3 text-sm text-emerald-700"
-            >
-              {showAllInvestments ? "Show top" : "View all investments"}
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="mt-6 rounded-2xl border bg-white/80 p-4">
-        <p className="mb-2 text-sm text-gray-500">
-          {viewRange === "today"
-            ? "Today"
-            : viewRange === "7days"
-            ? "Last 7 days"
-            : viewRange === "month"
-            ? "Last month"
-            : "All time"}
-        </p>
-
-        <p className="text-sm">
-          Patterns:{" "}
-          {patterns.reduce((sum, item) => sum + (filteredCounts[item] || 0), 0)}
-        </p>
-
-        <p className="text-sm">
-          Investments:{" "}
-          {investments.reduce(
-            (sum, item) => sum + (filteredCounts[item] || 0),
-            0
-          )}
-        </p>
-      </div>
     </section>
   );
+}
+
+function polarToCartesian(
+  centerX: number,
+  centerY: number,
+  radius: number,
+  angleInDegrees: number
+) {
+  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180;
+
+  return {
+    x: centerX + radius * Math.cos(angleInRadians),
+    y: centerY + radius * Math.sin(angleInRadians),
+  };
 }

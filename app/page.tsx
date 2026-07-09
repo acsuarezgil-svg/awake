@@ -592,6 +592,12 @@ export default function Home() {
       >
         {t.direction}
       </a>
+      <a
+        href="/wheel"
+        className="mt-3 block w-full rounded-2xl border p-4 text-center font-semibold"
+      >
+        🌿 Awareness Wheel
+      </a>
 
     </main>
   );

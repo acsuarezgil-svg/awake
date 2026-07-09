@@ -50,6 +50,7 @@ export default function AwarenessWheel() {
   const [selected, setSelected] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("Today");
   const [message, setMessage] = useState("");
+  const [rippleKey, setRippleKey] = useState(0);
 
   useEffect(() => {
     setCounts(JSON.parse(localStorage.getItem("awake-counts") || "{}"));
@@ -102,12 +103,14 @@ export default function AwarenessWheel() {
       type,
       date: new Date().toISOString(),
     };
+<div className="relative mx-auto h-[340px] w-[340px]"></div>
 
     const nextEvents = [nextEvent, ...events];
 
     setCounts(nextCounts);
     setEvents(nextEvents);
     setSelected(name);
+    setRippleKey((k) => k + 1);
     setMessage(`Noticed ${name}`);
 
     localStorage.setItem("awake-counts", JSON.stringify(nextCounts));
@@ -150,6 +153,12 @@ export default function AwarenessWheel() {
 
       <div className="relative mx-auto h-[340px] w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner">
         <div className="absolute inset-0 animate-pulse rounded-full bg-white/20" />
+        <div
+          key={rippleKey}
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+        >
+          <div className="ripple-circle" />
+        </div>
 
         <svg viewBox="0 0 100 100" className="relative h-full w-full">
           {wheelItems.map((item) => {

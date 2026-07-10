@@ -84,7 +84,7 @@ export default function AwarenessWheel() {
       return {
         ...item,
         count,
-        value: Math.max(count, 1),
+        value: count === 0 ? 1 : Math.min(1 + Math.sqrt(count), 5),
       };
     });
   }, [patterns, investments, filteredEvents]);
@@ -150,7 +150,7 @@ export default function AwarenessWheel() {
         ))}
       </div>
 
-      <div className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner">
+      <div className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner sm:max-w-[460px] md:max-w-[520px]">
         <div className="absolute inset-0 rounded-full bg-white/20" />
         {rippleKey !== null && (
           <div
@@ -213,8 +213,8 @@ export default function AwarenessWheel() {
                     dominantBaseline="middle"
                     className="pointer-events-none fill-stone-700 text-[3px]"
                   >
-                    {item.name.length > 10
-                      ? `${item.name.slice(0, 9)}…`
+                    {item.name.length > 12
+                      ? `${item.name.slice(0, 11)}…`
                       : item.name}
                   </text>
                 )}
@@ -248,6 +248,14 @@ export default function AwarenessWheel() {
           </text>
         </svg>
       </div>
+
+      <Link
+        href="/direction"
+        className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-stone-500 transition hover:bg-white/70 hover:text-stone-700"
+      >
+        <span aria-hidden="true">✦</span>
+        Shape your wheel
+      </Link>
 
       {message && (
         <p className="mt-5 text-sm text-stone-500 transition">{message}</p>

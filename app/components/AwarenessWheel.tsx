@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type Counts = Record<string, number>;
@@ -275,7 +276,7 @@ export default function AwarenessWheel() {
         </div>
       )}
       <style jsx global>{`
-        @keyframes breathe {
+        @keyframes awake-breathe {
           0%,
            100% {
             transform: scale(1);
@@ -299,7 +300,6 @@ export default function AwarenessWheel() {
             animation: none;
           }
         }
-
       `}</style>
     </section>
   );

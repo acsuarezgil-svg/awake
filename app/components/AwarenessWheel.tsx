@@ -150,7 +150,7 @@ export default function AwarenessWheel() {
         ))}
       </div>
 
-      <div className="relative mx-auto h-[340px] w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner">
+      <div className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner">
         <div className="absolute inset-0 rounded-full bg-white/20" />
         {rippleKey !== null && (
           <div
@@ -185,12 +185,13 @@ export default function AwarenessWheel() {
 
             const midAngle = startAngle + sliceAngle / 2;
             const label = polarToCartesian(50, 50, 38, midAngle);
+            const showLabel = sliceAngle >= 18;
 
             const fill =
               item.type === "pattern"
                 ? "rgba(251, 113, 133, 0.45)"
                 : "rgba(52, 211, 153, 0.45)";
-
+            
             return (
               <g
                 key={`${item.type}-${item.name}`}
@@ -204,17 +205,19 @@ export default function AwarenessWheel() {
                   strokeWidth="0.8"
                 />
 
-                <text
-                  x={label.x}
-                  y={label.y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="pointer-events-none fill-stone-700 text-[3px]"
-                >
-                  {item.name.length > 10
-                    ? `${item.name.slice(0, 9)}…`
-                    : item.name}
-                </text>
+                {showLabel && (
+                  <text
+                    x={label.x}
+                    y={label.y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="pointer-events-none fill-stone-700 text-[3px]"
+                  >
+                    {item.name.length > 10
+                      ? `${item.name.slice(0, 9)}…`
+                      : item.name}
+                  </text>
+                )}
               </g>
             );
           })}
@@ -268,11 +271,11 @@ export default function AwarenessWheel() {
           0%,
            100% {
             transform: scale(1);
-            opacity: 0.92;
+            opacity: 0.9;
           }
           
           50% {
-            transform: scale(1.035);
+            transform: scale(1.075);
             opacity: 1;
           }
         }
@@ -288,7 +291,7 @@ export default function AwarenessWheel() {
             animation: none;
           }
         }
-          
+
       `}</style>
     </section>
   );

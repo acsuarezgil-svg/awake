@@ -224,7 +224,7 @@ export default function AwarenessWheel() {
             cy="50"
             r="22"
             fill="rgba(255,255,255,0.9)"
-            className="origin-center animate-[breathe_7s_ease-in-out_infinite]"
+            className="awake-breathe"
           />
 
           <text
@@ -265,15 +265,30 @@ export default function AwarenessWheel() {
       )}
       <style jsx global>{`
         @keyframes breathe {
-          0%, 100% {
+          0%,
+           100% {
             transform: scale(1);
             opacity: 0.92;
           }
+          
           50% {
             transform: scale(1.035);
             opacity: 1;
           }
         }
+
+        .awake-breathe {
+          animation: awake-breathe 7s ease-in-out infinite;
+          transform-box: fill-box;
+          transform-origin: center;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .awake-breathe {
+            animation: none;
+          }
+        }
+          
       `}</style>
     </section>
   );

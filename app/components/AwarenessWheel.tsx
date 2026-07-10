@@ -12,6 +12,11 @@ type NoticeEvent = {
   date: string;
 };
 
+type PendingSelection = {
+  name: string;
+  type: "pattern" | "investment";
+};
+
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
 
@@ -52,6 +57,8 @@ export default function AwarenessWheel() {
   const [filter, setFilter] = useState<Filter>("Today");
   const [message, setMessage] = useState("");
   const [rippleKey, setRippleKey] = useState<number | null>(null);
+  const [pendingSelection, setPendingSelection] =
+  useState<PendingSelection | null>(null);
 
   useEffect(() => {
     setCounts(JSON.parse(localStorage.getItem("awake-counts") || "{}"));
@@ -110,6 +117,7 @@ export default function AwarenessWheel() {
     setCounts(nextCounts);
     setEvents(nextEvents);
     setSelected(name);
+    setPendingSelection(null);
     setRippleKey((k) => (k ?? 0) + 1);
     setMessage(`Noticed ${name}`);
 
@@ -117,6 +125,27 @@ export default function AwarenessWheel() {
     localStorage.setItem("awake-notice-events", JSON.stringify(nextEvents));
 
     setTimeout(() => setMessage(""), 1400);
+  }
+
+  function handleSliceTap(
+    name: string,
+    type: "pattern" | "investment",
+    hasVisibleLabel: boolean
+  ) {
+    if (hasVisibleLabel) {
+      notice(name, type);
+      return;
+    }
+
+    const isAlreadyPending =
+      pendingSelection?.name === name && pendingSelection?.type === type;
+
+    if (isAlreadyPending) {
+      notice(name, type);
+      return;
+    }
+
+    setPendingSelection({ name, type });
   }
 
   let currentAngle = 0;
@@ -151,7 +180,7 @@ export default function AwarenessWheel() {
         ))}
       </div>
 
-      <div className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner sm:max-w-[460px] md:max-w-[520px]">
+      <div className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner sm:max-w-[480px] md:max-w-[620px]">
         <div className="absolute inset-0 rounded-full bg-white/20" />
         {rippleKey !== null && (
           <div
@@ -187,6 +216,9 @@ export default function AwarenessWheel() {
             const midAngle = startAngle + sliceAngle / 2;
             const label = polarToCartesian(50, 50, 38, midAngle);
             const showLabel = sliceAngle >= 18;
+            const isPending =
+              pendingSelection?.name === item.name &&
+              pendingSelection?.type === item.type;
 
             const fill =
               item.type === "pattern"
@@ -196,14 +228,19 @@ export default function AwarenessWheel() {
             return (
               <g
                 key={`${item.type}-${item.name}`}
-                onClick={() => notice(item.name, item.type)}
+                onClick={() => handleSliceTap(item.name, item.type, showLabel)}
                 className="cursor-pointer transition hover:opacity-80"
               >
                 <path
                   d={path}
                   fill={fill}
-                  stroke="rgba(255,255,255,0.8)"
-                  strokeWidth="0.8"
+                  stroke={
+                    isPending
+                      ? "rgba(120, 113, 108, 0.9)"
+                      : "rgba(255,255,255,0.8)"
+                  }
+                  strokeWidth={isPending ? "1.5" : "0.8"}
+                  opacity={isPending ? 1 : 0.92}
                 />
 
                 {showLabel && (
@@ -227,8 +264,17 @@ export default function AwarenessWheel() {
             cx="50"
             cy="50"
             r="22"
+            fill="none"
+            stroke="rgba(167, 243, 208, 0.7)"
+            strokeWidth="1.2"
+            className="awake-breathe-halo"
+          />
+
+          <circle
+            cx="50"
+            cy="50"
+            r="22"
             fill="rgba(255,255,255,0.9)"
-            className="awake-breathe"
           />
 
           <text
@@ -250,6 +296,20 @@ export default function AwarenessWheel() {
         </svg>
       </div>
 
+      {pendingSelection && (
+        <div className="mx-auto mt-3 max-w-sm rounded-2xl bg-white/85 px-4 py-3 text-sm text-stone-600 shadow-sm">
+          <p>
+            This slice is{" "}
+            <span className="font-medium text-stone-800">
+              {pendingSelection.name}
+            </span>
+          </p>
+          <p className="mt-1 text-xs text-stone-400">
+            Tap the same slice again to notice it.
+          </p>
+        </div>
+      )}
+
       <Link
         href="/direction"
         className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-stone-500 transition hover:bg-white/70 hover:text-stone-700"
@@ -259,7 +319,9 @@ export default function AwarenessWheel() {
       </Link>
 
       {message && (
-        <p className="mt-5 text-sm text-stone-500 transition">{message}</p>
+        <p className="sr-only" aria-live="polite">
+          {message}
+        </p>
       )}
 
       {selected && (
@@ -280,23 +342,23 @@ export default function AwarenessWheel() {
           0%,
            100% {
             transform: scale(1);
-            opacity: 0.9;
+            opacity: 0.55;
           }
           
           50% {
-            transform: scale(1.075);
-            opacity: 1;
+            transform: scale(1.16);
+            opacity: 0.12;
           }
         }
 
-        .awake-breathe {
-          animation: awake-breathe 7s ease-in-out infinite;
+        .awake-breathe-halo {
+          animation: awake-breathe-halo 6.5s ease-in-out infinite;
           transform-box: fill-box;
           transform-origin: center;
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .awake-breathe {
+          .awake-breathe-halo {
             animation: none;
           }
         }

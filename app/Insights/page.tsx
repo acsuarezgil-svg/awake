@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { translations, type Language } from "./translations";
-import WordPlayground from "./components/WordPlayground";
+import { translations, type Language } from "../translations";
+import WordPlayground from "../components/WordPlayground";
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];

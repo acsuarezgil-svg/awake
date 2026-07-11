@@ -349,7 +349,7 @@ export default function AwarenessWheel() {
           }
           
           50% {
-            transform: scale(1.16);
+            transform: scale(1.20);
             opacity: 0.12;
           }
         }

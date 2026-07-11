@@ -22,6 +22,7 @@ export default function ReflectionPage() {
   const t = translations[language];
   const [mode, setMode] = useState<"free" | "guided">("free");
   const [text, setText] = useState("");
+  const [question, setQuestion] = useState("");
 
   const [happened, setHappened] = useState("");
   const [feeling, setFeeling] = useState("");
@@ -30,15 +31,52 @@ export default function ReflectionPage() {
   const [learned, setLearned] = useState("");
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem("awake-language") as Language | null;
+    const savedLanguage = localStorage.getItem(
+      "awake-language"
+    ) as Language | null;
 
     if (savedLanguage) {
       setLanguage(savedLanguage);
     }
   }, []);
 
+  function chooseQuestion() {
+    const questions = t.reflectionQuestions;
+
+    if (!questions || questions.length === 0) {
+      setQuestion("");
+      return;
+    }
+
+    setQuestion((currentQuestion) => {
+      const otherQuestions = questions.filter(
+        (item) => item !== currentQuestion
+      );
+
+      const availableQuestions =
+        otherQuestions.length > 0 ? otherQuestions : questions;
+
+      return availableQuestions[
+        Math.floor(Math.random() * availableQuestions.length)
+      ];
+    });
+  }
+
+  useEffect(() => {
+    chooseQuestion();
+  }, [language]);
+
   function saveReflection() {
-    const saved = localStorage.getItem("awake-reflections");
+  const hasContent =
+    mode === "free"
+      ? text.trim().length > 0
+      : [happened, feeling, seeking, action, learned].some(
+          (value) => value.trim().length > 0
+        );
+
+  if (!hasContent) return;
+
+  const saved = localStorage.getItem("awake-reflections");
     const existingReflections: Reflection[] = saved ? JSON.parse(saved) : [];
 
     const newReflection: Reflection =
@@ -84,9 +122,29 @@ export default function ReflectionPage() {
         {t.newReflection}
       </h1>
 
-      <p className="text-gray-600 mb-8">
+      <p className="text-gray-600 mb-6">
         {t.observeChooseActLearn}
       </p>
+
+      {question && (
+        <section className="mb-6 rounded-3xl bg-stone-50 px-5 py-5">
+          <p className="text-xs uppercase tracking-[0.2em] text-stone-400">
+            A question for this moment
+          </p>
+
+          <p className="mt-3 text-lg font-light leading-7 text-stone-700">
+            “{question}”
+          </p>
+
+          <button
+            type="button"
+            onClick={chooseQuestion}
+            className="mt-4 text-sm text-stone-400 transition hover:text-stone-700"
+          >
+            Another question
+          </button>
+        </section>
+      )}
 
       <div className="mb-6 flex gap-2">
         <button

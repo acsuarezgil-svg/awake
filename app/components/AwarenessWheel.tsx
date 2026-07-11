@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Counts = Record<string, number>;
 
@@ -85,7 +85,15 @@ export default function AwarenessWheel() {
   const [rippleKey, setRippleKey] = useState<number | null>(null);
   const [wheelTheme, setWheelTheme] = useState<WheelTheme>("roseSage");
   const [pendingSelection, setPendingSelection] =
-    useState<PendingSelection | null>(null);
+  useState<PendingSelection | null>(null);
+
+  const [wheelRotation, setWheelRotation] = useState(0);
+
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const dragStartAngleRef = useRef<number | null>(null);
+  const dragStartRotationRef = useRef(0);
+  const hasDraggedRef = useRef(false);
+  const suppressClickRef = useRef(false);
 
   useEffect(() => {
     setCounts(JSON.parse(localStorage.getItem("awake-counts") || "{}"));
@@ -165,7 +173,11 @@ export default function AwarenessWheel() {
       type: "pattern" | "investment",
       hasVisibleLabel: boolean
     ) {
-      if (hasVisibleLabel) {
+      if (suppressClickRef.current) {
+        return;
+      }
+
+      if (hasVisibleLabel) { 
         notice(name, type);
         return;
       }
@@ -184,6 +196,74 @@ export default function AwarenessWheel() {
     function changeWheelTheme(nextTheme: WheelTheme) {
       setWheelTheme(nextTheme);
       localStorage.setItem("awake-wheel-theme", nextTheme);
+    }
+
+    function getPointerAngle(clientX: number, clientY: number) {
+      const svg = svgRef.current;
+
+      if (!svg) return 0;
+
+      const rect = svg.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      return (
+        Math.atan2(clientY - centerY, clientX - centerX) *
+        (180 / Math.PI)
+      );
+    }
+
+    function handleWheelPointerDown(
+      event: React.PointerEvent<SVGSVGElement>
+    ) {
+      event.currentTarget.setPointerCapture(event.pointerId);
+
+      dragStartAngleRef.current = getPointerAngle(
+        event.clientX,
+        event.clientY
+      );
+
+      dragStartRotationRef.current = wheelRotation;
+      hasDraggedRef.current = false;
+      suppressClickRef.current = false;
+    }
+
+    function handleWheelPointerMove(
+      event: React.PointerEvent<SVGSVGElement>
+    ) {
+      if (dragStartAngleRef.current === null) return;
+
+      const currentPointerAngle = getPointerAngle(
+        event.clientX,
+        event.clientY
+      );
+
+      const angleDifference =
+        currentPointerAngle - dragStartAngleRef.current;
+
+      if (Math.abs(angleDifference) > 3) {
+        hasDraggedRef.current = true;
+        setPendingSelection(null);
+      }
+
+      setWheelRotation(
+        dragStartRotationRef.current + angleDifference
+      );
+    }
+
+    function handleWheelPointerEnd(
+      event: React.PointerEvent<SVGSVGElement>
+    ) {
+      suppressClickRef.current = hasDraggedRef.current;
+      dragStartAngleRef.current = null;
+
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, 0);
     }
 
     const activeWheelTheme = wheelThemes[wheelTheme];
@@ -268,8 +348,18 @@ export default function AwarenessWheel() {
           </div>
         )}
 
-        <svg viewBox="0 0 100 100" className="relative h-full w-full">
-          {wheelItems.map((item) => {
+        <svg
+          ref={svgRef}
+          viewBox="0 0 100 100"
+          className="relative h-full w-full cursor-grab active:cursor-grabbing"
+          style={{ touchAction: "none" }}
+          onPointerDown={handleWheelPointerDown}
+          onPointerMove={handleWheelPointerMove}
+          onPointerUp={handleWheelPointerEnd}
+          onPointerCancel={handleWheelPointerEnd}
+        >
+          <g transform={`rotate(${wheelRotation} 50 50)`}>
+            {wheelItems.map((item) => {
             const sliceAngle = (item.value / totalValue) * 360;
             const startAngle = currentAngle;
             const endAngle = currentAngle + sliceAngle;
@@ -337,18 +427,16 @@ export default function AwarenessWheel() {
               </g>
             );
           })}
+        </g>
 
           <circle
             cx="50"
             cy="50"
             r="22"
             fill="rgba(255,255,255,0.9)"
-            className="animate-[breathe_7s_ease-in-out_infinite]"
-            style={{
-              transformOrigin: "50px 50px",
-              transformBox: "view-box",
-            }}
+            className="awake-breathe-halo"
           />
+          
 
           <circle
             cx="50"

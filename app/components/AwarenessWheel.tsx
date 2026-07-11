@@ -88,8 +88,10 @@ export default function AwarenessWheel() {
   useState<PendingSelection | null>(null);
 
   const [wheelRotation, setWheelRotation] = useState(0);
+  const [isAutoCentering, setIsAutoCentering] = useState(false);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const autoCenterTimeoutRef = useRef<number | null>(null);
   const dragStartAngleRef = useRef<number | null>(null);
   const dragStartRotationRef = useRef(0);
   const hasDraggedRef = useRef(false);
@@ -112,6 +114,13 @@ export default function AwarenessWheel() {
     if (savedWheelTheme && savedWheelTheme in wheelThemes) {
       setWheelTheme(savedWheelTheme as WheelTheme);
     }
+    }, []);
+    useEffect(() => {
+      return () => {
+        if (autoCenterTimeoutRef.current !== null) {
+          window.clearTimeout(autoCenterTimeoutRef.current);
+        }
+      };
     }, []);
 
   const filteredEvents = useMemo(
@@ -140,6 +149,54 @@ export default function AwarenessWheel() {
 
   const totalValue = wheelItems.reduce((sum, item) => sum + item.value, 0);
 
+  function getSliceMidAngle(
+    name: string,
+    type: "pattern" | "investment"
+  ) {
+    let angle = 0;
+
+    for (const item of wheelItems) {
+      const sliceAngle = (item.value / totalValue) * 360;
+      const midAngle = angle + sliceAngle / 2;
+
+      if (item.name === name && item.type === type) {
+        return midAngle;
+      }
+
+      angle += sliceAngle;
+    }
+
+    return null;
+  }
+
+  function normalizeAngle(angle: number) {
+    return ((angle + 180) % 360 + 360) % 360 - 180;
+  }
+
+  function centerSelectedSlice(
+    name: string,
+    type: "pattern" | "investment"
+  ) {
+    const midAngle = getSliceMidAngle(name, type);
+
+    if (midAngle === null) return;
+
+    const displayedMidAngle = midAngle + wheelRotation;
+    const shortestTurn = normalizeAngle(-displayedMidAngle);
+
+    setIsAutoCentering(true);
+    setWheelRotation((current) => current + shortestTurn);
+
+    if (autoCenterTimeoutRef.current !== null) {
+      window.clearTimeout(autoCenterTimeoutRef.current);
+    }
+
+    autoCenterTimeoutRef.current = window.setTimeout(() => {
+      setIsAutoCentering(false);
+      autoCenterTimeoutRef.current = null;
+    }, 550);
+  }
+
   function notice(name: string, type: "pattern" | "investment") {
     const nextCounts = {
       ...counts,
@@ -161,6 +218,8 @@ export default function AwarenessWheel() {
     setPendingSelection(null);
     setRippleKey((k) => (k ?? 0) + 1);
     setMessage(`Noticed ${name}`);
+
+    centerSelectedSlice(name, type);
 
     localStorage.setItem("awake-counts", JSON.stringify(nextCounts));
     localStorage.setItem("awake-notice-events", JSON.stringify(nextEvents));
@@ -216,6 +275,13 @@ export default function AwarenessWheel() {
     function handleWheelPointerDown(
       event: React.PointerEvent<SVGSVGElement>
     ) {
+      setIsAutoCentering(false);
+
+      if (autoCenterTimeoutRef.current !== null) {
+        window.clearTimeout(autoCenterTimeoutRef.current);
+        autoCenterTimeoutRef.current = null;
+      }
+
       event.currentTarget.setPointerCapture(event.pointerId);
 
       dragStartAngleRef.current = getPointerAngle(
@@ -358,7 +424,16 @@ export default function AwarenessWheel() {
           onPointerUp={handleWheelPointerEnd}
           onPointerCancel={handleWheelPointerEnd}
         >
-          <g transform={`rotate(${wheelRotation} 50 50)`}>
+          <g
+            style={{
+              transform: `rotate(${wheelRotation}deg)`,
+              transformOrigin: "50px 50px",
+              transformBox: "view-box",
+              transition: isAutoCentering
+                ? "transform 550ms ease-in-out"
+                : "none",
+            }}
+          >
             {wheelItems.map((item) => {
             const sliceAngle = (item.value / totalValue) * 360;
             const startAngle = currentAngle;

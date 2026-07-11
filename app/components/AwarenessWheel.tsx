@@ -216,6 +216,9 @@ export default function AwarenessWheel() {
             const midAngle = startAngle + sliceAngle / 2;
             const label = polarToCartesian(50, 50, 38, midAngle);
             const showLabel = sliceAngle >= 18;
+            const firstWord = item.name.trim().split(/\s+/)[0];
+            const displayLabel =
+              firstWord.length > 10 ? `${firstWord.slice(0, 9)}…` : firstWord;
             const isPending =
               pendingSelection?.name === item.name &&
               pendingSelection?.type === item.type;
@@ -251,9 +254,7 @@ export default function AwarenessWheel() {
                     dominantBaseline="middle"
                     className="pointer-events-none fill-stone-700 text-[3px]"
                   >
-                    {item.name.length > 12
-                      ? `${item.name.slice(0, 11)}…`
-                      : item.name}
+                    {displayLabel}
                   </text>
                 )}
               </g>

@@ -554,13 +554,23 @@ export default function AwarenessWheel() {
         </div>
       )}
 
-      <Link
-        href="/direction"
-        className="mt-4 inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-stone-500 transition hover:bg-white/70 hover:text-stone-700"
-      >
-        <span aria-hidden="true">✦</span>
-        Shape your wheel
-      </Link>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <Link
+          href="/direction"
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-stone-500 transition hover:bg-white/70 hover:text-stone-700"
+        >
+          <span aria-hidden="true">✦</span>
+          Shape your wheel
+        </Link>
+
+        <Link
+          href="/insights"
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-stone-500 transition hover:bg-white/70 hover:text-stone-700"
+        >
+          <span aria-hidden="true">◌</span>
+          Insights
+        </Link>
+      </div>
 
       {message && (
         <p className="sr-only" aria-live="polite">

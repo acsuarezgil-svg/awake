@@ -17,6 +17,32 @@ type PendingSelection = {
   type: "pattern" | "investment";
 };
 
+const wheelThemes = {
+  roseSage: {
+    name: "Rose + Sage",
+    pattern: "rgba(251, 113, 133, 0.45)",
+    investment: "rgba(52, 211, 153, 0.45)",
+    background:
+      "linear-gradient(135deg, rgb(255 241 242), rgb(236 253 245), rgb(240 249 255))",
+  },
+  clayMoss: {
+    name: "Clay + Moss",
+    pattern: "rgba(194, 120, 91, 0.48)",
+    investment: "rgba(112, 143, 95, 0.48)",
+    background:
+      "linear-gradient(135deg, rgb(250 242 237), rgb(241 246 236), rgb(248 250 247))",
+  },
+  lavenderMint: {
+    name: "Lavender + Mint",
+    pattern: "rgba(167, 139, 250, 0.42)",
+    investment: "rgba(45, 212, 191, 0.42)",
+    background:
+      "linear-gradient(135deg, rgb(245 243 255), rgb(240 253 250), rgb(248 250 252))",
+  },
+} as const;
+
+type WheelTheme = keyof typeof wheelThemes;
+
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
 
@@ -57,8 +83,9 @@ export default function AwarenessWheel() {
   const [filter, setFilter] = useState<Filter>("Today");
   const [message, setMessage] = useState("");
   const [rippleKey, setRippleKey] = useState<number | null>(null);
+  const [wheelTheme, setWheelTheme] = useState<WheelTheme>("roseSage");
   const [pendingSelection, setPendingSelection] =
-  useState<PendingSelection | null>(null);
+    useState<PendingSelection | null>(null);
 
   useEffect(() => {
     setCounts(JSON.parse(localStorage.getItem("awake-counts") || "{}"));
@@ -71,7 +98,13 @@ export default function AwarenessWheel() {
         defaultInvestments
     );
     setEvents(JSON.parse(localStorage.getItem("awake-notice-events") || "[]"));
-  }, []);
+
+    const savedWheelTheme = localStorage.getItem("awake-wheel-theme");
+
+    if (savedWheelTheme && savedWheelTheme in wheelThemes) {
+      setWheelTheme(savedWheelTheme as WheelTheme);
+    }
+    }, []);
 
   const filteredEvents = useMemo(
     () => events.filter((event) => isInFilter(event.date, filter)),
@@ -127,28 +160,35 @@ export default function AwarenessWheel() {
     setTimeout(() => setMessage(""), 1400);
   }
 
-  function handleSliceTap(
-    name: string,
-    type: "pattern" | "investment",
-    hasVisibleLabel: boolean
-  ) {
-    if (hasVisibleLabel) {
-      notice(name, type);
-      return;
+    function handleSliceTap(
+      name: string,
+      type: "pattern" | "investment",
+      hasVisibleLabel: boolean
+    ) {
+      if (hasVisibleLabel) {
+        notice(name, type);
+        return;
+      }
+
+      const isAlreadyPending =
+        pendingSelection?.name === name && pendingSelection?.type === type;
+
+      if (isAlreadyPending) {
+        notice(name, type);
+        return;
+      }
+
+      setPendingSelection({ name, type });
     }
 
-    const isAlreadyPending =
-      pendingSelection?.name === name && pendingSelection?.type === type;
-
-    if (isAlreadyPending) {
-      notice(name, type);
-      return;
+    function changeWheelTheme(nextTheme: WheelTheme) {
+      setWheelTheme(nextTheme);
+      localStorage.setItem("awake-wheel-theme", nextTheme);
     }
 
-    setPendingSelection({ name, type });
-  }
+    const activeWheelTheme = wheelThemes[wheelTheme];
 
-  let currentAngle = 0;
+    let currentAngle = 0;
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-8 text-center">
@@ -164,23 +204,60 @@ export default function AwarenessWheel() {
         </p>
       </div>
 
-      <div className="mb-6 flex justify-center gap-2">
-        {filters.map((item) => (
-          <button
-            key={item}
-            onClick={() => setFilter(item)}
-            className={`rounded-full px-4 py-2 text-sm transition ${
-              filter === item
-                ? "bg-stone-800 text-white"
-                : "bg-white text-stone-500 shadow-sm"
-            }`}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
+            <div className="mb-6 flex justify-center gap-2">
+              {filters.map((item) => (
+                <button
+                  key={item}
+                  onClick={() => setFilter(item)}
+                  className={`rounded-full px-4 py-2 text-sm transition ${
+                    filter === item
+                      ? "bg-stone-800 text-white"
+                      : "bg-white text-stone-500 shadow-sm"
+                  }`}
+                >
+                  {item}
+                </button>
+              ))}
+            </div>
 
-      <div className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full bg-gradient-to-br from-rose-50 via-emerald-50 to-sky-50 p-4 shadow-inner sm:max-w-[480px] md:max-w-[620px]">
+            <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
+              <span className="mr-1 text-xs text-stone-400">Wheel colors</span>
+
+              {(Object.keys(wheelThemes) as WheelTheme[]).map((themeKey) => {
+                const theme = wheelThemes[themeKey];
+                const isActive = wheelTheme === themeKey;
+
+                return (
+                  <button
+                    key={themeKey}
+                    type="button"
+                    onClick={() => changeWheelTheme(themeKey)}
+                    aria-label={`Use ${theme.name} wheel colors`}
+                    aria-pressed={isActive}
+                    title={theme.name}
+                    className={`flex items-center gap-1 rounded-full border bg-white px-2 py-1.5 transition ${
+                      isActive
+                        ? "border-stone-500 shadow-sm"
+                        : "border-stone-200 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <span
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: theme.pattern }}
+                    />
+                    <span
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: theme.investment }}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+
+            <div
+              className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner sm:max-w-[480px] md:max-w-[620px]"
+              style={{ background: activeWheelTheme.background }}
+            >
         <div className="absolute inset-0 rounded-full bg-white/20" />
         {rippleKey !== null && (
           <div
@@ -225,8 +302,8 @@ export default function AwarenessWheel() {
 
             const fill =
               item.type === "pattern"
-                ? "rgba(251, 113, 133, 0.45)"
-                : "rgba(52, 211, 153, 0.45)";
+                ? activeWheelTheme.pattern
+                : activeWheelTheme.investment;
             
             return (
               <g

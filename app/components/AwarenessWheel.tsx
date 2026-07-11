@@ -338,15 +338,13 @@ export default function AwarenessWheel() {
 
   return (
     <section className="mx-auto max-w-4xl px-4 py-8 text-center">
-      <div className="mb-6">
-        <p className="text-sm uppercase tracking-[0.3em] text-stone-400">
-          Awareness Wheel
+      <div className="mb-7">
+        <p className="text-xs lowercase tracking-[0.4em] text-stone-400">
+          awake
         </p>
-        <h1 className="mt-2 text-3xl font-light text-stone-800">
-          This moment has information.
-        </h1>
-        <p className="mt-3 text-sm text-stone-500">
-          Tap what you notice. No judgment. Just awareness.
+
+        <p className="mt-3 text-sm font-light tracking-[0.18em] text-stone-500">
+          Observe · Choose · Grow
         </p>
       </div>
 
@@ -554,23 +552,45 @@ export default function AwarenessWheel() {
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-        <Link
+      <nav
+        aria-label="Awake sections"
+        className="mx-auto mt-10 flex max-w-md flex-col gap-4"
+      >
+        <HomeActionCard
           href="/direction"
-          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-stone-500 transition hover:bg-white/70 hover:text-stone-700"
-        >
-          <span aria-hidden="true">✦</span>
-          Shape your wheel
-        </Link>
+          symbol="✦"
+          title="Shape Your Wheel"
+          description="Choose the patterns and investments that matter to you."
+        />
 
-        <Link
+        <HomeActionCard
+          href="/reflection"
+          symbol="✍︎"
+          title="Reflection"
+          description="Capture what this moment taught you."
+        />
+
+        <HomeActionCard
+          href="/reflections"
+          symbol="◌"
+          title="Journey"
+          description="Revisit your reflections and meaningful moments."
+        />
+
+        <HomeActionCard
           href="/insights"
-          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-stone-500 transition hover:bg-white/70 hover:text-stone-700"
-        >
-          <span aria-hidden="true">◌</span>
-          Insights
-        </Link>
-      </div>
+          symbol="⌁"
+          title="Insights"
+          description="Notice what keeps returning and what is growing."
+        />
+
+        <HomeActionCard
+          href="/about"
+          symbol="♡"
+          title="About Awake"
+          description="Explore the philosophy behind Awake."
+        />
+      </nav>
 
       {message && (
         <p className="sr-only" aria-live="polite">
@@ -618,6 +638,53 @@ export default function AwarenessWheel() {
         }
       `}</style>
     </section>
+  );
+}
+
+type HomeActionCardProps = {
+  href: string;
+  symbol: string;
+  title: string;
+  description: string;
+};
+
+function HomeActionCard({
+  href,
+  symbol,
+  title,
+  description,
+}: HomeActionCardProps) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-3xl border border-stone-200 bg-white/80 px-5 py-5 text-left transition duration-300 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-sm"
+    >
+      <div className="flex items-start gap-4">
+        <span
+          aria-hidden="true"
+          className="mt-0.5 text-lg text-stone-400 transition group-hover:text-stone-600"
+        >
+          {symbol}
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <h2 className="text-base font-medium text-stone-700">
+            {title}
+          </h2>
+
+          <p className="mt-1 text-sm leading-6 text-stone-400">
+            {description}
+          </p>
+        </div>
+
+        <span
+          aria-hidden="true"
+          className="mt-1 text-stone-300 transition group-hover:translate-x-1 group-hover:text-stone-500"
+        >
+          →
+        </span>
+      </div>
+    </Link>
   );
 }
 

@@ -47,6 +47,13 @@ type AwarenessCell = {
   investment: number;
 };
 
+type SelectedCell = {
+  dateKey: string;
+  dateLabel: string;
+  period: TimePeriod;
+  periodLabel: string;
+};
+
 function getTimePeriod(date: Date): TimePeriod {
   const hour = date.getHours();
 
@@ -205,7 +212,8 @@ export default function InsightsPage() {
   const [wheelTheme, setWheelTheme] =
     useState<WheelTheme>("roseSage");
   const [loaded, setLoaded] = useState(false);
-
+  const [selectedCell, setSelectedCell] =
+    useState<SelectedCell | null>(null);
   useEffect(() => {
     const savedEvents = localStorage.getItem(
       "awake-notice-events"
@@ -262,33 +270,74 @@ export default function InsightsPage() {
     const map: Record<string, AwarenessCell> = {};
 
     for (const date of visibleDates) {
-      const dateKey = getLocalDateKey(date);
+        const dateKey = getLocalDateKey(date);
 
-      for (const period of timePeriods) {
+        for (const period of timePeriods) {
         map[`${dateKey}-${period.key}`] = {
-          pattern: 0,
-          investment: 0,
+            pattern: 0,
+            investment: 0,
         };
-      }
+        }
     }
 
     for (const event of filteredEvents) {
-      const eventDate = new Date(event.date);
-      const dateKey = getLocalDateKey(eventDate);
-      const period = getTimePeriod(eventDate);
-      const key = `${dateKey}-${period}`;
+        const eventDate = new Date(event.date);
+        const dateKey = getLocalDateKey(eventDate);
+        const period = getTimePeriod(eventDate);
+        const key = `${dateKey}-${period}`;
 
-      if (!map[key]) {
+        if (!map[key]) {
         continue;
-      }
+        }
 
-      map[key][event.type] += 1;
+        map[key][event.type] += 1;
     }
 
     return map;
-  }, [filteredEvents, visibleDates]);
+    }, [filteredEvents, visibleDates]);
 
-  const observation = useMemo(() => {
+    const selectedCellEvents = useMemo(() => {
+    if (!selectedCell) {
+        return [];
+    }
+
+    return filteredEvents.filter((event) => {
+        const eventDate = new Date(event.date);
+
+        return (
+        getLocalDateKey(eventDate) === selectedCell.dateKey &&
+        getTimePeriod(eventDate) === selectedCell.period
+        );
+    });
+    }, [filteredEvents, selectedCell]);
+
+    const selectedPatterns = useMemo(
+    () =>
+        selectedCellEvents.filter(
+        (event) => event.type === "pattern"
+        ),
+    [selectedCellEvents]
+    );
+
+    const selectedInvestments = useMemo(
+    () =>
+        selectedCellEvents.filter(
+        (event) => event.type === "investment"
+        ),
+    [selectedCellEvents]
+    );
+
+    const uniqueSelectedPatterns = useMemo(
+    () => [...new Set(selectedPatterns.map((event) => event.name))],
+    [selectedPatterns]
+    );
+
+    const uniqueSelectedInvestments = useMemo(
+    () => [...new Set(selectedInvestments.map((event) => event.name))],
+    [selectedInvestments]
+    );
+
+    const observation = useMemo(() => {
     if (filteredEvents.length === 0) {
       return "There is not enough history here yet. Keep noticing gently.";
     }
@@ -380,7 +429,10 @@ export default function InsightsPage() {
             <button
               key={item}
               type="button"
-              onClick={() => setFilter(item)}
+              onClick={() => {
+                setFilter(item);
+                setSelectedCell(null);
+                }}
               className={`rounded-full px-4 py-2 text-sm transition ${
                 filter === item
                   ? "bg-stone-800 text-white"
@@ -431,25 +483,31 @@ export default function InsightsPage() {
                         getCellDescription(cell);
 
                       return (
-                        <div
-                          key={`${dateKey}-${period.key}`}
-                          role="img"
-                          aria-label={`${formatDateLabel(
-                            date
-                          )}, ${
-                            period.label
-                          }: ${description}`}
-                          title={`${formatDateLabel(
-                            date
-                          )} · ${
-                            period.label
-                          } · ${description}`}
-                          className="aspect-square rounded-xl border transition sm:rounded-2xl"
-                          style={getCellStyle(
-                            cell,
-                            activeTheme
-                          )}
-                        />
+                        <button
+                            key={`${dateKey}-${period.key}`}
+                            type="button"
+                            onClick={() =>
+                                setSelectedCell({
+                                dateKey,
+                                dateLabel: formatDateLabel(date),
+                                period: period.key,
+                                periodLabel: period.label,
+                                })
+                            }
+                            aria-label={`${formatDateLabel(
+                                date
+                            )}, ${period.label}: ${description}. Tap for details.`}
+                            title={`${formatDateLabel(
+                                date
+                            )} · ${period.label} · ${description}`}
+                            className={`aspect-square rounded-xl border transition sm:rounded-2xl ${
+                                selectedCell?.dateKey === dateKey &&
+                                selectedCell?.period === period.key
+                                ? "ring-2 ring-stone-500 ring-offset-2"
+                                : "hover:scale-[1.03]"
+                            }`}
+                            style={getCellStyle(cell, activeTheme)}
+                            />
                       );
                     })}
                   </div>
@@ -514,6 +572,127 @@ export default function InsightsPage() {
         </section>
 
         <section className="mx-auto mt-8 max-w-xl rounded-3xl bg-stone-50 px-6 py-7 text-center">
+            {selectedCell && (
+                <section className="mx-auto mt-6 max-w-xl rounded-3xl border border-stone-100 bg-white px-6 py-6">
+                    <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-stone-400">
+                        Selected moment
+                        </p>
+
+                        <h2 className="mt-2 text-xl font-light text-stone-700">
+                        {selectedCell.dateLabel}
+                        </h2>
+
+                        <p className="mt-1 text-sm text-stone-400">
+                        {selectedCell.periodLabel}
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => setSelectedCell(null)}
+                        aria-label="Close selected moment"
+                        className="rounded-full px-3 py-1 text-sm text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
+                    >
+                        Close
+                    </button>
+                    </div>
+
+                    {selectedCellEvents.length === 0 ? (
+                    <p className="mt-6 text-sm leading-6 text-stone-400">
+                        No awareness moments were recorded during this part of the day.
+                    </p>
+                    ) : (
+                    <>
+                        <div className="mt-6 grid grid-cols-3 gap-3 text-center">
+                        <div className="rounded-2xl bg-stone-50 px-3 py-4">
+                            <p className="text-2xl font-light text-stone-700">
+                            {selectedCellEvents.length}
+                            </p>
+                            <p className="mt-1 text-xs text-stone-400">
+                            Moments
+                            </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-stone-50 px-3 py-4">
+                            <p
+                            className="text-2xl font-light"
+                            style={{
+                                color: `rgb(${activeTheme.pattern})`,
+                            }}
+                            >
+                            {selectedPatterns.length}
+                            </p>
+                            <p className="mt-1 text-xs text-stone-400">
+                            Patterns
+                            </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-stone-50 px-3 py-4">
+                            <p
+                            className="text-2xl font-light"
+                            style={{
+                                color: `rgb(${activeTheme.investment})`,
+                            }}
+                            >
+                            {selectedInvestments.length}
+                            </p>
+                            <p className="mt-1 text-xs text-stone-400">
+                            Investments
+                            </p>
+                        </div>
+                        </div>
+
+                        <div className="mt-6 space-y-5">
+                        {uniqueSelectedPatterns.length > 0 && (
+                            <div>
+                            <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
+                                Patterns noticed
+                            </p>
+
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {uniqueSelectedPatterns.map((name) => (
+                                <span
+                                    key={name}
+                                    className="rounded-full px-3 py-1.5 text-sm text-stone-600"
+                                    style={{
+                                    background: `rgba(${activeTheme.pattern}, 0.16)`,
+                                    }}
+                                >
+                                    {name}
+                                </span>
+                                ))}
+                            </div>
+                            </div>
+                        )}
+
+                        {uniqueSelectedInvestments.length > 0 && (
+                            <div>
+                            <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
+                                Investments noticed
+                            </p>
+
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                {uniqueSelectedInvestments.map((name) => (
+                                <span
+                                    key={name}
+                                    className="rounded-full px-3 py-1.5 text-sm text-stone-600"
+                                    style={{
+                                    background: `rgba(${activeTheme.investment}, 0.16)`,
+                                    }}
+                                >
+                                    {name}
+                                </span>
+                                ))}
+                            </div>
+                            </div>
+                        )}
+                        </div>
+                    </>
+                    )}
+                </section>
+                )}
           <p className="text-xs uppercase tracking-[0.22em] text-stone-400">
             {filter}
           </p>

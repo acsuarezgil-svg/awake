@@ -494,6 +494,7 @@ export default function AwarenessWheel() {
                     y={label.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
+                    transform={`rotate(${-wheelRotation} ${label.x} ${label.y})`}
                     className="pointer-events-none fill-stone-700 text-[3px]"
                   >
                     {displayLabel}

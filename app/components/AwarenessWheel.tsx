@@ -264,10 +264,12 @@ export default function AwarenessWheel() {
             cx="50"
             cy="50"
             r="22"
-            fill="none"
-            stroke="rgba(167, 243, 208, 0.7)"
-            strokeWidth="1.2"
-            className="awake-breathe-halo"
+            fill="rgba(255,255,255,0.9)"
+            className="animate-[breathe_7s_ease-in-out_infinite]"
+            style={{
+              transformOrigin: "50px 50px",
+              transformBox: "view-box",
+            }}
           />
 
           <circle
@@ -352,9 +354,9 @@ export default function AwarenessWheel() {
         }
 
         .awake-breathe-halo {
-          animation: awake-breathe-halo 6.5s ease-in-out infinite;
-          transform-box: fill-box;
-          transform-origin: center;
+          animation: awake-breathe 6.5s ease-in-out infinite;
+          transform-box: view-box;
+          transform-origin: 50px 50px;
         }
 
         @media (prefers-reduced-motion: reduce) {

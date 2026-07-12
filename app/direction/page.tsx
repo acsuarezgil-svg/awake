@@ -3,6 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { translations, type Language } from "../translations";
+import {
+  isDarkWheelTheme,
+  isWheelTheme,
+  wheelThemes,
+  type WheelTheme,
+} from "../theme";
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
@@ -26,6 +32,8 @@ export default function DirectionPage() {
   const [directions, setDirections] = useState(defaultDirections);
   const [selected, setSelected] = useState<string[]>([]);
   const [language, setLanguage] = useState<Language>("en");
+  const [wheelTheme, setWheelTheme] =
+    useState<WheelTheme>("roseSage");
 
   const t = translations[language];
 
@@ -56,6 +64,13 @@ export default function DirectionPage() {
 
     if (savedLanguage) {
       setLanguage(savedLanguage);
+    }
+    const savedWheelTheme = localStorage.getItem(
+      "awake-wheel-theme"
+    );
+
+    if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
+      setWheelTheme(savedWheelTheme);
     }
   }, []);
 
@@ -200,8 +215,18 @@ export default function DirectionPage() {
     );
   }
 
+  const activeTheme = wheelThemes[wheelTheme];
+  const isDark = isDarkWheelTheme(wheelTheme);
+
   return (
-    <main className="min-h-screen bg-white px-5 py-8">
+    <main
+      className={`min-h-screen px-5 py-8 transition-[background] duration-500 ${
+        isDark ? "text-stone-100" : "text-stone-800"
+      }`}
+      style={{
+        background: activeTheme.pageBackground,
+      }}
+    >
       <section className="mx-auto max-w-2xl">
         <Link
           href="/"

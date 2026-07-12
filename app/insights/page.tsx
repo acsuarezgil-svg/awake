@@ -775,12 +775,12 @@ useEffect(() => {
         }
 
         55% {
-            transform: scale(1.08);
+            transform: scale(1.05);
             box-shadow: 0 0 0 6px rgba(120, 113, 108, 0.08);
         }
 
         100% {
-            transform: scale(1.04);
+            transform: scale(1.03);
             box-shadow: 0 0 0 3px rgba(120, 113, 108, 0.05);
         }
     }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  isDarkWheelTheme,
   isWheelTheme,
   wheelThemes,
   type WheelTheme,
@@ -340,17 +341,28 @@ export default function AwarenessWheel() {
     }
 
     const activeWheelTheme = wheelThemes[wheelTheme];
+    const isDark = isDarkWheelTheme(wheelTheme);
 
     let currentAngle = 0;
 
   return (
+  <div
+    className={`min-h-screen w-full transition-[background] duration-500 ${
+      isDark ? "text-stone-100" : "text-stone-800"
+    }`}
+    style={{ background: activeWheelTheme.pageBackground }}
+  >
     <section className="mx-auto max-w-4xl px-4 py-8 text-center">
       <div className="mb-7">
         <p className="text-xs lowercase tracking-[0.4em] text-stone-400">
           awake
         </p>
 
-        <p className="mt-3 text-sm font-light tracking-[0.18em] text-stone-500">
+        <p
+          className={`mt-3 text-sm font-light tracking-[0.18em] ${
+            isDark ? "text-slate-300" : "text-stone-500"
+          }`}
+        >
           Observe · Choose · Grow
         </p>
       </div>
@@ -364,7 +376,11 @@ export default function AwarenessWheel() {
             Your direction
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-stone-600">
+          <p
+            className={`mt-2 text-sm leading-6 ${
+              isDark ? "text-slate-200" : "text-stone-600"
+            }`}
+          >
             {directions.slice(0, 3).join(" · ")}
             {directions.length > 3 && ` +${directions.length - 3}`}
           </p>
@@ -376,7 +392,11 @@ export default function AwarenessWheel() {
                 type="button"
                 onClick={() => setShowWheelAppearance((current) => !current)}
                 aria-expanded={showWheelAppearance}
-                className="mx-auto flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-xs text-stone-500 transition hover:border-stone-300 hover:text-stone-700"
+                className={`mx-auto flex items-center gap-2 rounded-full border px-4 py-2 text-xs transition ${
+                  isDark
+                    ? "border-white/15 bg-slate-800/80 text-slate-300 hover:border-white/25 hover:text-white"
+                    : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700"
+                }`}
               >
                 <span>Wheel appearance</span>
 
@@ -404,10 +424,14 @@ export default function AwarenessWheel() {
                         aria-label={`Use ${theme.name} wheel colors`}
                         aria-pressed={isActive}
                         title={theme.name}
-                        className={`group min-w-[118px] rounded-2xl border bg-white p-2 text-left transition duration-200 ${
-                          isActive
-                            ? "border-stone-500 shadow-sm ring-1 ring-stone-300"
-                            : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-sm"
+                        className={`group min-w-[118px] rounded-2xl border p-2 text-left transition duration-200 ${
+                          isDark
+                            ? isActive
+                              ? "border-white/50 bg-slate-800 shadow-sm ring-1 ring-white/20"
+                              : "border-white/10 bg-slate-900/70 hover:-translate-y-0.5 hover:border-white/25"
+                            : isActive
+                              ? "border-stone-500 bg-white shadow-sm ring-1 ring-stone-300"
+                              : "border-stone-200 bg-white hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-sm"
                         }`}
                       >
                         <span
@@ -433,7 +457,11 @@ export default function AwarenessWheel() {
                           )}
                         </span>
 
-                        <span className="mt-2 block text-center text-[11px] text-stone-500">
+                        <span
+                          className={`mt-2 block text-center text-[11px] ${
+                            isDark ? "text-slate-300" : "text-stone-500"
+                          }`}
+                        >
                           {theme.name}
                         </span>
                       </button>
@@ -726,6 +754,7 @@ export default function AwarenessWheel() {
         }
       `}</style>
     </section>
+    </div>
   );
 }
 

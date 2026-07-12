@@ -214,28 +214,46 @@ export default function InsightsPage() {
     const [loaded, setLoaded] = useState(false);
     const [selectedCell, setSelectedCell] =
         useState<SelectedCell | null>(null);
-    useEffect(() => {
-        const savedEvents = localStorage.getItem(
-            "awake-notice-events"
-        );
+useEffect(() => {
+    const savedEvents = localStorage.getItem(
+        "awake-notice-events"
+    );
 
-        if (savedEvents) {
-            setEvents(JSON.parse(savedEvents));
+    if (savedEvents) {
+        setEvents(JSON.parse(savedEvents));
+    }
+
+    const savedWheelTheme = localStorage.getItem(
+        "awake-wheel-theme"
+    );
+
+    if (
+        savedWheelTheme &&
+        savedWheelTheme in wheelThemes
+    ) {
+        setWheelTheme(savedWheelTheme as WheelTheme);
+    }
+
+    setLoaded(true);
+}, []);
+
+useEffect(() => {
+    if (!selectedCell) {
+        return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+        if (event.key === "Escape") {
+            setSelectedCell(null);
         }
+    }
 
-        const savedWheelTheme = localStorage.getItem(
-            "awake-wheel-theme"
-        );
+    window.addEventListener("keydown", handleKeyDown);
 
-        if (
-            savedWheelTheme &&
-            savedWheelTheme in wheelThemes
-        ) {
-            setWheelTheme(savedWheelTheme as WheelTheme);
-        }
-
-        setLoaded(true);
-    }, []);
+    return () => {
+        window.removeEventListener("keydown", handleKeyDown);
+    };
+}, [selectedCell]);
 
     const visibleDates = useMemo(
         () => getDateRange(filter, events),
@@ -570,127 +588,6 @@ export default function InsightsPage() {
                 </section>
 
                 <section className="mx-auto mt-8 max-w-xl rounded-3xl bg-stone-50 px-6 py-7 text-center">
-                    {selectedCell && (
-                        <section className="mx-auto mt-6 max-w-xl rounded-3xl border border-stone-100 bg-white px-6 py-6">
-                            <div className="flex items-start justify-between gap-4">
-                                <div>
-                                    <p className="text-xs uppercase tracking-[0.2em] text-stone-400">
-                                        Selected moment
-                                    </p>
-
-                                    <h2 className="mt-2 text-xl font-light text-stone-700">
-                                        {selectedCell.dateLabel}
-                                    </h2>
-
-                                    <p className="mt-1 text-sm text-stone-400">
-                                        {selectedCell.periodLabel}
-                                    </p>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={() => setSelectedCell(null)}
-                                    aria-label="Close selected moment"
-                                    className="rounded-full px-3 py-1 text-sm text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
-                                >
-                                    Close
-                                </button>
-                            </div>
-
-                            {selectedCellEvents.length === 0 ? (
-                                <p className="mt-6 text-sm leading-6 text-stone-400">
-                                    No awareness moments were recorded during this part of the day.
-                                </p>
-                            ) : (
-                                <>
-                                    <div className="mt-6 grid grid-cols-3 gap-3 text-center">
-                                        <div className="rounded-2xl bg-stone-50 px-3 py-4">
-                                            <p className="text-2xl font-light text-stone-700">
-                                                {selectedCellEvents.length}
-                                            </p>
-                                            <p className="mt-1 text-xs text-stone-400">
-                                                Moments
-                                            </p>
-                                        </div>
-
-                                        <div className="rounded-2xl bg-stone-50 px-3 py-4">
-                                            <p
-                                                className="text-2xl font-light"
-                                                style={{
-                                                    color: `rgb(${activeTheme.pattern})`,
-                                                }}
-                                            >
-                                                {selectedPatterns.length}
-                                            </p>
-                                            <p className="mt-1 text-xs text-stone-400">
-                                                Patterns
-                                            </p>
-                                        </div>
-
-                                        <div className="rounded-2xl bg-stone-50 px-3 py-4">
-                                            <p
-                                                className="text-2xl font-light"
-                                                style={{
-                                                    color: `rgb(${activeTheme.investment})`,
-                                                }}
-                                            >
-                                                {selectedInvestments.length}
-                                            </p>
-                                            <p className="mt-1 text-xs text-stone-400">
-                                                Investments
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-6 space-y-5">
-                                        {uniqueSelectedPatterns.length > 0 && (
-                                            <div>
-                                                <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
-                                                    Patterns noticed
-                                                </p>
-
-                                                <div className="mt-3 flex flex-wrap gap-2">
-                                                    {uniqueSelectedPatterns.map((name) => (
-                                                        <span
-                                                            key={name}
-                                                            className="rounded-full px-3 py-1.5 text-sm text-stone-600"
-                                                            style={{
-                                                                background: `rgba(${activeTheme.pattern}, 0.16)`,
-                                                            }}
-                                                        >
-                                                            {name}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {uniqueSelectedInvestments.length > 0 && (
-                                            <div>
-                                                <p className="text-xs uppercase tracking-[0.18em] text-stone-400">
-                                                    Investments noticed
-                                                </p>
-
-                                                <div className="mt-3 flex flex-wrap gap-2">
-                                                    {uniqueSelectedInvestments.map((name) => (
-                                                        <span
-                                                            key={name}
-                                                            className="rounded-full px-3 py-1.5 text-sm text-stone-600"
-                                                            style={{
-                                                                background: `rgba(${activeTheme.investment}, 0.16)`,
-                                                            }}
-                                                        >
-                                                            {name}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
-                            )}
-                        </section>
-                    )}
                     <p className="text-xs uppercase tracking-[0.22em] text-stone-400">
                         {filter}
                     </p>
@@ -708,6 +605,173 @@ export default function InsightsPage() {
                     part of the day.
                 </p>
             </section>
+            {selectedCell && (
+    <div
+        className="fixed inset-0 z-50 flex items-center justify-center px-3 py-6 sm:px-6"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="selected-moment-title"
+    >
+        <button
+            type="button"
+            onClick={() => setSelectedCell(null)}
+            aria-label="Close selected moment"
+            className="absolute inset-0 bg-stone-900/10 backdrop-blur-[2px]"
+        />
+
+        <section
+            className="awake-moment-card relative z-10 max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-white/80 bg-white/95 px-4 py-5 shadow-[0_24px_70px_rgba(41,37,36,0.16)] sm:px-7 sm:py-7"
+            onClick={(event) => event.stopPropagation()}
+        >
+            <div className="flex min-w-0 items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 sm:text-xs">
+                        Selected moment
+                    </p>
+
+                    <h2
+                        id="selected-moment-title"
+                        className="mt-2 break-words text-xl font-light text-stone-700"
+                    >
+                        {selectedCell.dateLabel}
+                    </h2>
+
+                    <p className="mt-1 text-sm text-stone-400">
+                        {selectedCell.periodLabel}
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={() => setSelectedCell(null)}
+                    aria-label="Close selected moment"
+                    className="shrink-0 rounded-full px-3 py-1.5 text-xs text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
+                >
+                    Close
+                </button>
+            </div>
+            {selectedCellEvents.length === 0 ? (
+                <p className="mt-6 text-sm leading-6 text-stone-400">
+                    No awareness moments were recorded during this part of the
+                    day.
+                </p>
+            ) : (
+                <>
+                    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
+                            <p className="text-2xl font-light text-stone-700">
+                                {selectedCellEvents.length}
+                            </p>
+
+                            <p className="mt-1 break-words text-xs text-stone-400">
+                                Moments
+                            </p>
+                        </div>
+
+                        <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
+                            <p
+                                className="text-2xl font-light"
+                                style={{
+                                    color: `rgb(${activeTheme.pattern})`,
+                                }}
+                            >
+                                {selectedPatterns.length}
+                            </p>
+
+                            <p className="mt-1 break-words text-xs text-stone-400">
+                                Patterns
+                            </p>
+                        </div>
+
+                        <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
+                            <p
+                                className="text-2xl font-light"
+                                style={{
+                                    color: `rgb(${activeTheme.investment})`,
+                                }}
+                            >
+                                {selectedInvestments.length}
+                            </p>
+
+                            <p className="mt-1 break-words text-xs text-stone-400">
+                                Investments
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="mt-6 space-y-5">
+                        {uniqueSelectedPatterns.length > 0 && (
+                            <div>
+                                <p className="break-words text-[10px] uppercase tracking-[0.16em] text-stone-400 sm:text-xs sm:tracking-[0.18em]">
+                                    Patterns noticed
+                                </p>
+
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {uniqueSelectedPatterns.map((name) => (
+                                        <span
+                                            key={name}
+                                            className="max-w-full break-words rounded-full px-3 py-1.5 text-sm text-stone-600"
+                                            style={{
+                                                background: `rgba(${activeTheme.pattern}, 0.16)`,
+                                            }}
+                                        >
+                                            {name}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {uniqueSelectedInvestments.length > 0 && (
+                            <div>
+                                <p className="break-words text-[10px] uppercase tracking-[0.16em] text-stone-400 sm:text-xs sm:tracking-[0.18em]">
+                                    Investments noticed
+                                </p>
+
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {uniqueSelectedInvestments.map((name) => (
+                                        <span
+                                            key={name}
+                                            className="max-w-full break-words rounded-full px-3 py-1.5 text-sm text-stone-600"
+                                            style={{
+                                                background: `rgba(${activeTheme.investment}, 0.16)`,
+                                            }}
+                                        >
+                                            {name}
+                                        </span>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
+        </section>
+    </div>
+)}
+<style jsx global>{`
+    @keyframes awake-moment-enter {
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.985);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .awake-moment-card {
+        animation: awake-moment-enter 220ms ease-out;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .awake-moment-card {
+            animation: none;
+        }
+    }
+`}</style>
         </main>
     );
 }

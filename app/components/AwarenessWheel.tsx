@@ -398,7 +398,7 @@ export default function AwarenessWheel() {
                     : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700"
                 }`}
               >
-                <span>Wheel appearance</span>
+                <span>Atmosphere</span>
 
                 <span
                   aria-hidden="true"
@@ -472,7 +472,7 @@ export default function AwarenessWheel() {
             </div>
 
             <div
-              className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner sm:max-w-[430px] md:max-w-[500px] lg:max-w-[520px]"
+              className="relative mx-auto mb-8 aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner sm:mb-10 sm:max-w-[430px] md:max-w-[500px] lg:max-w-[520px]"
               style={{ background: activeWheelTheme.wheelBackground }}
             >
         <div className="absolute inset-0 rounded-full bg-white/20" />
@@ -638,7 +638,7 @@ export default function AwarenessWheel() {
         </svg>
       </div>
 
-      <div className="mb-6 flex justify-center gap-2">
+      <div className="mb-6 flex flex-wrap justify-center gap-3">
         {filters.map((item) => (
           <button
             key={item}
@@ -715,7 +715,7 @@ export default function AwarenessWheel() {
       )}
 
       {selected && (
-        <div className="mx-auto mt-8 max-w-md rounded-3xl bg-white/80 p-6 text-left shadow-sm">
+        <div className="mx-auto mt-8 max-w-md rounded-3xl bg-slate-800/70 p-6 text-left shadow-sm">
           <p className="text-xs uppercase tracking-[0.25em] text-stone-400">
             Noticed
           </p>

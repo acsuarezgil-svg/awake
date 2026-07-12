@@ -535,6 +535,33 @@ export default function AwarenessWheel() {
           >
             Moment
           </text>
+
+          <a
+            href="/direction"
+            aria-label="Shape your wheel"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
+            className="group cursor-pointer"
+          >
+            <title>Shape your wheel</title>
+
+            <circle
+              cx="50"
+              cy="60"
+              r="4"
+              fill="transparent"
+            />
+
+            <text
+              x="50"
+              y="60"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="fill-stone-400 text-[4px] font-light transition group-hover:fill-stone-700"
+            >
+              +
+            </text>
+          </a>
         </svg>
       </div>
 

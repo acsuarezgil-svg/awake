@@ -838,40 +838,7 @@ function HomeActionCard({
     </div>
   );
 }
-  return (
-    <Link
-      href={href}
-      className="group rounded-3xl border border-stone-200 bg-white/80 px-5 py-5 text-left transition duration-300 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-sm"
-    >
-      <div className="flex items-start gap-4">
-        <span
-          aria-hidden="true"
-          className="mt-0.5 text-lg text-stone-400 transition group-hover:text-stone-600"
-        >
-          {symbol}
-        </span>
-
-        <div className="min-w-0 flex-1">
-          <h2 className="text-base font-medium text-stone-700">
-            {title}
-          </h2>
-
-          <p className="mt-1 text-sm leading-6 text-stone-400">
-            {description}
-          </p>
-        </div>
-
-        <span
-          aria-hidden="true"
-          className="mt-1 text-stone-300 transition group-hover:translate-x-1 group-hover:text-stone-500"
-        >
-          →
-        </span>
-      </div>
-    </Link>
-  );
-}
-
+  
 function polarToCartesian(
   centerX: number,
   centerY: number,

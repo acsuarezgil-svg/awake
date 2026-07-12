@@ -84,6 +84,7 @@ export default function AwarenessWheel() {
   const [rippleKey, setRippleKey] = useState<number | null>(null);
   const [wheelTheme, setWheelTheme] = useState<WheelTheme>("roseSage");
   const [showWheelAppearance, setShowWheelAppearance] = useState(false);
+  const [showAwakeMenu, setShowAwakeMenu] = useState(false);
   const [pendingSelection, setPendingSelection] =
     useState<PendingSelection | null>(null);
   const [directions, setDirections] = useState<string[]>([]);
@@ -638,22 +639,6 @@ export default function AwarenessWheel() {
         </svg>
       </div>
 
-      <div className="mb-6 flex flex-wrap justify-center gap-3">
-        {filters.map((item) => (
-          <button
-            key={item}
-            onClick={() => setFilter(item)}
-            className={`rounded-full px-4 py-2 text-sm transition ${
-              filter === item
-                ? "bg-stone-800 text-white"
-                : "bg-white text-stone-500 shadow-sm"
-             }`}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-
       {pendingSelection && (
         <div className="mx-auto mt-3 max-w-sm rounded-2xl bg-white/85 px-4 py-3 text-sm text-stone-600 shadow-sm">
           <p>
@@ -670,42 +655,130 @@ export default function AwarenessWheel() {
 
       <nav
         aria-label="Awake sections"
-        className="mx-auto mt-10 flex max-w-md flex-col gap-4"
+        className="mx-auto mt-10 max-w-md"
       >
-        <HomeActionCard
-          href="/direction"
-          symbol="✦"
-          title="Shape Your Wheel"
-          description="Choose the patterns and investments that matter to you."
-        />
+        <div
+          className={`overflow-hidden rounded-3xl border transition-colors duration-300 ${
+            isDark
+              ? "border-white/10 bg-slate-800/70"
+              : "border-stone-200 bg-white/80"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={() => setShowAwakeMenu((current) => !current)}
+            aria-expanded={showAwakeMenu}
+            aria-controls="awake-home-menu"
+            className="flex w-full items-center gap-4 px-5 py-4 text-left"
+          >
+            <span
+              aria-hidden="true"
+              className={isDark ? "text-slate-400" : "text-stone-400"}
+            >
+              ✦
+            </span>
 
-        <HomeActionCard
-          href="/reflection"
-          symbol="✍︎"
-          title="Reflection"
-          description="Capture what this moment taught you."
-        />
+            <span
+              className={`min-w-0 flex-1 text-base font-medium ${
+                isDark ? "text-stone-100" : "text-stone-700"
+              }`}
+            >
+              Shape Your Wheel
+            </span>
 
-        <HomeActionCard
-          href="/reflections"
-          symbol="◌"
-          title="Journey"
-          description="Revisit your reflections and meaningful moments."
-        />
+            <span
+              aria-hidden="true"
+              className={`transition-transform duration-300 ${
+                isDark ? "text-slate-400" : "text-stone-300"
+              } ${showAwakeMenu ? "rotate-180" : ""}`}
+            >
+              ↓
+            </span>
+          </button>
 
-        <HomeActionCard
-          href="/insights"
-          symbol="⌁"
-          title="Insights"
-          description="Notice what keeps returning and what is growing."
-        />
+          <div
+            id="awake-home-menu"
+            className={`grid transition-[grid-template-rows,opacity] duration-300 ${
+              showAwakeMenu
+                ? "grid-rows-[1fr] opacity-100"
+                : "grid-rows-[0fr] opacity-0"
+            }`}
+          >
+            <div className="overflow-hidden">
+              <div
+                className={`border-t px-5 pb-5 pt-4 ${
+                  isDark ? "border-white/10" : "border-stone-100"
+                }`}
+              >
+                <p
+                  className={`text-[10px] uppercase tracking-[0.2em] ${
+                    isDark ? "text-slate-400" : "text-stone-400"
+                  }`}
+                >
+                  Wheel view
+                </p>
 
-        <HomeActionCard
-          href="/about"
-          symbol="♡"
-          title="About Awake"
-          description="Explore the philosophy behind Awake."
-        />
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {filters.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => setFilter(item)}
+                      className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                        filter === item
+                          ? isDark
+                            ? "border-slate-500 bg-slate-600 text-white"
+                            : "border-stone-800 bg-stone-800 text-white"
+                          : isDark
+                            ? "border-white/10 bg-slate-900/50 text-slate-300"
+                            : "border-stone-200 bg-white text-stone-500"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-5 space-y-1">
+                  <AwakeMenuLink
+                    href="/direction"
+                    symbol="✦"
+                    title="Shape Your Wheel"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
+                    href="/reflection"
+                    symbol="✍︎"
+                    title="Reflection"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
+                    href="/reflections"
+                    symbol="◌"
+                    title="Journey"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
+                    href="/insights"
+                    symbol="⌁"
+                    title="Insights"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
+                    href="/about"
+                    symbol="♡"
+                    title="About Awake"
+                    isDark={isDark}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </nav>
 
       {message && (
@@ -758,87 +831,48 @@ export default function AwarenessWheel() {
   );
 }
 
-type HomeActionCardProps = {
+type AwakeMenuLinkProps = {
   href: string;
   symbol: string;
   title: string;
-  description: string;
+  isDark: boolean;
 };
 
-function HomeActionCard({
+function AwakeMenuLink({
   href,
   symbol,
   title,
-  description,
-}: HomeActionCardProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const descriptionId = `home-card-${title
-    .toLowerCase()
-    .replace(/\s+/g, "-")}`;
-
+  isDark,
+}: AwakeMenuLinkProps) {
   return (
-    <div className="rounded-3xl border border-stone-200 bg-white/80 px-5 py-4 text-left transition duration-300 hover:border-stone-300 hover:shadow-sm">
-      <div className="flex items-center gap-4">
-        <Link
-          href={href}
-          className="group flex min-w-0 flex-1 items-center gap-4"
-        >
-          <span
-            aria-hidden="true"
-            className="text-lg text-stone-400 transition group-hover:text-stone-600"
-          >
-            {symbol}
-          </span>
-
-          <h2 className="min-w-0 flex-1 text-base font-medium text-stone-700">
-            {title}
-          </h2>
-        </Link>
-
-        <button
-          type="button"
-          onClick={() => setIsOpen((current) => !current)}
-          aria-expanded={isOpen}
-          aria-controls={descriptionId}
-          aria-label={`${isOpen ? "Hide" : "Show"} ${title} description`}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-300 transition hover:bg-stone-50 hover:text-stone-600"
-        >
-          <span
-            aria-hidden="true"
-            className={`transition-transform duration-200 ${
-              isOpen ? "rotate-90" : ""
-            }`}
-          >
-            →
-          </span>
-        </button>
-      </div>
-
-      <div
-        id={descriptionId}
-        className={`grid transition-[grid-template-rows,opacity] duration-300 ${
-          isOpen
-            ? "mt-3 grid-rows-[1fr] opacity-100"
-            : "grid-rows-[0fr] opacity-0"
-        }`}
+    <Link
+      href={href}
+      className={`flex items-center gap-3 rounded-2xl px-3 py-3 transition ${
+        isDark
+          ? "text-slate-300 hover:bg-white/5 hover:text-stone-100"
+          : "text-stone-500 hover:bg-stone-50 hover:text-stone-800"
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className={isDark ? "text-slate-500" : "text-stone-300"}
       >
-        <div className="overflow-hidden">
-          <p className="pl-9 text-sm leading-6 text-stone-400">
-            {description}
-          </p>
+        {symbol}
+      </span>
 
-          <Link
-            href={href}
-            className="ml-9 mt-3 inline-flex text-xs text-stone-500 transition hover:text-stone-800"
-          >
-            Open {title} →
-          </Link>
-        </div>
-      </div>
-    </div>
+      <span className="min-w-0 flex-1 text-sm">
+        {title}
+      </span>
+
+      <span
+        aria-hidden="true"
+        className={isDark ? "text-slate-600" : "text-stone-300"}
+      >
+        →
+      </span>
+    </Link>
   );
 }
-  
 function polarToCartesian(
   centerX: number,
   centerY: number,

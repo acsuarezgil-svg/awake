@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { translations, type Language } from "../translations";
+import {
+  isDarkWheelTheme,
+  isWheelTheme,
+  wheelThemes,
+  type WheelTheme,
+} from "../theme";
 
 type Reflection = {
   id: string;
@@ -23,6 +29,9 @@ export default function ReflectionPage() {
   const [mode, setMode] = useState<"free" | "guided">("free");
   const [text, setText] = useState("");
   const [question, setQuestion] = useState("");
+  const [wheelTheme, setWheelTheme] =
+    useState<WheelTheme>("roseSage");
+  
 
   const [happened, setHappened] = useState("");
   const [feeling, setFeeling] = useState("");
@@ -37,6 +46,13 @@ export default function ReflectionPage() {
 
     if (savedLanguage) {
       setLanguage(savedLanguage);
+    }
+    const savedWheelTheme = localStorage.getItem(
+      "awake-wheel-theme"
+    );
+
+    if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
+      setWheelTheme(savedWheelTheme);
     }
   }, []);
 
@@ -111,35 +127,82 @@ export default function ReflectionPage() {
     setLearned("");
     setText("");
   }
+  const activeTheme = wheelThemes[wheelTheme];
+  const isDark = isDarkWheelTheme(wheelTheme);
+
+  const fieldClass = `w-full border p-3 transition-colors ${
+    isDark
+      ? "border-slate-600 bg-slate-800/80 text-stone-100 placeholder:text-slate-400 focus:border-slate-400"
+      : "border-stone-200 bg-white text-stone-800 placeholder:text-stone-400"
+  }`;
+
+  const sectionHeadingClass = isDark
+    ? "text-stone-100"
+    : "text-stone-800";
 
   return (
-    <main className="min-h-screen bg-white p-6 w-full max-w-md mx-auto">
-      <a href="/" className="text-sm text-gray-500">
+    <main
+      className={`min-h-screen w-full px-5 py-8 transition-[background] duration-500 ${
+        isDark ? "text-stone-100" : "text-stone-800"
+      }`}
+      style={{ background: activeTheme.pageBackground }}
+    >
+      <section className="mx-auto w-full max-w-md">
+      <a
+        href="/"
+        className={`text-sm transition ${
+          isDark
+            ? "text-slate-400 hover:text-stone-100"
+            : "text-gray-500 hover:text-stone-800"
+        }`}
+      >
         {t.back}
       </a>
 
-      <h1 className="text-3xl font-bold mb-2 mt-4">
+      <h1
+        className={`mb-2 mt-4 text-3xl font-bold ${
+          isDark ? "text-stone-100" : "text-stone-900"
+        }`}
+      >
         {t.newReflection}
       </h1>
 
-      <p className="text-gray-600 mb-6">
+      <p
+        className={`mb-6 ${
+          isDark ? "text-slate-300" : "text-gray-600"
+        }`}
+      >
         {t.observeChooseActLearn}
       </p>
 
       {question && (
-        <section className="mb-6 rounded-3xl bg-stone-50 px-5 py-5">
+        <section
+          className={`mb-6 rounded-3xl border px-5 py-5 transition-colors ${
+            isDark
+              ? "border-white/10 bg-slate-800/70"
+              : "border-stone-100 bg-stone-50"
+          }`}
+        >
           <p className="text-xs uppercase tracking-[0.2em] text-stone-400">
             A question for this moment
           </p>
 
-          <p className="mt-3 text-lg font-light leading-7 text-stone-700">
+          <p
+            className={`mt-3 text-lg font-light leading-7 ${
+              isDark ? "text-stone-100" : "text-stone-700"
+            }`}
+          >
             “{question}”
           </p>
 
           <button
             type="button"
             onClick={chooseQuestion}
-            className="mt-4 text-sm text-stone-400 transition hover:text-stone-700"
+            className={`mt-4 text-sm transition ${
+              isDark
+                ? "text-slate-400 hover:text-stone-100"
+                : "text-stone-400 hover:text-stone-700"
+            }`}
           >
             Another question
           </button>
@@ -150,8 +213,14 @@ export default function ReflectionPage() {
         <button
           type="button"
           onClick={() => setMode("free")}
-          className={`rounded-full px-4 py-2 text-sm ${
-            mode === "free" ? "bg-black text-white" : "border text-gray-600"
+          className={`rounded-full border px-4 py-2 text-sm transition ${
+            mode === "free"
+              ? isDark
+                ? "border-slate-500 bg-slate-600 text-white"
+                : "border-black bg-black text-white"
+              : isDark
+                ? "border-white/15 bg-slate-900/50 text-slate-300"
+                : "border-stone-200 bg-white text-gray-600"
           }`}
         >
           Free Write
@@ -160,8 +229,14 @@ export default function ReflectionPage() {
         <button
           type="button"
           onClick={() => setMode("guided")}
-          className={`rounded-full px-4 py-2 text-sm ${
-            mode === "guided" ? "bg-black text-white" : "border text-gray-600"
+          className={`rounded-full border px-4 py-2 text-sm transition ${
+            mode === "guided"
+              ? isDark
+                ? "border-slate-500 bg-slate-600 text-white"
+                : "border-black bg-black text-white"
+              : isDark
+                ? "border-white/15 bg-slate-900/50 text-slate-300"
+                : "border-stone-200 bg-white text-gray-600"
           }`}
         >
           Guided
@@ -174,7 +249,7 @@ export default function ReflectionPage() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Write whatever stayed with you..."
-              className="w-full rounded-2xl border p-4 min-h-64"
+              className={`${fieldClass} min-h-64 rounded-2xl p-4`}
             />
           </section>
         )}
@@ -183,7 +258,7 @@ export default function ReflectionPage() {
           <>
 
       <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-3">
+        <h2 className={`mb-3 text-xl font-semibold ${sectionHeadingClass}`}>
           {t.observe}
         </h2>
 
@@ -203,7 +278,7 @@ export default function ReflectionPage() {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-3">
+        <h2 className={`mb-3 text-xl font-semibold ${sectionHeadingClass}`}>
           {t.choose}
         </h2>
 
@@ -216,7 +291,7 @@ export default function ReflectionPage() {
       </section>
 
       <section className="mb-6">
-        <h2 className="text-xl font-semibold mb-3">
+        <h2 className={`mb-3 text-xl font-semibold ${sectionHeadingClass}`}>
           {t.act}
         </h2>
 
@@ -229,7 +304,7 @@ export default function ReflectionPage() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-3">
+        <h2 className={`mb-3 text-xl font-semibold ${sectionHeadingClass}`}>
           {t.learn}
         </h2>
 
@@ -245,10 +320,15 @@ export default function ReflectionPage() {
 
       <button
         onClick={saveReflection}
-        className="w-full rounded-2xl bg-black text-white p-4 font-semibold"
+        className={`w-full rounded-2xl p-4 font-semibold transition ${
+          isDark
+            ? "border border-white/10 bg-slate-700 text-stone-100 hover:bg-slate-600"
+            : "bg-black text-white hover:bg-stone-800"
+        }`}
       >
         {t.saveReflection}
       </button>
-    </main>
+      </section>
+</main>
   );
 }

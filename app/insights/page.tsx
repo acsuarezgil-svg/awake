@@ -30,13 +30,40 @@ const wheelThemes = {
         pattern: "251, 113, 133",
         investment: "52, 211, 153",
     },
+
     clayMoss: {
         pattern: "194, 120, 91",
         investment: "112, 143, 95",
     },
+
     lavenderMint: {
         pattern: "167, 139, 250",
         investment: "45, 212, 191",
+    },
+
+    yinYang: {
+        pattern: "63, 63, 70",
+        investment: "168, 162, 158",
+    },
+
+    ocean: {
+        pattern: "30, 64, 175",
+        investment: "45, 212, 191",
+    },
+
+    forest: {
+        pattern: "22, 101, 52",
+        investment: "132, 204, 22",
+    },
+
+    sunset: {
+        pattern: "194, 65, 12",
+        investment: "251, 191, 36",
+    },
+
+    midnight: {
+        pattern: "51, 65, 85",
+        investment: "20, 184, 166",
     },
 } as const;
 

@@ -25,6 +25,7 @@ const wheelThemes = {
     background:
       "linear-gradient(135deg, rgb(255 241 242), rgb(236 253 245), rgb(240 249 255))",
   },
+
   clayMoss: {
     name: "Clay + Moss",
     pattern: "rgba(194, 120, 91, 0.48)",
@@ -32,12 +33,53 @@ const wheelThemes = {
     background:
       "linear-gradient(135deg, rgb(250 242 237), rgb(241 246 236), rgb(248 250 247))",
   },
+
   lavenderMint: {
     name: "Lavender + Mint",
     pattern: "rgba(167, 139, 250, 0.42)",
     investment: "rgba(45, 212, 191, 0.42)",
     background:
       "linear-gradient(135deg, rgb(245 243 255), rgb(240 253 250), rgb(248 250 252))",
+  },
+
+  yinYang: {
+    name: "Yin & Yang",
+    pattern: "rgba(63, 63, 70, 0.58)",
+    investment: "rgba(168, 162, 158, 0.46)",
+    background:
+      "linear-gradient(135deg, rgb(250 250 249), rgb(245 245 244), rgb(231 229 228))",
+  },
+
+  ocean: {
+    name: "Ocean",
+    pattern: "rgba(30, 64, 175, 0.48)",
+    investment: "rgba(45, 212, 191, 0.48)",
+    background:
+      "linear-gradient(135deg, rgb(239 246 255), rgb(236 254 255), rgb(240 253 250))",
+  },
+
+  forest: {
+    name: "Forest",
+    pattern: "rgba(22, 101, 52, 0.50)",
+    investment: "rgba(132, 204, 22, 0.42)",
+    background:
+      "linear-gradient(135deg, rgb(240 253 244), rgb(247 254 231), rgb(245 245 244))",
+  },
+
+  sunset: {
+    name: "Sunset",
+    pattern: "rgba(194, 65, 12, 0.48)",
+    investment: "rgba(251, 191, 36, 0.44)",
+    background:
+      "linear-gradient(135deg, rgb(255 247 237), rgb(255 251 235), rgb(255 241 242))",
+  },
+
+  midnight: {
+    name: "Midnight",
+    pattern: "rgba(51, 65, 85, 0.72)",
+    investment: "rgba(20, 184, 166, 0.52)",
+    background:
+      "linear-gradient(135deg, rgb(226 232 240), rgb(240 253 250), rgb(241 245 249))",
   },
 } as const;
 

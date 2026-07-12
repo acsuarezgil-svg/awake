@@ -207,7 +207,7 @@ export default function DirectionPage() {
           href="/"
           className="text-sm text-stone-400 transition hover:text-stone-700"
         >
-          ← {t.back}
+          {t.back}
         </Link>
 
         <header className="mt-10 text-center">

@@ -84,9 +84,10 @@ export default function AwarenessWheel() {
   const [message, setMessage] = useState("");
   const [rippleKey, setRippleKey] = useState<number | null>(null);
   const [wheelTheme, setWheelTheme] = useState<WheelTheme>("roseSage");
+  const [showWheelAppearance, setShowWheelAppearance] = useState(false);
   const [pendingSelection, setPendingSelection] =
-  useState<PendingSelection | null>(null);
-
+    useState<PendingSelection | null>(null);
+  const [directions, setDirections] = useState<string[]>([]);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [isAutoCentering, setIsAutoCentering] = useState(false);
 
@@ -99,6 +100,9 @@ export default function AwarenessWheel() {
 
   useEffect(() => {
     setCounts(JSON.parse(localStorage.getItem("awake-counts") || "{}"));
+    setDirections(
+      JSON.parse(localStorage.getItem("awake-direction") || "[]")
+    );
     setPatterns(
       JSON.parse(localStorage.getItem("awake-patterns") || "null") ||
         defaultPatterns
@@ -348,54 +352,79 @@ export default function AwarenessWheel() {
         </p>
       </div>
 
-            <div className="mb-6 flex justify-center gap-2">
-              {filters.map((item) => (
-                <button
-                  key={item}
-                  onClick={() => setFilter(item)}
-                  className={`rounded-full px-4 py-2 text-sm transition ${
-                    filter === item
-                      ? "bg-stone-800 text-white"
-                      : "bg-white text-stone-500 shadow-sm"
+      {directions.length > 0 && (
+        <Link
+          href="/direction"
+          className="mx-auto mb-6 block max-w-md rounded-2xl px-4 py-3 text-center transition hover:bg-stone-50"
+        >
+          <p className="text-[10px] uppercase tracking-[0.22em] text-stone-400">
+            Your direction
+          </p>
+
+          <p className="mt-2 text-sm leading-6 text-stone-600">
+            {directions.slice(0, 3).join(" · ")}
+            {directions.length > 3 && ` +${directions.length - 3}`}
+          </p>
+        </Link>
+      )}
+
+            <div className="mb-5">
+              <button
+                type="button"
+                onClick={() => setShowWheelAppearance((current) => !current)}
+                aria-expanded={showWheelAppearance}
+                className="mx-auto flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-xs text-stone-500 transition hover:border-stone-300 hover:text-stone-700"
+              >
+                <span>Wheel appearance</span>
+
+                <span
+                  aria-hidden="true"
+                  className={`transition-transform ${
+                    showWheelAppearance ? "rotate-180" : ""
                   }`}
                 >
-                  {item}
-                </button>
-              ))}
-            </div>
+                  ↓
+                </span>
+              </button>
 
-            <div className="mb-5 flex flex-wrap items-center justify-center gap-2">
-              <span className="mr-1 text-xs text-stone-400">Wheel colors</span>
+              {showWheelAppearance && (
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                  {(Object.keys(wheelThemes) as WheelTheme[]).map((themeKey) => {
+                    const theme = wheelThemes[themeKey];
+                    const isActive = wheelTheme === themeKey;
 
-              {(Object.keys(wheelThemes) as WheelTheme[]).map((themeKey) => {
-                const theme = wheelThemes[themeKey];
-                const isActive = wheelTheme === themeKey;
+                    return (
+                      <button
+                        key={themeKey}
+                        type="button"
+                        onClick={() => changeWheelTheme(themeKey)}
+                        aria-label={`Use ${theme.name} wheel colors`}
+                        aria-pressed={isActive}
+                        title={theme.name}
+                        className={`flex items-center gap-1 rounded-full border bg-white px-3 py-2 transition ${
+                          isActive
+                            ? "border-stone-500 shadow-sm"
+                            : "border-stone-200 opacity-70 hover:opacity-100"
+                        }`}
+                      >
+                        <span
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: theme.pattern }}
+                        />
 
-                return (
-                  <button
-                    key={themeKey}
-                    type="button"
-                    onClick={() => changeWheelTheme(themeKey)}
-                    aria-label={`Use ${theme.name} wheel colors`}
-                    aria-pressed={isActive}
-                    title={theme.name}
-                    className={`flex items-center gap-1 rounded-full border bg-white px-2 py-1.5 transition ${
-                      isActive
-                        ? "border-stone-500 shadow-sm"
-                        : "border-stone-200 opacity-70 hover:opacity-100"
-                    }`}
-                  >
-                    <span
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: theme.pattern }}
-                    />
-                    <span
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: theme.investment }}
-                    />
-                  </button>
-                );
-              })}
+                        <span
+                          className="h-3 w-3 rounded-full"
+                          style={{ backgroundColor: theme.investment }}
+                        />
+
+                        <span className="ml-1 text-xs text-stone-500">
+                          {theme.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div
@@ -564,6 +593,22 @@ export default function AwarenessWheel() {
           </a>
         </svg>
       </div>
+
+      <div className="mb-6 flex justify-center gap-2">
+        {filters.map((item) => (
+          <button
+            key={item}
+            onClick={() => setFilter(item)}
+            className={`rounded-full px-4 py-2 text-sm transition ${
+              filter === item
+                ? "bg-stone-800 text-white"
+                : "bg-white text-stone-500 shadow-sm"
+             }`}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
 
       {pendingSelection && (
         <div className="mx-auto mt-3 max-w-sm rounded-2xl bg-white/85 px-4 py-3 text-sm text-stone-600 shadow-sm">

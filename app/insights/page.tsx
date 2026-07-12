@@ -517,11 +517,12 @@ useEffect(() => {
                                                     title={`${formatDateLabel(
                                                         date
                                                     )} · ${period.label} · ${description}`}
-                                                    className={`aspect-square rounded-xl border transition sm:rounded-2xl ${selectedCell?.dateKey === dateKey &&
-                                                            selectedCell?.period === period.key
-                                                            ? "ring-2 ring-stone-500 ring-offset-2"
+                                                    className={`aspect-square rounded-xl border transition duration-200 sm:rounded-2xl ${
+                                                        selectedCell?.dateKey === dateKey &&
+                                                        selectedCell?.period === period.key
+                                                            ? "awake-selected-cell z-10 scale-[1.04] ring-2 ring-stone-500 ring-offset-2"
                                                             : "hover:scale-[1.03]"
-                                                        }`}
+                                                    }`}
                                                     style={getCellStyle(cell, activeTheme)}
                                                 />
                                             );
@@ -749,6 +750,7 @@ useEffect(() => {
         </section>
     </div>
 )}
+
 <style jsx global>{`
     @keyframes awake-moment-enter {
         from {
@@ -766,8 +768,31 @@ useEffect(() => {
         animation: awake-moment-enter 220ms ease-out;
     }
 
+    @keyframes awake-cell-open {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 0 0 rgba(120, 113, 108, 0);
+        }
+
+        55% {
+            transform: scale(1.08);
+            box-shadow: 0 0 0 6px rgba(120, 113, 108, 0.08);
+        }
+
+        100% {
+            transform: scale(1.04);
+            box-shadow: 0 0 0 3px rgba(120, 113, 108, 0.05);
+        }
+    }
+
+    .awake-selected-cell {
+        position: relative;
+        animation: awake-cell-open 240ms ease-out forwards;
+    }
+
     @media (prefers-reduced-motion: reduce) {
-        .awake-moment-card {
+        .awake-moment-card,
+        .awake-selected-cell {
             animation: none;
         }
     }

@@ -240,24 +240,46 @@ export default function DirectionPage() {
             shape your wheel
           </p>
 
-          <h1 className="mt-4 text-3xl font-light text-stone-800">
+          <h1
+            className={`mt-4 text-3xl font-light ${
+              isDark ? "text-stone-100" : "text-stone-800"
+            }`}
+          >
             What are you learning to notice?
           </h1>
 
-          <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-stone-400">
+          <p
+            className={`mx-auto mt-3 max-w-md text-sm leading-6 ${
+              isDark ? "text-slate-300" : "text-stone-400"
+            }`}
+          >
             Your wheel can change as you discover new patterns,
             investments, and directions.
           </p>
         </header>
 
-        <section className="mt-12 rounded-3xl border border-rose-100 bg-rose-50/40 px-5 py-6">
+        <section
+          className={`mt-12 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
+            isDark
+              ? "border-rose-400/20 bg-slate-800/70"
+              : "border-rose-100 bg-rose-50/40"
+          }`}
+        >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-light text-stone-700">
+              <h2
+                className={`text-xl font-light ${
+                  isDark ? "text-stone-100" : "text-stone-700"
+                }`}
+              >
                 Patterns
               </h2>
 
-              <p className="mt-1 text-sm leading-6 text-stone-400">
+             <p
+              className={`mt-1 text-sm leading-6 ${
+                isDark ? "text-slate-300" : "text-stone-400"
+              }`}
+            >
                 What takes energy or keeps returning?
               </p>
             </div>
@@ -265,7 +287,11 @@ export default function DirectionPage() {
             <button
               type="button"
               onClick={addPattern}
-              className="rounded-full border border-rose-200 bg-white px-3 py-1.5 text-sm text-stone-500 transition hover:border-rose-300 hover:text-stone-700"
+              className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                isDark
+                  ? "border-rose-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
+                  : "border-rose-200 bg-white text-stone-500 hover:border-rose-300 hover:text-stone-700"
+              }`}
             >
               + Add
             </button>
@@ -275,9 +301,15 @@ export default function DirectionPage() {
             {patterns.map((item) => (
               <div
                 key={item}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-rose-100 bg-white px-4 py-3"
+                className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors ${
+                isDark
+                  ? "border-slate-600 bg-slate-700/80"
+                  : "border-rose-100 bg-white"
+              }`}
               >
-                <span className="min-w-0 flex-1 text-sm text-stone-700">
+                <span className={`min-w-0 flex-1 text-sm ${
+                  isDark ? "text-stone-100" : "text-stone-700"
+                }`}>
                   {item}
                 </span>
 
@@ -303,14 +335,24 @@ export default function DirectionPage() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-emerald-100 bg-emerald-50/40 px-5 py-6">
+        <section
+          className={`mt-6 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
+            isDark
+              ? "border-emerald-400/20 bg-slate-800/70"
+              : "border-emerald-100 bg-emerald-50/40"
+          }`}
+        >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-light text-stone-700">
+              <h2 className={`text-xl font-light ${
+                  isDark ? "text-stone-100" : "text-stone-700"
+                }`}>
                 Investments
               </h2>
 
-              <p className="mt-1 text-sm leading-6 text-stone-400">
+              <p className={`mt-1 text-sm leading-6 ${
+                isDark ? "text-slate-300" : "text-stone-400"
+              }`}>
                 What do you want to nurture or grow?
               </p>
             </div>
@@ -318,7 +360,11 @@ export default function DirectionPage() {
             <button
               type="button"
               onClick={addInvestment}
-              className="rounded-full border border-emerald-200 bg-white px-3 py-1.5 text-sm text-stone-500 transition hover:border-emerald-300 hover:text-stone-700"
+              className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                isDark
+                  ? "border-emerald-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
+                  : "border-emerald-200 bg-white text-stone-500 hover:border-emerald-300 hover:text-stone-700"
+              }`}
             >
               + Add
             </button>
@@ -328,9 +374,15 @@ export default function DirectionPage() {
             {investments.map((item) => (
               <div
                 key={item}
-                className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3"
+                className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors ${
+                  isDark
+                    ? "border-slate-600 bg-slate-700/80"
+                    : "border-emerald-100 bg-white"
+                }`}
               >
-                <span className="min-w-0 flex-1 text-sm text-stone-700">
+                <span className={`min-w-0 flex-1 text-sm ${
+                  isDark ? "text-stone-100" : "text-stone-700"
+                }`}>
                   {item}
                 </span>
 

@@ -452,7 +452,7 @@ export default function AwarenessWheel() {
             </div>
 
             <div
-              className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner sm:max-w-[480px] md:max-w-[620px]"
+              className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner sm:max-w-[430px] md:max-w-[500px] lg:max-w-[520px]"
               style={{ background: activeWheelTheme.background }}
             >
         <div className="absolute inset-0 rounded-full bg-white/20" />

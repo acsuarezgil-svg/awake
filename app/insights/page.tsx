@@ -461,7 +461,7 @@ useEffect(() => {
                     ))}
                 </div>
 
-                <section className="mt-10">
+                <section className="mx-auto mt-10 max-w-[680px]">
                     <div className="rounded-3xl border border-stone-100 bg-white px-2 py-6 sm:px-6">
                         <div className="grid grid-cols-[72px_repeat(4,minmax(0,1fr))] gap-2 sm:grid-cols-[105px_repeat(4,minmax(0,1fr))] sm:gap-3">
                             <div />
@@ -621,7 +621,7 @@ useEffect(() => {
         />
 
         <section
-            className="awake-moment-card relative z-10 max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-white/80 bg-white/95 px-4 py-5 shadow-[0_24px_70px_rgba(41,37,36,0.16)] sm:px-7 sm:py-7"
+            className="awake-moment-card relative z-10 max-h-[88vh] w-full max-w-[520px] overflow-y-auto rounded-3xl border border-white/80 bg-white/95 px-4 py-5 shadow-[0_24px_70px_rgba(41,37,36,0.16)] sm:px-7 sm:py-7"
             onClick={(event) => event.stopPropagation()}
         >
             <div className="flex min-w-0 items-start justify-between gap-3">
@@ -752,20 +752,26 @@ useEffect(() => {
 )}
 
 <style jsx global>{`
-    @keyframes awake-moment-enter {
-        from {
-            opacity: 0;
-            transform: translateY(10px) scale(0.985);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
+@keyframes awake-moment-enter {
+    0% {
+        opacity: 0;
+        transform: translateY(12px) scale(0.94);
     }
 
+    65% {
+        opacity: 1;
+        transform: translateY(0) scale(1.015);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
     .awake-moment-card {
-        animation: awake-moment-enter 220ms ease-out;
+        animation: awake-moment-enter 320ms cubic-bezier(0.22, 1, 0.36, 1);
+        transform-origin: center;
     }
 
     @keyframes awake-cell-open {

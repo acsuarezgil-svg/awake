@@ -12,6 +12,7 @@ import {
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
+type WheelSection = "direction" | "patterns" | "investments";
 
 const defaultDirections = [
   "Rest",
@@ -34,6 +35,8 @@ export default function DirectionPage() {
   const [language, setLanguage] = useState<Language>("en");
   const [wheelTheme, setWheelTheme] =
     useState<WheelTheme>("roseSage");
+  const [activeSection, setActiveSection] =
+  useState<WheelSection>("direction");
 
   const t = translations[language];
 
@@ -257,234 +260,318 @@ export default function DirectionPage() {
             investments, and directions.
           </p>
         </header>
-
-        <section
-          className={`mt-12 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
+        <nav
+          aria-label="Shape your wheel sections"
+          className={`mx-auto mt-8 flex w-full max-w-md rounded-full border p-1 ${
             isDark
-              ? "border-rose-400/20 bg-slate-800/70"
-              : "border-rose-100 bg-rose-50/40"
+              ? "border-white/10 bg-slate-900/60"
+              : "border-stone-200 bg-white/80"
           }`}
         >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2
-                className={`text-xl font-light ${
-                  isDark ? "text-stone-100" : "text-stone-700"
+          {(
+            [
+              ["direction", "Direction"],
+              ["patterns", "Patterns"],
+              ["investments", "Investments"],
+            ] as const
+          ).map(([sectionKey, label]) => {
+            const isActive = activeSection === sectionKey;
+
+            return (
+              <button
+                key={sectionKey}
+                type="button"
+                onClick={() => setActiveSection(sectionKey)}
+                aria-pressed={isActive}
+                className={`min-w-0 flex-1 rounded-full px-2 py-2.5 text-xs transition sm:text-sm ${
+                  isActive
+                    ? isDark
+                      ? "bg-slate-700 text-stone-100 shadow-sm"
+                      : "bg-stone-800 text-white shadow-sm"
+                    : isDark
+                      ? "text-slate-400 hover:text-stone-100"
+                      : "text-stone-400 hover:text-stone-700"
                 }`}
               >
-                Patterns
-              </h2>
+                {label}
+              </button>
+            );
+          })}
+        </nav>
 
-             <p
-              className={`mt-1 text-sm leading-6 ${
-                isDark ? "text-slate-300" : "text-stone-400"
-              }`}
-            >
-                What takes energy or keeps returning?
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={addPattern}
-              className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                isDark
-                  ? "border-rose-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
-                  : "border-rose-200 bg-white text-stone-500 hover:border-rose-300 hover:text-stone-700"
-              }`}
-            >
-              + Add
-            </button>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {patterns.map((item) => (
-              <div
-                key={item}
-                className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors ${
-                isDark
-                  ? "border-slate-600 bg-slate-700/80"
-                  : "border-rose-100 bg-white"
-              }`}
-              >
-                <span className={`min-w-0 flex-1 text-sm ${
-                  isDark ? "text-stone-100" : "text-stone-700"
-                }`}>
-                  {item}
-                </span>
-
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => editPattern(item)}
-                    className="rounded-full px-3 py-1 text-xs text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
-                  >
-                    {t.edit}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => deletePattern(item)}
-                    className="rounded-full px-3 py-1 text-xs text-rose-400 transition hover:bg-rose-50 hover:text-rose-700"
-                  >
-                    {t.delete}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section
-          className={`mt-6 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
-            isDark
-              ? "border-emerald-400/20 bg-slate-800/70"
-              : "border-emerald-100 bg-emerald-50/40"
-          }`}
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className={`text-xl font-light ${
-                  isDark ? "text-stone-100" : "text-stone-700"
-                }`}>
-                Investments
-              </h2>
-
-              <p className={`mt-1 text-sm leading-6 ${
-                isDark ? "text-slate-300" : "text-stone-400"
-              }`}>
-                What do you want to nurture or grow?
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={addInvestment}
-              className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                isDark
-                  ? "border-emerald-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
-                  : "border-emerald-200 bg-white text-stone-500 hover:border-emerald-300 hover:text-stone-700"
-              }`}
-            >
-              + Add
-            </button>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {investments.map((item) => (
-              <div
-                key={item}
-                className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors ${
-                  isDark
-                    ? "border-slate-600 bg-slate-700/80"
-                    : "border-emerald-100 bg-white"
-                }`}
-              >
-                <span className={`min-w-0 flex-1 text-sm ${
-                  isDark ? "text-stone-100" : "text-stone-700"
-                }`}>
-                  {item}
-                </span>
-
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => editInvestment(item)}
-                    className="rounded-full px-3 py-1 text-xs text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
-                  >
-                    {t.edit}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => deleteInvestment(item)}
-                    className="rounded-full px-3 py-1 text-xs text-emerald-500 transition hover:bg-emerald-50 hover:text-emerald-700"
-                  >
-                    {t.delete}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-3xl border border-sky-100 bg-sky-50/40 px-5 py-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-light text-stone-700">
-                Your direction
-              </h2>
-
-              <p className="mt-1 text-sm leading-6 text-stone-400">
-                What do you want more of in your life?
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={addDirection}
-              className="rounded-full border border-sky-200 bg-white px-3 py-1.5 text-sm text-stone-500 transition hover:border-sky-300 hover:text-stone-700"
-            >
-              + Add
-            </button>
-          </div>
-
-          <div className="mt-6 space-y-3">
-            {directions.map((item) => {
-              const isSelected = selected.includes(item);
-
-              return (
-                <div
-                  key={item}
-                  className={`rounded-2xl border px-4 py-3 transition ${
-                    isSelected
-                      ? "border-sky-200 bg-sky-100/70"
-                      : "border-sky-100 bg-white"
+        {activeSection === "patterns" && (
+          <section
+            className={`mt-8 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
+              isDark
+                ? "border-rose-400/20 bg-slate-800/70"
+                : "border-rose-100 bg-rose-50/40"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  className={`text-xl font-light ${
+                    isDark ? "text-stone-100" : "text-stone-700"
                   }`}
                 >
-                  <button
-                    type="button"
-                    onClick={() => toggleDirection(item)}
-                    aria-pressed={isSelected}
-                    className="w-full text-left text-sm text-stone-700"
+                  Patterns
+                </h2>
+
+                <p
+                  className={`mt-1 text-sm leading-6 ${
+                    isDark ? "text-slate-300" : "text-stone-400"
+                  }`}
+                >
+                  What takes energy or keeps returning?
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addPattern}
+                className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  isDark
+                    ? "border-rose-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
+                    : "border-rose-200 bg-white text-stone-500 hover:border-rose-300 hover:text-stone-700"
+                }`}
+              >
+                + Add
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {patterns.map((item) => (
+                <div
+                  key={item}
+                  className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors ${
+                    isDark
+                      ? "border-slate-600 bg-slate-700/80"
+                      : "border-rose-100 bg-white"
+                  }`}
+                >
+                  <span
+                    className={`min-w-0 flex-1 text-sm ${
+                      isDark ? "text-stone-100" : "text-stone-700"
+                    }`}
                   >
-                    <span className="flex items-center justify-between gap-3">
-                      <span>{item}</span>
+                    {item}
+                  </span>
 
-                      <span
-                        className={`text-xs ${
-                          isSelected
-                            ? "text-sky-600"
-                            : "text-stone-300"
-                        }`}
-                      >
-                        {isSelected ? "Selected" : "Choose"}
-                      </span>
-                    </span>
-                  </button>
-
-                  <div className="mt-3 flex gap-2 border-t border-sky-100 pt-3">
+                  <div className="flex shrink-0 gap-2">
                     <button
                       type="button"
-                      onClick={() => editDirection(item)}
-                      className="rounded-full px-3 py-1 text-xs text-stone-400 transition hover:bg-white hover:text-stone-700"
+                      onClick={() => editPattern(item)}
+                      className="rounded-full px-3 py-1 text-xs text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
                     >
                       {t.edit}
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => deleteDirection(item)}
-                      className="rounded-full px-3 py-1 text-xs text-sky-500 transition hover:bg-white hover:text-sky-700"
+                      onClick={() => deletePattern(item)}
+                      className="rounded-full px-3 py-1 text-xs text-rose-400 transition hover:bg-rose-50 hover:text-rose-700"
                     >
                       {t.delete}
                     </button>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {activeSection === "investments" && (
+          <section
+            className={`mt-8 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
+              isDark
+                ? "border-emerald-400/20 bg-slate-800/70"
+                : "border-emerald-100 bg-emerald-50/40"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  className={`text-xl font-light ${
+                    isDark ? "text-stone-100" : "text-stone-700"
+                  }`}
+                >
+                  Investments
+                </h2>
+
+                <p
+                  className={`mt-1 text-sm leading-6 ${
+                    isDark ? "text-slate-300" : "text-stone-400"
+                  }`}
+                >
+                  What do you want to nurture or grow?
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addInvestment}
+                className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  isDark
+                    ? "border-emerald-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
+                    : "border-emerald-200 bg-white text-stone-500 hover:border-emerald-300 hover:text-stone-700"
+                }`}
+              >
+                + Add
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {investments.map((item) => (
+                <div
+                  key={item}
+                  className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors ${
+                    isDark
+                      ? "border-slate-600 bg-slate-700/80"
+                      : "border-emerald-100 bg-white"
+                  }`}
+                >
+                  <span
+                    className={`min-w-0 flex-1 text-sm ${
+                      isDark ? "text-stone-100" : "text-stone-700"
+                    }`}
+                  >
+                    {item}
+                  </span>
+
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => editInvestment(item)}
+                      className="rounded-full px-3 py-1 text-xs text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
+                    >
+                      {t.edit}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => deleteInvestment(item)}
+                      className="rounded-full px-3 py-1 text-xs text-emerald-500 transition hover:bg-emerald-50 hover:text-emerald-700"
+                    >
+                      {t.delete}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {activeSection === "direction" && (
+          <section
+            className={`mt-8 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
+              isDark
+                ? "border-sky-400/20 bg-slate-800/70"
+                : "border-sky-100 bg-sky-50/40"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  className={`text-xl font-light ${
+                    isDark ? "text-stone-100" : "text-stone-700"
+                  }`}
+                >
+                  Your direction
+                </h2>
+
+                <p
+                  className={`mt-1 text-sm leading-6 ${
+                    isDark ? "text-slate-300" : "text-stone-400"
+                  }`}
+                >
+                  What do you want more of in your life?
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addDirection}
+                className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  isDark
+                    ? "border-sky-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
+                    : "border-sky-200 bg-white text-stone-500 hover:border-sky-300 hover:text-stone-700"
+                }`}
+              >
+                + Add
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {directions.map((item) => {
+                const isSelected = selected.includes(item);
+
+                return (
+                  <div
+                    key={item}
+                    className={`rounded-2xl border px-4 py-3 transition ${
+                      isDark
+                        ? isSelected
+                          ? "border-sky-400/40 bg-slate-600/90"
+                          : "border-slate-600 bg-slate-700/80"
+                        : isSelected
+                          ? "border-sky-200 bg-sky-100/70"
+                          : "border-sky-100 bg-white"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => toggleDirection(item)}
+                      aria-pressed={isSelected}
+                      className={`w-full text-left text-sm ${
+                        isDark ? "text-stone-100" : "text-stone-700"
+                      }`}
+                    >
+                      <span className="flex items-center justify-between gap-3">
+                        <span>{item}</span>
+
+                        <span
+                          className={`text-xs ${
+                            isSelected
+                              ? isDark
+                                ? "text-sky-300"
+                                : "text-sky-600"
+                              : isDark
+                                ? "text-slate-400"
+                                : "text-stone-300"
+                          }`}
+                        >
+                          {isSelected ? "Selected" : "Choose"}
+                        </span>
+                      </span>
+                    </button>
+
+                    <div
+                      className={`mt-3 flex gap-2 border-t pt-3 ${
+                        isDark ? "border-slate-600" : "border-sky-100"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => editDirection(item)}
+                        className="rounded-full px-3 py-1 text-xs text-stone-400 transition hover:text-stone-200"
+                      >
+                        {t.edit}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => deleteDirection(item)}
+                        className="rounded-full px-3 py-1 text-xs text-sky-500 transition hover:text-sky-300"
+                      >
+                        {t.delete}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <div className="mt-10 text-center">
           <Link

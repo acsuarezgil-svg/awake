@@ -454,7 +454,7 @@ export default function AwarenessWheel() {
               </button>
 
               {showWheelAppearance && (
-                <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                <div className="mx-auto mt-4 grid max-w-[520px] grid-cols-2 gap-2 min-[420px]:grid-cols-3 sm:grid-cols-4">
                   {(Object.keys(wheelThemes) as WheelTheme[]).map((themeKey) => {
                     const theme = wheelThemes[themeKey];
                     const isActive = wheelTheme === themeKey;
@@ -467,23 +467,36 @@ export default function AwarenessWheel() {
                         aria-label={`Use ${theme.name} wheel colors`}
                         aria-pressed={isActive}
                         title={theme.name}
-                        className={`flex items-center gap-1 rounded-full border bg-white px-3 py-2 transition ${
+                        className={`group min-w-[118px] rounded-2xl border bg-white p-2 text-left transition duration-200 ${
                           isActive
-                            ? "border-stone-500 shadow-sm"
-                            : "border-stone-200 opacity-70 hover:opacity-100"
+                            ? "border-stone-500 shadow-sm ring-1 ring-stone-300"
+                            : "border-stone-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-sm"
                         }`}
                       >
                         <span
-                          className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: theme.pattern }}
-                        />
+                          className="relative block h-8 w-full overflow-hidden rounded-xl border border-white/70"
+                          style={{ background: theme.background }}
+                        >
+                          <span
+                            className="absolute inset-y-0 left-0 w-1/2"
+                            style={{ backgroundColor: theme.pattern }}
+                          />
 
-                        <span
-                          className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: theme.investment }}
-                        />
+                          <span
+                            className="absolute inset-y-0 right-0 w-1/2"
+                            style={{ backgroundColor: theme.investment }}
+                          />
 
-                        <span className="ml-1 text-xs text-stone-500">
+                          {isActive && (
+                            <span className="absolute inset-0 flex items-center justify-center">
+                              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-[10px] text-stone-700 shadow-sm">
+                                ✓
+                              </span>
+                            </span>
+                          )}
+                        </span>
+
+                        <span className="mt-2 block text-center text-[11px] text-stone-500">
                           {theme.name}
                         </span>
                       </button>

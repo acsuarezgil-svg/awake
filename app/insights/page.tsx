@@ -460,7 +460,7 @@ useEffect(() => {
                         insights
                     </p>
 
-                    <h1 className="mt-4 text-3xl font-light text-stone-800">
+                    <h1 className="mx-auto mt-4 max-w-xl text-3xl font-light leading-tight text-stone-800 sm:text-[2rem]">
                         How has awareness been showing up?
                     </h1>
 
@@ -488,9 +488,9 @@ useEffect(() => {
                     ))}
                 </div>
 
-                <section className="mx-auto mt-10 max-w-[680px]">
+                <section className="mx-auto mt-10 max-w-[560px] lg:max-w-[600px]">
                     <div className="rounded-3xl border border-stone-100 bg-white px-2 py-6 sm:px-6">
-                        <div className="grid grid-cols-[72px_repeat(4,minmax(0,1fr))] gap-2 sm:grid-cols-[105px_repeat(4,minmax(0,1fr))] sm:gap-3">
+                        <div className="grid grid-cols-[72px_repeat(4,minmax(0,1fr))] gap-2 sm:grid-cols-[90px_repeat(4,minmax(0,1fr))] sm:gap-2.5">
                             <div />
 
                             {timePeriods.map((period) => (

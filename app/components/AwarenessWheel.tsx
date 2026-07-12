@@ -49,6 +49,25 @@ const defaultInvestments = ["Exercise", "Learning", "Creativity"];
 const filters = ["Today", "7 Days", "Month", "All"] as const;
 type Filter = (typeof filters)[number];
 
+type HapticStrength = "light" | "notice" | "settle";
+
+function triggerHaptic(strength: HapticStrength) {
+  if (
+    typeof window === "undefined" ||
+    !("vibrate" in navigator)
+  ) {
+    return;
+  }
+
+  const patterns: Record<HapticStrength, number | number[]> = {
+    light: 8,
+    notice: [12, 30, 18],
+    settle: 10,
+  };
+
+  navigator.vibrate(patterns[strength]);
+}
+
 function isInFilter(dateString: string, filter: Filter) {
   const eventDate = new Date(dateString);
   const now = new Date();
@@ -197,6 +216,7 @@ export default function AwarenessWheel() {
 
     autoCenterTimeoutRef.current = window.setTimeout(() => {
       setIsAutoCentering(false);
+      triggerHaptic("settle");
       autoCenterTimeoutRef.current = null;
     }, 550);
   }
@@ -223,6 +243,7 @@ export default function AwarenessWheel() {
     setRippleKey((k) => (k ?? 0) + 1);
     setMessage(`Noticed ${name}`);
 
+    triggerHaptic("notice");
     centerSelectedSlice(name, type);
 
     localStorage.setItem("awake-counts", JSON.stringify(nextCounts));
@@ -240,7 +261,8 @@ export default function AwarenessWheel() {
         return;
       }
 
-      if (hasVisibleLabel) { 
+      if (hasVisibleLabel) {
+        triggerHaptic("light");
         notice(name, type);
         return;
       }
@@ -249,10 +271,12 @@ export default function AwarenessWheel() {
         pendingSelection?.name === name && pendingSelection?.type === type;
 
       if (isAlreadyPending) {
+        triggerHaptic("light");
         notice(name, type);
         return;
       }
 
+      triggerHaptic("light");
       setPendingSelection({ name, type });
     }
 

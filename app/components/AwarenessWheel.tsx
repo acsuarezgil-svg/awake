@@ -2,6 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  isWheelTheme,
+  wheelThemes,
+  type WheelTheme,
+} from "../theme";
 
 type Counts = Record<string, number>;
 
@@ -16,74 +21,6 @@ type PendingSelection = {
   name: string;
   type: "pattern" | "investment";
 };
-
-const wheelThemes = {
-  roseSage: {
-    name: "Rose + Sage",
-    pattern: "rgba(251, 113, 133, 0.45)",
-    investment: "rgba(52, 211, 153, 0.45)",
-    background:
-      "linear-gradient(135deg, rgb(255 241 242), rgb(236 253 245), rgb(240 249 255))",
-  },
-
-  clayMoss: {
-    name: "Clay + Moss",
-    pattern: "rgba(194, 120, 91, 0.48)",
-    investment: "rgba(112, 143, 95, 0.48)",
-    background:
-      "linear-gradient(135deg, rgb(250 242 237), rgb(241 246 236), rgb(248 250 247))",
-  },
-
-  lavenderMint: {
-    name: "Lavender + Mint",
-    pattern: "rgba(167, 139, 250, 0.42)",
-    investment: "rgba(45, 212, 191, 0.42)",
-    background:
-      "linear-gradient(135deg, rgb(245 243 255), rgb(240 253 250), rgb(248 250 252))",
-  },
-
-  yinYang: {
-    name: "Yin & Yang",
-    pattern: "rgba(63, 63, 70, 0.58)",
-    investment: "rgba(168, 162, 158, 0.46)",
-    background:
-      "linear-gradient(135deg, rgb(250 250 249), rgb(245 245 244), rgb(231 229 228))",
-  },
-
-  ocean: {
-    name: "Ocean",
-    pattern: "rgba(30, 64, 175, 0.48)",
-    investment: "rgba(45, 212, 191, 0.48)",
-    background:
-      "linear-gradient(135deg, rgb(239 246 255), rgb(236 254 255), rgb(240 253 250))",
-  },
-
-  forest: {
-    name: "Forest",
-    pattern: "rgba(22, 101, 52, 0.50)",
-    investment: "rgba(132, 204, 22, 0.42)",
-    background:
-      "linear-gradient(135deg, rgb(240 253 244), rgb(247 254 231), rgb(245 245 244))",
-  },
-
-  sunset: {
-    name: "Sunset",
-    pattern: "rgba(194, 65, 12, 0.48)",
-    investment: "rgba(251, 191, 36, 0.44)",
-    background:
-      "linear-gradient(135deg, rgb(255 247 237), rgb(255 251 235), rgb(255 241 242))",
-  },
-
-  midnight: {
-    name: "Midnight",
-    pattern: "rgba(51, 65, 85, 0.72)",
-    investment: "rgba(20, 184, 166, 0.52)",
-    background:
-      "linear-gradient(135deg, rgb(226 232 240), rgb(240 253 250), rgb(241 245 249))",
-  },
-} as const;
-
-type WheelTheme = keyof typeof wheelThemes;
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
@@ -176,8 +113,8 @@ export default function AwarenessWheel() {
 
     const savedWheelTheme = localStorage.getItem("awake-wheel-theme");
 
-    if (savedWheelTheme && savedWheelTheme in wheelThemes) {
-      setWheelTheme(savedWheelTheme as WheelTheme);
+    if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
+      setWheelTheme(savedWheelTheme);
     }
     }, []);
     useEffect(() => {
@@ -475,16 +412,16 @@ export default function AwarenessWheel() {
                       >
                         <span
                           className="relative block h-8 w-full overflow-hidden rounded-xl border border-white/70"
-                          style={{ background: theme.background }}
+                          style={{ background: theme.wheelBackground }}
                         >
                           <span
                             className="absolute inset-y-0 left-0 w-1/2"
-                            style={{ backgroundColor: theme.pattern }}
+                            style={{ backgroundColor: theme.patternFill }}
                           />
 
                           <span
                             className="absolute inset-y-0 right-0 w-1/2"
-                            style={{ backgroundColor: theme.investment }}
+                            style={{ backgroundColor: theme.investmentFill }}
                           />
 
                           {isActive && (
@@ -508,7 +445,7 @@ export default function AwarenessWheel() {
 
             <div
               className="relative mx-auto aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner sm:max-w-[430px] md:max-w-[500px] lg:max-w-[520px]"
-              style={{ background: activeWheelTheme.background }}
+              style={{ background: activeWheelTheme.wheelBackground }}
             >
         <div className="absolute inset-0 rounded-full bg-white/20" />
         {rippleKey !== null && (
@@ -573,9 +510,9 @@ export default function AwarenessWheel() {
 
             const fill =
               item.type === "pattern"
-                ? activeWheelTheme.pattern
-                : activeWheelTheme.investment;
-            
+                ? activeWheelTheme.patternFill
+                : activeWheelTheme.investmentFill;
+
             return (
               <g
                 key={`${item.type}-${item.name}`}

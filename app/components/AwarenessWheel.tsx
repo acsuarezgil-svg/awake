@@ -718,7 +718,7 @@ export default function AwarenessWheel() {
                   Wheel view
                 </p>
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
                   {filters.map((item) => (
                     <button
                       key={item}

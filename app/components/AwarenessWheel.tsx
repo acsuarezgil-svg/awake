@@ -771,6 +771,73 @@ function HomeActionCard({
   title,
   description,
 }: HomeActionCardProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const descriptionId = `home-card-${title
+    .toLowerCase()
+    .replace(/\s+/g, "-")}`;
+
+  return (
+    <div className="rounded-3xl border border-stone-200 bg-white/80 px-5 py-4 text-left transition duration-300 hover:border-stone-300 hover:shadow-sm">
+      <div className="flex items-center gap-4">
+        <Link
+          href={href}
+          className="group flex min-w-0 flex-1 items-center gap-4"
+        >
+          <span
+            aria-hidden="true"
+            className="text-lg text-stone-400 transition group-hover:text-stone-600"
+          >
+            {symbol}
+          </span>
+
+          <h2 className="min-w-0 flex-1 text-base font-medium text-stone-700">
+            {title}
+          </h2>
+        </Link>
+
+        <button
+          type="button"
+          onClick={() => setIsOpen((current) => !current)}
+          aria-expanded={isOpen}
+          aria-controls={descriptionId}
+          aria-label={`${isOpen ? "Hide" : "Show"} ${title} description`}
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-stone-300 transition hover:bg-stone-50 hover:text-stone-600"
+        >
+          <span
+            aria-hidden="true"
+            className={`transition-transform duration-200 ${
+              isOpen ? "rotate-90" : ""
+            }`}
+          >
+            →
+          </span>
+        </button>
+      </div>
+
+      <div
+        id={descriptionId}
+        className={`grid transition-[grid-template-rows,opacity] duration-300 ${
+          isOpen
+            ? "mt-3 grid-rows-[1fr] opacity-100"
+            : "grid-rows-[0fr] opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          <p className="pl-9 text-sm leading-6 text-stone-400">
+            {description}
+          </p>
+
+          <Link
+            href={href}
+            className="ml-9 mt-3 inline-flex text-xs text-stone-500 transition hover:text-stone-800"
+          >
+            Open {title} →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
   return (
     <Link
       href={href}

@@ -687,6 +687,7 @@ function removeSliceFromCard() {
 
     const activeWheelTheme = wheelThemes[wheelTheme];
     const isDark = isDarkWheelTheme(wheelTheme);
+    const centerFilterLabel = filter.toUpperCase();
 
     let currentAngle = 0;
 
@@ -1006,49 +1007,69 @@ function removeSliceFromCard() {
 
           <text
             x="50"
-            y="47"
+            y="45"
             textAnchor="middle"
-            className="select-none fill-stone-700 text-[4px] font-light"
+            className={`pointer-events-none select-none text-[3.5px] font-semibold tracking-[0.08em] ${
+              isDark ? "fill-rose-300" : "fill-rose-600"
+            }`}
           >
-            This
-          </text>
-          <text
-            x="50"
-            y="53"
-            textAnchor="middle"
-            className="select-none fill-stone-700 text-[4px] font-light"
-          >
-            Moment
+            {centerFilterLabel}
           </text>
 
           <g
-            aria-label="Shape your wheel"
+            role="button"
+            tabIndex={0}
+            aria-label="Change wheel perspective"
             onPointerDown={(event) => {
               event.preventDefault();
               event.stopPropagation();
             }}
-            onClick={(event) => event.stopPropagation()}
+            onClick={(event) => {
+              event.stopPropagation();
+              setShowCenterMenu((current) => !current);
+              triggerHaptic("light");
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                setShowCenterMenu((current) => !current);
+                triggerHaptic("light");
+              }
+            }}
             className="group cursor-pointer"
           >
-            <title>Shape your wheel</title>
+            <title>Change perspective</title>
 
             <circle
               cx="50"
-              cy="60"
-              r="4"
+              cy="51"
+              r="5"
               fill="transparent"
             />
 
             <text
               x="50"
-              y="60"
+              y="51"
               textAnchor="middle"
               dominantBaseline="middle"
-              className="select-none fill-stone-400 text-[4px] font-light transition group-hover:fill-stone-700"
+              className={`select-none text-[5px] font-semibold transition ${
+                isDark
+                  ? "fill-rose-300 group-hover:fill-rose-200"
+                  : "fill-rose-600 group-hover:fill-rose-700"
+              }`}
             >
-              +
+              {showCenterMenu ? "×" : "+"}
             </text>
           </g>
+
+          <text
+            x="50"
+            y="58"
+            textAnchor="middle"
+            className="pointer-events-none select-none fill-stone-600 text-[3.5px] font-light"
+          >
+            This Moment
+          </text>
         </svg>
       </div>
 

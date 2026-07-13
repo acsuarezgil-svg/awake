@@ -697,12 +697,12 @@ function removeSliceFromCard() {
     const perspectiveAccent = activeWheelTheme.patternFill;
 
     const perspectiveInactive = isDark
-      ? "rgba(248,250,252,0.96)"
+      ? "rgba(51,65,85,0.96)"
       : "rgba(87,83,78,0.82)";
 
     const perspectivePetalFill = isDark
-      ? "rgba(255,255,255,0.18)"
-      : "rgba(255,255,255,0.72)";
+      ? "rgba(248,250,252,0.88)"
+      : "rgba(255,255,255,0.78)";
 
     const perspectivePetalStroke = isDark
       ? "rgba(255,255,255,0.18)"
@@ -1494,11 +1494,11 @@ function PerspectiveOption({
         style={{
           fill: active
             ? isDark
-              ? "rgba(248,250,252,0.98)"
+              ? "rgba(30,41,59,0.98)"
               : accentColor
             : inactiveColor,
           filter: active
-            ? `drop-shadow(0 0 1.8px ${accentColor})`
+            ? `drop-shadow(0 0 1.4px ${accentColor})`
             : "none",
         }}
       >

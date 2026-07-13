@@ -1061,41 +1061,6 @@ function removeSliceFromCard() {
               {showCenterMenu ? "×" : "+"}
             </text>
           </g>
-
-          <text
-            x="50"
-            y="58"
-            textAnchor="middle"
-            className="pointer-events-none select-none fill-stone-600 text-[3.5px] font-light"
-          >
-            This Moment
-          </text>
-          <circle
-            cx="50"
-            cy="50"
-            r="22"
-            fill="rgba(255,255,255,0.9)"
-            className="awake-breathe-halo"
-          />
-
-          <circle
-            cx="50"
-            cy="50"
-            r="22"
-            fill="rgba(255,255,255,0.9)"
-          />
-
-          {/* TOP LABEL */}
-          <text>
-            {centerFilterLabel}
-          </text>
-
-          {/* CENTER + */}
-          <g>
-            +
-          </g>
-
-          {/* NEW PERSPECTIVE BLOOM */}
           <g
             className={`transition-all duration-300 ${
               showCenterMenu
@@ -1103,13 +1068,61 @@ function removeSliceFromCard() {
                 : "pointer-events-none opacity-0"
             }`}
           >
-            ...
-          PerspectiveOption
-          ...
-          </g>
+            <PerspectiveOption
+              x={50}
+              y={28}
+              label="TODAY"
+              active={filter === "Today"}
+              isDark={isDark}
+              onClick={() => {
+                setFilter("Today");
+                setShowCenterMenu(false);
+              }}
+            />
 
-          {/* BOTTOM LABEL */}
-          <text>
+            <PerspectiveOption
+              x={26}
+              y={50}
+              label="7 DAYS"
+              active={filter === "7 Days"}
+              isDark={isDark}
+              onClick={() => {
+                setFilter("7 Days");
+                setShowCenterMenu(false);
+              }}
+            />
+
+            <PerspectiveOption
+              x={74}
+              y={50}
+              label="MONTH"
+              active={filter === "Month"}
+              isDark={isDark}
+              onClick={() => {
+                setFilter("Month");
+                setShowCenterMenu(false);
+              }}
+            />
+
+            <PerspectiveOption
+              x={50}
+              y={74}
+              label="ALL"
+              active={filter === "All"}
+              isDark={isDark}
+              onClick={() => {
+                setFilter("All");
+                setShowCenterMenu(false);
+              }}
+            />
+          </g>
+          
+          <text
+            x="50"
+            y="58"
+            textAnchor="middle"
+            className="pointer-events-none select-none fill-stone-600 text-[3.5px] font-light"
+          >
             This Moment
           </text>
         </svg>
@@ -1397,15 +1410,13 @@ function PerspectiveOption({
   onClick,
 }: PerspectiveOptionProps) {
   return (
-    <g
-      onClick={onClick}
-      className="cursor-pointer"
-    >
+    <g className="cursor-pointer">
       <circle
         cx={x}
         cy={y}
-        r="5"
-        fill="transparent"
+        r="7"
+        fill="rgba(255,255,255,0.9)"
+        onClick={onClick}
       />
 
       <text
@@ -1413,14 +1424,14 @@ function PerspectiveOption({
         y={y}
         textAnchor="middle"
         dominantBaseline="middle"
-        className={`select-none text-[2.6px] font-medium transition ${
+        className={`pointer-events-none select-none text-[2.8px] font-medium transition ${
           active
             ? isDark
               ? "fill-rose-300"
               : "fill-rose-600"
             : isDark
               ? "fill-slate-300"
-              : "fill-stone-500"
+              : "fill-stone-600"
         }`}
       >
         {label}

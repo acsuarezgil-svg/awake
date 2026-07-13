@@ -694,6 +694,19 @@ function removeSliceFromCard() {
     const activeWheelTheme = wheelThemes[wheelTheme];
     const isDark = isDarkWheelTheme(wheelTheme);
     const centerFilterLabel = filter.toUpperCase();
+    const perspectiveAccent = activeWheelTheme.patternFill;
+
+    const perspectiveInactive = isDark
+      ? "rgba(226,232,240,0.82)"
+      : "rgba(87,83,78,0.82)";
+
+    const perspectivePetalFill = isDark
+      ? "rgba(255,255,255,0.10)"
+      : "rgba(255,255,255,0.72)";
+
+    const perspectivePetalStroke = isDark
+      ? "rgba(255,255,255,0.18)"
+      : "rgba(120,113,108,0.16)";
 
     let currentAngle = 0;
 
@@ -1015,9 +1028,8 @@ function removeSliceFromCard() {
             x="50"
             y="45"
             textAnchor="middle"
-            className={`pointer-events-none select-none text-[3.5px] font-semibold tracking-[0.08em] ${
-              isDark ? "fill-rose-300" : "fill-rose-600"
-            }`}
+            className="pointer-events-none select-none text-[3.5px] font-semibold tracking-[0.08em] transition-[fill] duration-300"
+            style={{ fill: perspectiveAccent }}
           >
             {centerFilterLabel}
           </text>
@@ -1058,13 +1070,10 @@ function removeSliceFromCard() {
               y="51"
               textAnchor="middle"
               dominantBaseline="middle"
-              className={`awake-perspective-toggle select-none text-[5px] font-semibold ${
+              className={`awake-perspective-toggle select-none text-[5px] font-semibold transition-[fill] duration-300 ${
                 showCenterMenu ? "awake-perspective-toggle-open" : ""
-              } ${
-                isDark
-                  ? "fill-rose-300 group-hover:fill-rose-200"
-                  : "fill-rose-600 group-hover:fill-rose-700"
               }`}
+              style={{ fill: perspectiveAccent }}
             >
               +
             </text>
@@ -1081,7 +1090,10 @@ function removeSliceFromCard() {
               y={28}
               label="TODAY"
               active={filter === "Today"}
-              isDark={isDark}
+              accentColor={perspectiveAccent}
+              inactiveColor={perspectiveInactive}
+              petalFill={perspectivePetalFill}
+              petalStroke={perspectivePetalStroke}
               onClick={() => selectPerspective("Today")}
             />
 
@@ -1090,7 +1102,10 @@ function removeSliceFromCard() {
               y={50}
               label="7 DAYS"
               active={filter === "7 Days"}
-              isDark={isDark}
+              accentColor={perspectiveAccent}
+              inactiveColor={perspectiveInactive}
+              petalFill={perspectivePetalFill}
+              petalStroke={perspectivePetalStroke}
               onClick={() => selectPerspective("7 Days")}
             />
 
@@ -1099,7 +1114,10 @@ function removeSliceFromCard() {
               y={50}
               label="MONTH"
               active={filter === "Month"}
-              isDark={isDark}
+              accentColor={perspectiveAccent}
+              inactiveColor={perspectiveInactive}
+              petalFill={perspectivePetalFill}
+              petalStroke={perspectivePetalStroke}
               onClick={() => selectPerspective("Month")}
             />
 
@@ -1108,7 +1126,10 @@ function removeSliceFromCard() {
               y={74}
               label="ALL"
               active={filter === "All"}
-              isDark={isDark}
+              accentColor={perspectiveAccent}
+              inactiveColor={perspectiveInactive}
+              petalFill={perspectivePetalFill}
+              petalStroke={perspectivePetalStroke}
               onClick={() => selectPerspective("All")}
             />
           </g>
@@ -1426,7 +1447,10 @@ type PerspectiveOptionProps = {
   y: number;
   label: string;
   active: boolean;
-  isDark: boolean;
+  accentColor: string;
+  inactiveColor: string;
+  petalFill: string;
+  petalStroke: string;
   onClick: () => void;
 };
 
@@ -1435,7 +1459,10 @@ function PerspectiveOption({
   y,
   label,
   active,
-  isDark,
+  accentColor,
+  inactiveColor,
+  petalFill,
+  petalStroke,
   onClick,
 }: PerspectiveOptionProps) {
   return (
@@ -1444,8 +1471,12 @@ function PerspectiveOption({
         cx={x}
         cy={y}
         r="8"
-        fill="rgba(255,255,255,0.001)"
+        fill={active ? accentColor : petalFill}
+        fillOpacity={active ? 0.14 : 1}
+        stroke={active ? accentColor : petalStroke}
+        strokeWidth={active ? 0.7 : 0.45}
         onClick={onClick}
+        className="transition-[fill,stroke,fill-opacity] duration-300"
       />
 
       <text
@@ -1453,15 +1484,13 @@ function PerspectiveOption({
         y={y}
         textAnchor="middle"
         dominantBaseline="middle"
-        className={`pointer-events-none select-none text-[2.8px] font-medium transition ${
-          active
-            ? isDark
-              ? "fill-rose-300 awake-perspective-active"
-              : "fill-rose-600 awake-perspective-active"
-            : isDark
-              ? "fill-slate-300"
-              : "fill-stone-600"
-        }`}
+        className="pointer-events-none select-none text-[2.8px] font-medium transition-[fill,filter] duration-300"
+        style={{
+          fill: active ? accentColor : inactiveColor,
+          filter: active
+            ? `drop-shadow(0 0 1.4px ${accentColor})`
+            : "none",
+        }}
       >
         {label}
       </text>

@@ -550,6 +550,12 @@ function removeSliceFromCard() {
       });
     }
 
+    function selectPerspective(nextFilter: Filter) {
+      setFilter(nextFilter);
+      setShowCenterMenu(false);
+      triggerHaptic("light");
+    }
+
     function changeWheelTheme(nextTheme: WheelTheme) {
       setWheelTheme(nextTheme);
       localStorage.setItem("awake-wheel-theme", nextTheme);
@@ -1052,20 +1058,22 @@ function removeSliceFromCard() {
               y="51"
               textAnchor="middle"
               dominantBaseline="middle"
-              className={`select-none text-[5px] font-semibold transition ${
+              className={`awake-perspective-toggle select-none text-[5px] font-semibold ${
+                showCenterMenu ? "awake-perspective-toggle-open" : ""
+              } ${
                 isDark
                   ? "fill-rose-300 group-hover:fill-rose-200"
                   : "fill-rose-600 group-hover:fill-rose-700"
               }`}
             >
-              {showCenterMenu ? "×" : "+"}
+              +
             </text>
           </g>
           <g
-            className={`transition-all duration-300 ${
+            className={`awake-perspective-bloom ${
               showCenterMenu
-                ? "opacity-100"
-                : "pointer-events-none opacity-0"
+                ? "awake-perspective-bloom-open"
+                : "pointer-events-none"
             }`}
           >
             <PerspectiveOption
@@ -1074,10 +1082,7 @@ function removeSliceFromCard() {
               label="TODAY"
               active={filter === "Today"}
               isDark={isDark}
-              onClick={() => {
-                setFilter("Today");
-                setShowCenterMenu(false);
-              }}
+              onClick={() => selectPerspective("Today")}
             />
 
             <PerspectiveOption
@@ -1086,10 +1091,7 @@ function removeSliceFromCard() {
               label="7 DAYS"
               active={filter === "7 Days"}
               isDark={isDark}
-              onClick={() => {
-                setFilter("7 Days");
-                setShowCenterMenu(false);
-              }}
+              onClick={() => selectPerspective("7 Days")}
             />
 
             <PerspectiveOption
@@ -1098,10 +1100,7 @@ function removeSliceFromCard() {
               label="MONTH"
               active={filter === "Month"}
               isDark={isDark}
-              onClick={() => {
-                setFilter("Month");
-                setShowCenterMenu(false);
-              }}
+              onClick={() => selectPerspective("Month")}
             />
 
             <PerspectiveOption
@@ -1110,10 +1109,7 @@ function removeSliceFromCard() {
               label="ALL"
               active={filter === "All"}
               isDark={isDark}
-              onClick={() => {
-                setFilter("All");
-                setShowCenterMenu(false);
-              }}
+              onClick={() => selectPerspective("All")}
             />
           </g>
           
@@ -1334,6 +1330,34 @@ function removeSliceFromCard() {
             .awake-preview-label {
               animation: awake-preview-label-in 240ms ease-out;
             }
+              .awake-perspective-bloom {
+                opacity: 0;
+                transform: scale(0.72);
+                transform-box: view-box;
+                transform-origin: 50px 50px;
+                transition:
+                  opacity 240ms ease,
+                  transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+              }
+
+              .awake-perspective-bloom-open {
+                opacity: 1;
+                transform: scale(1);
+              }
+
+              .awake-perspective-toggle {
+                transform-box: fill-box;
+                transform-origin: center;
+                transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+              }
+
+              .awake-perspective-toggle-open {
+                transform: rotate(45deg);
+              }
+
+              .awake-perspective-active {
+                filter: drop-shadow(0 0 1.5px currentColor);
+              }
 
         @media (prefers-reduced-motion: reduce) {
           .awake-breathe-halo,
@@ -1341,6 +1365,11 @@ function removeSliceFromCard() {
           .awake-slice-preview,
           .awake-preview-label {
             animation: none;
+          }
+
+          .awake-perspective-bloom,
+          .awake-perspective-toggle {
+            transition: none;
           }
         }
       `}</style>
@@ -1414,8 +1443,8 @@ function PerspectiveOption({
       <circle
         cx={x}
         cy={y}
-        r="7"
-        fill="rgba(255,255,255,0.9)"
+        r="8"
+        fill="rgba(255,255,255,0.001)"
         onClick={onClick}
       />
 
@@ -1427,8 +1456,8 @@ function PerspectiveOption({
         className={`pointer-events-none select-none text-[2.8px] font-medium transition ${
           active
             ? isDark
-              ? "fill-rose-300"
-              : "fill-rose-600"
+              ? "fill-rose-300 awake-perspective-active"
+              : "fill-rose-600 awake-perspective-active"
             : isDark
               ? "fill-slate-300"
               : "fill-stone-600"

@@ -1070,6 +1070,48 @@ function removeSliceFromCard() {
           >
             This Moment
           </text>
+          <circle
+            cx="50"
+            cy="50"
+            r="22"
+            fill="rgba(255,255,255,0.9)"
+            className="awake-breathe-halo"
+          />
+
+          <circle
+            cx="50"
+            cy="50"
+            r="22"
+            fill="rgba(255,255,255,0.9)"
+          />
+
+          {/* TOP LABEL */}
+          <text>
+            {centerFilterLabel}
+          </text>
+
+          {/* CENTER + */}
+          <g>
+            +
+          </g>
+
+          {/* NEW PERSPECTIVE BLOOM */}
+          <g
+            className={`transition-all duration-300 ${
+              showCenterMenu
+                ? "opacity-100"
+                : "pointer-events-none opacity-0"
+            }`}
+          >
+            ...
+          PerspectiveOption
+          ...
+          </g>
+
+          {/* BOTTOM LABEL */}
+          <text>
+            This Moment
+          </text>
         </svg>
       </div>
 

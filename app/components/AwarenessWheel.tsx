@@ -87,6 +87,11 @@ export default function AwarenessWheel() {
   const [wheelTheme, setWheelTheme] = useState<WheelTheme>("roseSage");
   const [showWheelAppearance, setShowWheelAppearance] = useState(false);
   const [showAwakeMenu, setShowAwakeMenu] = useState(false);
+  const [showAppearanceSection, setShowAppearanceSection] =
+    useState(false);
+  const [showCenterMenu, setShowCenterMenu] =
+    useState(false);
+
   const [pendingSelection, setPendingSelection] =
     useState<PendingSelection | null>(null);
   const [livingCard, setLivingCard] =
@@ -95,8 +100,7 @@ export default function AwarenessWheel() {
     useState(false);
   const [isLongPressHolding, setIsLongPressHolding] =
     useState(false);
-  const [showCenterMenu, setShowCenterMenu] =
-    useState(false);
+  
   const [directions, setDirections] = useState<string[]>([]);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [isAutoCentering, setIsAutoCentering] = useState(false);
@@ -768,7 +772,7 @@ function removeSliceFromCard() {
             onClick={() => setShowAwakeMenu((current) => !current)}
             aria-expanded={showAwakeMenu}
             aria-controls="awake-home-menu"
-            className={`mx-auto flex items-center gap-2 rounded-full border px-4 py-2 text-xs transition ${
+            className={`awake-menu-pulse mx-auto flex items-center gap-2 rounded-full border px-4 py-2 text-xs transition ${
               isDark
                 ? "border-white/15 bg-slate-800/80 text-slate-300 hover:border-white/25 hover:text-white"
                 : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700"
@@ -800,20 +804,46 @@ function removeSliceFromCard() {
                   isDark ? "border-white/10" : "border-stone-100"
                 }`}
               >
-                <p
-                  className={`text-[10px] uppercase tracking-[0.2em] ${
-                    isDark ? "text-slate-400" : "text-stone-400"
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowAppearanceSection((current) => !current)
+                  }
+                  aria-expanded={showAppearanceSection}
+                  className={`flex w-full items-center justify-between rounded-2xl px-3 py-3 text-left transition ${
+                    isDark
+                      ? "text-slate-300 hover:bg-white/5"
+                      : "text-stone-500 hover:bg-stone-50"
                   }`}
                 >
-                  Wheel appearance
-                </p>
+                  <span className="text-[10px] uppercase tracking-[0.2em]">
+                    Wheel appearance
+                  </span>
 
-                <div className="mt-3 grid grid-cols-2 gap-2 min-[420px]:grid-cols-3">
-                  {(Object.keys(wheelThemes) as WheelTheme[]).map((themeKey) => {
-                    const theme = wheelThemes[themeKey];
-                    const isActive = wheelTheme === themeKey;
+                  <span
+                    aria-hidden="true"
+                    className={`transition-transform duration-300 ${
+                      showAppearanceSection ? "rotate-180" : ""
+                    }`}
+                  >
+                    ↓
+                  </span>
+                </button>
 
-                    return (
+                <div
+                  className={`grid transition-[grid-template-rows,opacity] duration-300 ${
+                    showAppearanceSection
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="mt-3 grid grid-cols-2 gap-2 min-[420px]:grid-cols-3">
+                      {(Object.keys(wheelThemes) as WheelTheme[]).map((themeKey) => {
+                        const theme = wheelThemes[themeKey];
+                        const isActive = wheelTheme === themeKey;
+
+                        return (
                       <button
                         key={themeKey}
                         type="button"
@@ -862,15 +892,17 @@ function removeSliceFromCard() {
                           {theme.name}
                         </span>
                       </button>
-                    );
-                  })}
-                </div>
+                       );
+                    })}
+                      </div>
+                    </div>
+                  </div>
 
-                <div
-                  className={`my-5 border-t ${
-                    isDark ? "border-white/10" : "border-stone-100"
-                  }`}
-                />
+                  <div
+                    className={`my-5 border-t ${
+                      isDark ? "border-white/10" : "border-stone-100"
+                    }`}
+                  />
 
                 <p
                   className={`text-[10px] uppercase tracking-[0.2em] ${
@@ -1454,14 +1486,30 @@ function removeSliceFromCard() {
               .awake-perspective-active {
                 filter: drop-shadow(0 0 1.5px currentColor);
               }
+                @keyframes awake-menu-pulse {
+                  0%,
+                  100% {
+                    box-shadow: 0 0 0 0 rgba(148, 163, 184, 0.08);
+                  }
+
+                  50% {
+                    box-shadow: 0 0 0 6px rgba(148, 163, 184, 0.12);
+                  }
+                }
+
+                .awake-menu-pulse {
+                  animation: awake-menu-pulse 4.8s ease-in-out infinite;
+                }
 
         @media (prefers-reduced-motion: reduce) {
           .awake-breathe-halo,
           .awake-living-card,
           .awake-slice-preview,
-          .awake-preview-label {
+          .awake-preview-label,
+          .awake-menu-pulse {
             animation: none;
           }
+ 
 
           .awake-perspective-bloom,
           .awake-perspective-toggle {
@@ -1526,7 +1574,7 @@ type PerspectiveOptionProps = {
   inactiveColor: string;
   petalFill: string;
   petalStroke: string;
-  isDark: boolean;   // ← add this
+  isDark: boolean; 
   onClick: () => void;
 };
 

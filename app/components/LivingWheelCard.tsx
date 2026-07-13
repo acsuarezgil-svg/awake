@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export type SliceType = "pattern" | "investment";
 
@@ -35,6 +36,8 @@ type LivingWheelCardProps = {
   onClose: () => void;
   onNoticeAgain: () => void;
   onUndoLastNotice: () => void;
+  onRename: (nextName: string) => void;
+  onRemove: () => void;
 };
 
 export default function LivingWheelCard({
@@ -45,7 +48,19 @@ export default function LivingWheelCard({
   onClose,
   onNoticeAgain,
   onUndoLastNotice,
+  onRename,
+  onRemove,
 }: LivingWheelCardProps) {
+  const [panelMode, setPanelMode] = useState<
+    "actions" | "rename" | "remove"
+  >("actions");
+
+  const [renameValue, setRenameValue] = useState("");
+
+  useEffect(() => {
+    setPanelMode("actions");
+    setRenameValue(state?.name ?? "");
+  }, [state?.name, isExpanded]);
   return (
     <div
       aria-live="polite"
@@ -96,7 +111,7 @@ export default function LivingWheelCard({
                   {state.mode === "noticed"
                     ? "✓ Noticed"
                     : state.mode === "preview"
-                        ? "Tap the same slice again to notice"
+                        ? "Preview"
                         : state.mode === "feedback"
                         ? state.message
                         : "Slice actions"}
@@ -150,34 +165,132 @@ export default function LivingWheelCard({
                     </button>
                   </div>
 
-                  <div className="mt-3 space-y-1">
-                    <LivingCardAction
-                      label="Notice Again"
-                      symbol="+"
-                      isDark={isDark}
-                      onClick={onNoticeAgain}
-                    />
+                  {panelMode === "actions" && (
+                    <div className="mt-3 space-y-1">
+                        <LivingCardAction
+                        label="Notice Again"
+                        symbol="+"
+                        isDark={isDark}
+                        onClick={onNoticeAgain}
+                        />
 
-                    <LivingCardAction
-                      label="Undo Last Notice"
-                      symbol="↶"
-                      isDark={isDark}
-                      onClick={onUndoLastNotice}
-                    />
+                        <LivingCardAction
+                        label="Undo Last Notice"
+                        symbol="↶"
+                        isDark={isDark}
+                        onClick={onUndoLastNotice}
+                        />
 
-                    <PlaceholderAction
-                      label="Rename"
-                      symbol="✎"
-                      isDark={isDark}
-                    />
+                        <LivingCardAction
+                        label="Rename"
+                        symbol="✎"
+                        isDark={isDark}
+                        onClick={() => setPanelMode("rename")}
+                        />
 
-                    <PlaceholderAction
-                      label="Remove From Wheel"
-                      symbol="−"
-                      isDark={isDark}
-                      destructive
-                    />
-                  </div>
+                        <LivingCardAction
+                        label="Remove From Current Wheel"
+                        symbol="−"
+                        isDark={isDark}
+                        destructive
+                        onClick={() => setPanelMode("remove")}
+                        />
+                    </div>
+                    )}
+
+                    {panelMode === "rename" && (
+                    <div className="mt-4">
+                        <label
+                        htmlFor="awake-slice-rename"
+                        className={`text-xs ${
+                            isDark ? "text-slate-400" : "text-stone-400"
+                        }`}
+                        >
+                        New name
+                        </label>
+
+                        <input
+                        id="awake-slice-rename"
+                        value={renameValue}
+                        onChange={(event) => setRenameValue(event.target.value)}
+                        autoFocus
+                        className={`mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none transition ${
+                            isDark
+                            ? "border-slate-600 bg-slate-900/60 text-stone-100 placeholder:text-slate-500 focus:border-slate-400"
+                            : "border-stone-200 bg-white text-stone-800 focus:border-stone-400"
+                        }`}
+                        />
+
+                        <div className="mt-4 flex justify-end gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setPanelMode("actions")}
+                            className={`rounded-full px-4 py-2 text-xs ${
+                            isDark ? "text-slate-400" : "text-stone-400"
+                            }`}
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => onRename(renameValue)}
+                            className={`rounded-full px-4 py-2 text-xs ${
+                            isDark
+                                ? "bg-slate-600 text-stone-100"
+                                : "bg-stone-800 text-white"
+                            }`}
+                        >
+                            Save
+                        </button>
+                        </div>
+                    </div>
+                    )}
+
+                    {panelMode === "remove" && (
+                    <div className="mt-4">
+                        <p
+                        className={`text-sm leading-6 ${
+                            isDark ? "text-slate-200" : "text-stone-600"
+                        }`}
+                        >
+                        Remove <span className="font-medium">{state.name}</span> from your
+                        current wheel?
+                        </p>
+
+                        <p
+                        className={`mt-2 text-xs leading-5 ${
+                            isDark ? "text-slate-400" : "text-stone-400"
+                        }`}
+                        >
+                        Your previous notices will remain available in Insights.
+                        </p>
+
+                        <div className="mt-4 flex justify-end gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setPanelMode("actions")}
+                            className={`rounded-full px-4 py-2 text-xs ${
+                            isDark ? "text-slate-400" : "text-stone-400"
+                            }`}
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={onRemove}
+                            className={`rounded-full px-4 py-2 text-xs ${
+                            isDark
+                                ? "bg-rose-400/15 text-rose-200"
+                                : "bg-rose-50 text-rose-600"
+                            }`}
+                        >
+                            Remove
+                        </button>
+                        </div>
+                    </div>
+                    )}
 
                   <div
                     className={`my-4 border-t ${
@@ -233,6 +346,7 @@ type LivingCardActionProps = {
   symbol: string;
   isDark: boolean;
   onClick: () => void;
+  destructive?: boolean;
 };
 
 function LivingCardAction({
@@ -240,16 +354,21 @@ function LivingCardAction({
   symbol,
   isDark,
   onClick,
+  destructive = false,
 }: LivingCardActionProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm transition ${
-        isDark
-          ? "text-slate-300 hover:bg-white/5 hover:text-stone-100"
-          : "text-stone-500 hover:bg-stone-50 hover:text-stone-800"
-      }`}
+        destructive
+            ? isDark
+            ? "text-rose-300 hover:bg-rose-400/10"
+            : "text-rose-500 hover:bg-rose-50"
+            : isDark
+            ? "text-slate-300 hover:bg-white/5 hover:text-stone-100"
+            : "text-stone-500 hover:bg-stone-50 hover:text-stone-800"
+        }`}
     >
       <span
         aria-hidden="true"

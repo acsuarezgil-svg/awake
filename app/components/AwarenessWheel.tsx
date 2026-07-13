@@ -373,6 +373,139 @@ function closeLivingCard() {
     );
   }
 
+  function renameSliceFromCard(nextName: string) {
+  if (!livingCard) return;
+
+  const trimmedName = nextName.trim();
+  const oldName = livingCard.name;
+  const type = livingCard.type;
+
+  if (!trimmedName || trimmedName === oldName) {
+    return;
+  }
+
+  const currentList =
+    type === "pattern" ? patterns : investments;
+
+  const nameAlreadyExists = currentList.some(
+    (item) =>
+      item.toLowerCase() === trimmedName.toLowerCase() &&
+      item !== oldName
+  );
+
+  if (nameAlreadyExists) {
+    showLivingCard(
+      {
+        mode: "feedback",
+        name: oldName,
+        type,
+        message: "That name is already on your wheel",
+      },
+      2600
+    );
+    return;
+  }
+
+  const nextList = currentList.map((item) =>
+    item === oldName ? trimmedName : item
+  );
+
+  if (type === "pattern") {
+    setPatterns(nextList);
+    localStorage.setItem(
+      "awake-patterns",
+      JSON.stringify(nextList)
+    );
+  } else {
+    setInvestments(nextList);
+    localStorage.setItem(
+      "awake-investments",
+      JSON.stringify(nextList)
+    );
+  }
+
+  const nextEvents = events.map((event) =>
+    event.name === oldName && event.type === type
+      ? {
+          ...event,
+          name: trimmedName,
+        }
+      : event
+  );
+
+  const nextCounts = {
+    ...counts,
+    [trimmedName]: counts[oldName] || 0,
+  };
+
+  delete nextCounts[oldName];
+
+  setEvents(nextEvents);
+  setCounts(nextCounts);
+  setPendingSelection(null);
+
+  localStorage.setItem(
+    "awake-notice-events",
+    JSON.stringify(nextEvents)
+  );
+
+  localStorage.setItem(
+    "awake-counts",
+    JSON.stringify(nextCounts)
+  );
+
+  showLivingCard(
+    {
+      mode: "feedback",
+      name: trimmedName,
+      type,
+      message: "✓ Slice renamed",
+    },
+    2600
+  );
+}
+
+function removeSliceFromCard() {
+  if (!livingCard) return;
+
+  const { name, type } = livingCard;
+
+  if (type === "pattern") {
+    const nextPatterns = patterns.filter(
+      (item) => item !== name
+    );
+
+    setPatterns(nextPatterns);
+    localStorage.setItem(
+      "awake-patterns",
+      JSON.stringify(nextPatterns)
+    );
+  } else {
+    const nextInvestments = investments.filter(
+      (item) => item !== name
+    );
+
+    setInvestments(nextInvestments);
+    localStorage.setItem(
+      "awake-investments",
+      JSON.stringify(nextInvestments)
+    );
+  }
+
+  setPendingSelection(null);
+
+  showLivingCard(
+    {
+      mode: "feedback",
+      name,
+      type,
+      message: "Removed from current wheel",
+    },
+    2600
+  );
+}
+
+
     function handleSliceTap(
       name: string,
       type: "pattern" | "investment",
@@ -661,6 +794,8 @@ function closeLivingCard() {
               onClose={closeLivingCard}
               onNoticeAgain={noticeAgainFromCard}
               onUndoLastNotice={undoLastNoticeFromCard}
+              onRename={renameSliceFromCard}
+              onRemove={removeSliceFromCard}
             />
 
             <div
@@ -729,6 +864,10 @@ function closeLivingCard() {
             const isPending =
               pendingSelection?.name === item.name &&
               pendingSelection?.type === item.type;
+            const isPreview =
+              livingCard?.mode === "preview" &&
+              livingCard.name === item.name &&
+              livingCard.type === item.type;
 
             const fill =
               item.type === "pattern"
@@ -772,13 +911,15 @@ function closeLivingCard() {
                   d={path}
                   fill={fill}
                   stroke={
-                    isPending
-                      ? "rgba(120, 113, 108, 0.9)"
-                      : "rgba(255,255,255,0.8)"
+                    isPreview
+                      ? "rgba(255,255,255,0.96)"
+                      : isPending
+                        ? "rgba(120, 113, 108, 0.9)"
+                        : "rgba(255,255,255,0.8)"
                   }
-                  strokeWidth={isPending ? "1.5" : "0.8"}
+                  strokeWidth={isPreview ? "1.6" : isPending ? "1.5" : "0.8"}
                   opacity={
-                    isPending
+                    isPreview || isPending
                       ? 1
                       : item.count > 0
                         ? 0.98
@@ -786,16 +927,19 @@ function closeLivingCard() {
                           ? 0.38
                           : 0.5
                   }
+                  className={isPreview ? "awake-slice-preview" : undefined}
                 />
 
-                {showLabel && (
+                {(showLabel || isPreview) && (
                   <text
                     x={label.x}
                     y={label.y}
                     textAnchor="middle"
                     dominantBaseline="middle"
                     transform={`rotate(${-wheelRotation} ${label.x} ${label.y})`}
-                    className="pointer-events-none fill-stone-700 text-[3px]"
+                    className={`pointer-events-none text-[3px] ${
+                      isDark ? "fill-stone-100" : "fill-stone-700"
+                    } ${isPreview ? "awake-preview-label" : ""}`}
                   >
                     {displayLabel}
                   </text>
@@ -1042,10 +1186,43 @@ function closeLivingCard() {
               cubic-bezier(0.22, 1, 0.36, 1);
             transform-origin: center bottom;
           }
+            @keyframes awake-slice-preview-pulse {
+              0% {
+                filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+              }
+
+              45% {
+                filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.75));
+              }
+
+              100% {
+                filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.12));
+              }
+            }
+
+            @keyframes awake-preview-label-in {
+              0% {
+                opacity: 0;
+              }
+
+              100% {
+                opacity: 1;
+              }
+            }
+
+            .awake-slice-preview {
+              animation: awake-slice-preview-pulse 900ms ease-out;
+            }
+
+            .awake-preview-label {
+              animation: awake-preview-label-in 240ms ease-out;
+            }
 
         @media (prefers-reduced-motion: reduce) {
           .awake-breathe-halo,
-          .awake-living-card {
+          .awake-living-card,
+          .awake-slice-preview,
+          .awake-preview-label {
             animation: none;
           }
         }

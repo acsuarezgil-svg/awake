@@ -32,6 +32,7 @@ type LivingWheelCardProps = {
   state: LivingWheelCardState | null;
   isDark: boolean;
   isExpanded: boolean;
+  isInteractionLocked: boolean;
   onExpand: () => void;
   onClose: () => void;
   onNoticeAgain: () => void;
@@ -44,6 +45,7 @@ export default function LivingWheelCard({
   state,
   isDark,
   isExpanded,
+  isInteractionLocked,
   onExpand,
   onClose,
   onNoticeAgain,
@@ -139,10 +141,14 @@ export default function LivingWheelCard({
             >
               <div className="overflow-hidden">
                 <div
-                  className={`border-t px-5 pb-5 pt-4 ${
-                    isDark ? "border-white/10" : "border-stone-100"
-                  }`}
-                >
+                    className={`border-t px-5 pb-5 pt-4 transition-opacity ${
+                        isInteractionLocked
+                        ? "pointer-events-none opacity-70"
+                        : "pointer-events-auto opacity-100"
+                    } ${
+                        isDark ? "border-white/10" : "border-stone-100"
+                    }`}
+                    >
                   <div className="flex items-center justify-between gap-4">
                     <p
                       className={`text-[10px] uppercase tracking-[0.2em] ${

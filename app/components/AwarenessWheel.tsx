@@ -93,6 +93,8 @@ export default function AwarenessWheel() {
     useState<LivingWheelCardState | null>(null);
   const [isLivingCardExpanded, setIsLivingCardExpanded] =
     useState(false);
+  const [isLongPressHolding, setIsLongPressHolding] =
+    useState(false);
   const [showCenterMenu, setShowCenterMenu] =
     useState(false);
   const [directions, setDirections] = useState<string[]>([]);
@@ -265,6 +267,8 @@ function closeLivingCard() {
   isManagingSliceRef.current = false;
   longPressTriggeredRef.current = false;
   suppressClickRef.current = false;
+
+  setIsLongPressHolding(false);
 
   setIsLivingCardExpanded(false);
   setLivingCard(null);
@@ -596,6 +600,7 @@ function removeSliceFromCard() {
 
         isManagingSliceRef.current = true;
         setIsLivingCardExpanded(true);
+        setIsLongPressHolding(true);
 
         requestAnimationFrame(() => {
           triggerHaptic("settle");
@@ -670,9 +675,9 @@ function removeSliceFromCard() {
       }
 
       if (isManagingSliceRef.current) {
+        setIsLongPressHolding(false);
         return;
       }
-
       suppressClickRef.current = hasDraggedRef.current;
 
       window.setTimeout(() => {
@@ -814,6 +819,7 @@ function removeSliceFromCard() {
               state={livingCard}
               isDark={isDark}
               isExpanded={isLivingCardExpanded}
+              isInteractionLocked={isLongPressHolding}
               onExpand={expandLivingCard}
               onClose={closeLivingCard}
               onNoticeAgain={noticeAgainFromCard}
@@ -1038,7 +1044,7 @@ function removeSliceFromCard() {
               y="60"
               textAnchor="middle"
               dominantBaseline="middle"
-              className="fill-stone-400 text-[4px] font-light transition group-hover:fill-stone-700"
+              className="select-none fill-stone-400 text-[4px] font-light transition group-hover:fill-stone-700"
             >
               +
             </text>

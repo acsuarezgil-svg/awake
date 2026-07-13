@@ -590,7 +590,7 @@ function removeSliceFromCard() {
         triggerHaptic("settle");
 
         longPressTimeoutRef.current = null;
-      }, 420);
+      }, 550);
     }
 
     function handleWheelPointerDown(
@@ -820,8 +820,14 @@ function removeSliceFromCard() {
         <svg
           ref={svgRef}
           viewBox="0 0 100 100"
-          className="relative h-full w-full cursor-grab active:cursor-grabbing"
-          style={{ touchAction: "none" }}
+          className="relative h-full w-full cursor-grab select-none active:cursor-grabbing"
+          style={{
+            touchAction: "none",
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            WebkitTouchCallout: "none",
+            MozUserSelect: "none",
+          }}
           onPointerDown={handleWheelPointerDown}
           onPointerMove={handleWheelPointerMove}
           onPointerUp={handleWheelPointerEnd}
@@ -951,7 +957,7 @@ function removeSliceFromCard() {
                     textAnchor="middle"
                     dominantBaseline="middle"
                     transform={`rotate(${-wheelRotation} ${label.x} ${label.y})`}
-                    className={`pointer-events-none text-[3px] ${
+                    className={`pointer-events-none select-none text-[3px] ${
                       isDark ? "fill-stone-100" : "fill-stone-700"
                     } ${isPreview ? "awake-preview-label" : ""}`}
                   >
@@ -983,7 +989,7 @@ function removeSliceFromCard() {
             x="50"
             y="47"
             textAnchor="middle"
-            className="fill-stone-700 text-[4px] font-light"
+            className="select-none fill-stone-700 text-[4px] font-light"
           >
             This
           </text>
@@ -991,14 +997,17 @@ function removeSliceFromCard() {
             x="50"
             y="53"
             textAnchor="middle"
-            className="fill-stone-700 text-[4px] font-light"
+            className="select-none fill-stone-700 text-[4px] font-light"
           >
             Moment
           </text>
 
           <g
             aria-label="Shape your wheel"
-            onPointerDown={(event) => event.stopPropagation()}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
             onClick={(event) => event.stopPropagation()}
             className="group cursor-pointer"
           >

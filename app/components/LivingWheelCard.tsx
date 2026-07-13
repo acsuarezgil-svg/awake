@@ -2,14 +2,29 @@
 
 import Link from "next/link";
 
+export type SliceType = "pattern" | "investment";
+
 export type LivingWheelCardState =
   | {
       mode: "preview";
       name: string;
+      type: SliceType;
     }
   | {
       mode: "noticed";
       name: string;
+      type: SliceType;
+    }
+  | {
+      mode: "manage";
+      name: string;
+      type: SliceType;
+    }
+  | {
+      mode: "feedback";
+      name: string;
+      type: SliceType;
+      message: string;
     };
 
 type LivingWheelCardProps = {
@@ -18,6 +33,8 @@ type LivingWheelCardProps = {
   isExpanded: boolean;
   onExpand: () => void;
   onClose: () => void;
+  onNoticeAgain: () => void;
+  onUndoLastNotice: () => void;
 };
 
 export default function LivingWheelCard({
@@ -26,6 +43,8 @@ export default function LivingWheelCard({
   isExpanded,
   onExpand,
   onClose,
+  onNoticeAgain,
+  onUndoLastNotice,
 }: LivingWheelCardProps) {
   return (
     <div
@@ -65,7 +84,7 @@ export default function LivingWheelCard({
 
                 <p
                   className={`mt-1 text-sm ${
-                    state.mode === "noticed"
+                    state.mode === "noticed" || state.mode === "feedback"
                       ? isDark
                         ? "text-teal-300"
                         : "text-emerald-600"
@@ -76,7 +95,11 @@ export default function LivingWheelCard({
                 >
                   {state.mode === "noticed"
                     ? "✓ Noticed"
-                    : "Tap the same slice again to notice"}
+                    : state.mode === "preview"
+                        ? "Tap the same slice again to notice"
+                        : state.mode === "feedback"
+                        ? state.message
+                        : "Slice actions"}
                 </p>
               </div>
 
@@ -128,16 +151,18 @@ export default function LivingWheelCard({
                   </div>
 
                   <div className="mt-3 space-y-1">
-                    <PlaceholderAction
+                    <LivingCardAction
                       label="Notice Again"
                       symbol="+"
                       isDark={isDark}
+                      onClick={onNoticeAgain}
                     />
 
-                    <PlaceholderAction
+                    <LivingCardAction
                       label="Undo Last Notice"
                       symbol="↶"
                       isDark={isDark}
+                      onClick={onUndoLastNotice}
                     />
 
                     <PlaceholderAction
@@ -200,6 +225,43 @@ export default function LivingWheelCard({
         )}
       </div>
     </div>
+  );
+}
+
+type LivingCardActionProps = {
+  label: string;
+  symbol: string;
+  isDark: boolean;
+  onClick: () => void;
+};
+
+function LivingCardAction({
+  label,
+  symbol,
+  isDark,
+  onClick,
+}: LivingCardActionProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left text-sm transition ${
+        isDark
+          ? "text-slate-300 hover:bg-white/5 hover:text-stone-100"
+          : "text-stone-500 hover:bg-stone-50 hover:text-stone-800"
+      }`}
+    >
+      <span
+        aria-hidden="true"
+        className="w-5 text-center"
+      >
+        {symbol}
+      </span>
+
+      <span className="min-w-0 flex-1">
+        {label}
+      </span>
+    </button>
   );
 }
 

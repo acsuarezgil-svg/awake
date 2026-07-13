@@ -93,6 +93,8 @@ export default function AwarenessWheel() {
     useState<LivingWheelCardState | null>(null);
   const [isLivingCardExpanded, setIsLivingCardExpanded] =
     useState(false);
+  const [showCenterMenu, setShowCenterMenu] =
+    useState(false);
   const [directions, setDirections] = useState<string[]>([]);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [isAutoCentering, setIsAutoCentering] = useState(false);
@@ -104,6 +106,9 @@ export default function AwarenessWheel() {
   const dragStartRotationRef = useRef(0);
   const hasDraggedRef = useRef(false);
   const suppressClickRef = useRef(false);
+  const longPressTimeoutRef = useRef<number | null>(null);
+  const longPressTriggeredRef = useRef(false);
+  const pressedSliceRef = useRef<PendingSelection | null>(null);
 
   useEffect(() => {
     setCounts(JSON.parse(localStorage.getItem("awake-counts") || "{}"));
@@ -134,6 +139,10 @@ export default function AwarenessWheel() {
 
         if (livingCardTimeoutRef.current !== null) {
           window.clearTimeout(livingCardTimeoutRef.current);
+        }
+
+        if (longPressTimeoutRef.current !== null) {
+          window.clearTimeout(longPressTimeoutRef.current);
         }
       };
     }, []);
@@ -281,6 +290,7 @@ function closeLivingCard() {
       {
         mode: "noticed",
         name,
+        type,
       },
       2600
     );
@@ -292,6 +302,75 @@ function closeLivingCard() {
     localStorage.setItem("awake-notice-events", JSON.stringify(nextEvents));
 
     setTimeout(() => setMessage(""), 1400);
+  }
+
+  function noticeAgainFromCard() {
+    if (!livingCard) return;
+
+    notice(livingCard.name, livingCard.type);
+  }
+
+  function undoLastNoticeFromCard() {
+    if (!livingCard) return;
+
+    const eventIndex = events.findIndex(
+      (event) =>
+        event.name === livingCard.name &&
+        event.type === livingCard.type
+    );
+
+    if (eventIndex === -1) {
+      showLivingCard(
+        {
+          mode: "feedback",
+          name: livingCard.name,
+          type: livingCard.type,
+          message: "No notice to undo",
+        },
+        2400
+      );
+      return;
+    }
+
+    const nextEvents = events.filter(
+      (_, index) => index !== eventIndex
+    );
+
+    const nextCount = Math.max(
+      0,
+      (counts[livingCard.name] || 0) - 1
+    );
+
+    const nextCounts = {
+      ...counts,
+      [livingCard.name]: nextCount,
+    };
+
+    setEvents(nextEvents);
+    setCounts(nextCounts);
+    setPendingSelection(null);
+
+    localStorage.setItem(
+      "awake-notice-events",
+      JSON.stringify(nextEvents)
+    );
+
+    localStorage.setItem(
+      "awake-counts",
+      JSON.stringify(nextCounts)
+    );
+
+    triggerHaptic("light");
+
+    showLivingCard(
+      {
+        mode: "feedback",
+        name: livingCard.name,
+        type: livingCard.type,
+        message: "↶ Last notice removed",
+      },
+      2600
+    );
   }
 
     function handleSliceTap(
@@ -324,6 +403,7 @@ function closeLivingCard() {
       showLivingCard({
         mode: "preview",
         name,
+        type,
       });
     }
 
@@ -345,6 +425,39 @@ function closeLivingCard() {
         Math.atan2(clientY - centerY, clientX - centerX) *
         (180 / Math.PI)
       );
+    }
+    function clearLongPressTimer() {
+      if (longPressTimeoutRef.current !== null) {
+        window.clearTimeout(longPressTimeoutRef.current);
+        longPressTimeoutRef.current = null;
+      }
+    }
+
+    function startSliceLongPress(
+      name: string,
+      type: "pattern" | "investment"
+    ) {
+      clearLongPressTimer();
+
+      pressedSliceRef.current = { name, type };
+      longPressTriggeredRef.current = false;
+
+      longPressTimeoutRef.current = window.setTimeout(() => {
+        longPressTriggeredRef.current = true;
+        suppressClickRef.current = true;
+        setPendingSelection(null);
+
+        showLivingCard({
+          mode: "manage",
+          name,
+          type,
+        });
+
+        setIsLivingCardExpanded(true);
+        triggerHaptic("settle");
+
+        longPressTimeoutRef.current = null;
+      }, 500);
     }
 
     function handleWheelPointerDown(
@@ -383,6 +496,7 @@ function closeLivingCard() {
         currentPointerAngle - dragStartAngleRef.current;
 
       if (Math.abs(angleDifference) > 3) {
+        clearLongPressTimer();
         hasDraggedRef.current = true;
         setPendingSelection(null);
         setIsLivingCardExpanded(false);
@@ -545,6 +659,8 @@ function closeLivingCard() {
               isExpanded={isLivingCardExpanded}
               onExpand={expandLivingCard}
               onClose={closeLivingCard}
+              onNoticeAgain={noticeAgainFromCard}
+              onUndoLastNotice={undoLastNoticeFromCard}
             />
 
             <div
@@ -622,7 +738,34 @@ function closeLivingCard() {
             return (
               <g
                 key={`${item.type}-${item.name}`}
-                onClick={() => handleSliceTap(item.name, item.type, showLabel)}
+                onPointerDown={(event) => {
+                  event.stopPropagation();
+                  startSliceLongPress(item.name, item.type);
+                }}
+                onPointerUp={() => {
+                  clearLongPressTimer();
+                  pressedSliceRef.current = null;
+                }}
+                onPointerCancel={() => {
+                  clearLongPressTimer();
+                  pressedSliceRef.current = null;
+                }}
+                onPointerLeave={() => {
+                  clearLongPressTimer();
+                }}
+                onClick={() => {
+                  if (longPressTriggeredRef.current) {
+                    longPressTriggeredRef.current = false;
+
+                    window.setTimeout(() => {
+                      suppressClickRef.current = false;
+                    }, 0);
+
+                    return;
+                  }
+
+                  handleSliceTap(item.name, item.type, showLabel);
+                }}
                 className="cursor-pointer transition hover:opacity-80"
               >
                 <path

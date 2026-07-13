@@ -752,6 +752,135 @@ function removeSliceFromCard() {
         </Link>
       )}
 
+      <nav
+        aria-label="Awake sections"
+        className="mx-auto mb-5 max-w-md"
+      >
+        <div
+          className={`overflow-hidden rounded-3xl border transition-colors duration-300 ${
+            isDark
+              ? "border-white/10 bg-slate-800/70"
+              : "border-stone-200 bg-white/80"
+          }`}
+        >
+          <button
+            type="button"
+            onClick={() => setShowAwakeMenu((current) => !current)}
+            aria-expanded={showAwakeMenu}
+            aria-controls="awake-home-menu"
+            className="flex w-full items-center gap-4 px-5 py-4 text-left"
+          >
+            <span
+              aria-hidden="true"
+              className={isDark ? "text-slate-400" : "text-stone-400"}
+            >
+              ✦
+            </span>
+
+            <span
+              className={`min-w-0 flex-1 text-base font-medium ${
+                isDark ? "text-stone-100" : "text-stone-700"
+              }`}
+            >
+              Shape Your Wheel
+            </span>
+
+            <span
+              aria-hidden="true"
+              className={`transition-transform duration-300 ${
+                isDark ? "text-slate-400" : "text-stone-300"
+              } ${showAwakeMenu ? "rotate-180" : ""}`}
+            >
+              ↓
+            </span>
+          </button>
+
+          <div
+            id="awake-home-menu"
+            className={`grid transition-[grid-template-rows,opacity] duration-300 ${
+              showAwakeMenu
+                ? "grid-rows-[1fr] opacity-100"
+                : "grid-rows-[0fr] opacity-0"
+            }`}
+          >
+            <div className="overflow-hidden">
+              <div
+                className={`border-t px-5 pb-5 pt-4 ${
+                  isDark ? "border-white/10" : "border-stone-100"
+                }`}
+              >
+                {/*<p
+                  className={`text-[10px] uppercase tracking-[0.2em] ${
+                    isDark ? "text-slate-400" : "text-stone-400"
+                  }`}
+                >
+                  Wheel view
+                </p>
+
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
+                  {filters.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => setFilter(item)}
+                      className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                        filter === item
+                          ? isDark
+                            ? "border-slate-500 bg-slate-600 text-white"
+                            : "border-stone-800 bg-stone-800 text-white"
+                          : isDark
+                            ? "border-white/10 bg-slate-900/50 text-slate-300"
+                            : "border-stone-200 bg-white text-stone-500"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>*/}
+
+                <div className="mt-5 space-y-1">
+                  <AwakeMenuLink
+                    href="/direction"
+                    symbol="✦"
+                    title="Shape Your Wheel"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
+                    href="/reflection"
+                    symbol="✍︎"
+                    title="Reflection"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
+                    href="/reflections"
+                    symbol="◌"
+                    title="Journey"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
+                    href="/insights"
+                    symbol="⌁"
+                    title="Insights"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
+                    href="/about"
+                    symbol="♡"
+                    title="About Awake"
+                    isDark={isDark}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+       {/*
+
             <div className="mb-5">
               <button
                 type="button"
@@ -834,7 +963,7 @@ function removeSliceFromCard() {
                   })}
                 </div>
               )}
-            </div>
+            </div> */}
             <LivingWheelCard
               state={livingCard}
               isDark={isDark}
@@ -1148,134 +1277,6 @@ function removeSliceFromCard() {
           </text>
         </svg>
       </div>
-
-      <nav
-        aria-label="Awake sections"
-        className="mx-auto mt-10 max-w-md"
-      >
-        <div
-          className={`overflow-hidden rounded-3xl border transition-colors duration-300 ${
-            isDark
-              ? "border-white/10 bg-slate-800/70"
-              : "border-stone-200 bg-white/80"
-          }`}
-        >
-          <button
-            type="button"
-            onClick={() => setShowAwakeMenu((current) => !current)}
-            aria-expanded={showAwakeMenu}
-            aria-controls="awake-home-menu"
-            className="flex w-full items-center gap-4 px-5 py-4 text-left"
-          >
-            <span
-              aria-hidden="true"
-              className={isDark ? "text-slate-400" : "text-stone-400"}
-            >
-              ✦
-            </span>
-
-            <span
-              className={`min-w-0 flex-1 text-base font-medium ${
-                isDark ? "text-stone-100" : "text-stone-700"
-              }`}
-            >
-              Shape Your Wheel
-            </span>
-
-            <span
-              aria-hidden="true"
-              className={`transition-transform duration-300 ${
-                isDark ? "text-slate-400" : "text-stone-300"
-              } ${showAwakeMenu ? "rotate-180" : ""}`}
-            >
-              ↓
-            </span>
-          </button>
-
-          <div
-            id="awake-home-menu"
-            className={`grid transition-[grid-template-rows,opacity] duration-300 ${
-              showAwakeMenu
-                ? "grid-rows-[1fr] opacity-100"
-                : "grid-rows-[0fr] opacity-0"
-            }`}
-          >
-            <div className="overflow-hidden">
-              <div
-                className={`border-t px-5 pb-5 pt-4 ${
-                  isDark ? "border-white/10" : "border-stone-100"
-                }`}
-              >
-                {/*<p
-                  className={`text-[10px] uppercase tracking-[0.2em] ${
-                    isDark ? "text-slate-400" : "text-stone-400"
-                  }`}
-                >
-                  Wheel view
-                </p>
-
-                <div className="mt-3 flex flex-wrap justify-center gap-2">
-                  {filters.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => setFilter(item)}
-                      className={`rounded-full border px-3 py-1.5 text-xs transition ${
-                        filter === item
-                          ? isDark
-                            ? "border-slate-500 bg-slate-600 text-white"
-                            : "border-stone-800 bg-stone-800 text-white"
-                          : isDark
-                            ? "border-white/10 bg-slate-900/50 text-slate-300"
-                            : "border-stone-200 bg-white text-stone-500"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  ))}
-                </div>*/}
-
-                <div className="mt-5 space-y-1">
-                  <AwakeMenuLink
-                    href="/direction"
-                    symbol="✦"
-                    title="Shape Your Wheel"
-                    isDark={isDark}
-                  />
-
-                  <AwakeMenuLink
-                    href="/reflection"
-                    symbol="✍︎"
-                    title="Reflection"
-                    isDark={isDark}
-                  />
-
-                  <AwakeMenuLink
-                    href="/reflections"
-                    symbol="◌"
-                    title="Journey"
-                    isDark={isDark}
-                  />
-
-                  <AwakeMenuLink
-                    href="/insights"
-                    symbol="⌁"
-                    title="Insights"
-                    isDark={isDark}
-                  />
-
-                  <AwakeMenuLink
-                    href="/about"
-                    symbol="♡"
-                    title="About Awake"
-                    isDark={isDark}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {message && (
         <p className="sr-only" aria-live="polite">

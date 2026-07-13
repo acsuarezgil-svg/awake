@@ -91,6 +91,8 @@ export default function AwarenessWheel() {
     useState<PendingSelection | null>(null);
   const [livingCard, setLivingCard] =
     useState<LivingWheelCardState | null>(null);
+  const [isLivingCardExpanded, setIsLivingCardExpanded] =
+    useState(false);
   const [directions, setDirections] = useState<string[]>([]);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [isAutoCentering, setIsAutoCentering] = useState(false);
@@ -220,6 +222,7 @@ export default function AwarenessWheel() {
       livingCardTimeoutRef.current = null;
     }
 
+    setIsLivingCardExpanded(false);
     setLivingCard(nextState);
 
     if (duration) {
@@ -229,6 +232,29 @@ export default function AwarenessWheel() {
       }, duration);
     }
   }
+
+  function expandLivingCard() {
+  if (!livingCard) return;
+
+  if (livingCardTimeoutRef.current !== null) {
+    window.clearTimeout(livingCardTimeoutRef.current);
+    livingCardTimeoutRef.current = null;
+  }
+
+  setIsLivingCardExpanded(true);
+  triggerHaptic("light");
+}
+
+function closeLivingCard() {
+  if (livingCardTimeoutRef.current !== null) {
+    window.clearTimeout(livingCardTimeoutRef.current);
+    livingCardTimeoutRef.current = null;
+  }
+
+  setIsLivingCardExpanded(false);
+  setLivingCard(null);
+  setPendingSelection(null);
+}
 
   function notice(name: string, type: "pattern" | "investment") {
     const nextCounts = {
@@ -359,6 +385,7 @@ export default function AwarenessWheel() {
       if (Math.abs(angleDifference) > 3) {
         hasDraggedRef.current = true;
         setPendingSelection(null);
+        setIsLivingCardExpanded(false);
         setLivingCard(null);
       }
 
@@ -515,10 +542,15 @@ export default function AwarenessWheel() {
             <LivingWheelCard
               state={livingCard}
               isDark={isDark}
+              isExpanded={isLivingCardExpanded}
+              onExpand={expandLivingCard}
+              onClose={closeLivingCard}
             />
 
             <div
-              className="relative mx-auto mb-8 aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner sm:mb-10 sm:max-w-[430px] md:max-w-[500px] lg:max-w-[520px]"
+              className={`relative mx-auto mb-8 aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner transition-opacity duration-300 sm:mb-10 sm:max-w-[430px] md:max-w-[500px] lg:max-w-[520px] ${
+                isLivingCardExpanded ? "opacity-80" : "opacity-100"
+              }`}
               style={{ background: activeWheelTheme.wheelBackground }}
             >
         <div className="absolute inset-0 rounded-full bg-white/20" />

@@ -109,6 +109,7 @@ export default function AwarenessWheel() {
   const longPressTimeoutRef = useRef<number | null>(null);
   const longPressTriggeredRef = useRef(false);
   const pressedSliceRef = useRef<PendingSelection | null>(null);
+  const isManagingSliceRef = useRef(false);
 
   useEffect(() => {
     setCounts(JSON.parse(localStorage.getItem("awake-counts") || "{}"));
@@ -231,6 +232,7 @@ export default function AwarenessWheel() {
       livingCardTimeoutRef.current = null;
     }
 
+    isManagingSliceRef.current = false;
     setIsLivingCardExpanded(false);
     setLivingCard(nextState);
 
@@ -259,6 +261,10 @@ function closeLivingCard() {
     window.clearTimeout(livingCardTimeoutRef.current);
     livingCardTimeoutRef.current = null;
   }
+
+  isManagingSliceRef.current = false;
+  longPressTriggeredRef.current = false;
+  suppressClickRef.current = false;
 
   setIsLivingCardExpanded(false);
   setLivingCard(null);
@@ -578,6 +584,8 @@ function removeSliceFromCard() {
       longPressTimeoutRef.current = window.setTimeout(() => {
         longPressTriggeredRef.current = true;
         suppressClickRef.current = true;
+        isManagingSliceRef.current = true;
+
         setPendingSelection(null);
 
         showLivingCard({
@@ -586,8 +594,12 @@ function removeSliceFromCard() {
           type,
         });
 
+        isManagingSliceRef.current = true;
         setIsLivingCardExpanded(true);
-        triggerHaptic("settle");
+
+        requestAnimationFrame(() => {
+          triggerHaptic("settle");
+        });
 
         longPressTimeoutRef.current = null;
       }, 650);
@@ -619,6 +631,9 @@ function removeSliceFromCard() {
       event: React.PointerEvent<SVGSVGElement>
     ) {
       if (dragStartAngleRef.current === null) return;
+      if (isManagingSliceRef.current) {
+        return;
+      }
 
       const currentPointerAngle = getPointerAngle(
         event.clientX,
@@ -647,12 +662,18 @@ function removeSliceFromCard() {
     function handleWheelPointerEnd(
       event: React.PointerEvent<SVGSVGElement>
     ) {
-      suppressClickRef.current = hasDraggedRef.current;
+      clearLongPressTimer();
       dragStartAngleRef.current = null;
 
       if (event.currentTarget.hasPointerCapture(event.pointerId)) {
         event.currentTarget.releasePointerCapture(event.pointerId);
       }
+
+      if (isManagingSliceRef.current) {
+        return;
+      }
+
+      suppressClickRef.current = hasDraggedRef.current;
 
       window.setTimeout(() => {
         suppressClickRef.current = false;
@@ -906,13 +927,12 @@ function removeSliceFromCard() {
                 }}
                 
                 onClick={() => {
-                  if (longPressTriggeredRef.current) {
+                  if (
+                    isManagingSliceRef.current ||
+                    longPressTriggeredRef.current
+                  ) {
                     longPressTriggeredRef.current = false;
-
-                    window.setTimeout(() => {
-                      suppressClickRef.current = false;
-                    }, 0);
-
+                    suppressClickRef.current = false;
                     return;
                   }
 

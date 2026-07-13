@@ -8,6 +8,9 @@ import {
   wheelThemes,
   type WheelTheme,
 } from "../theme";
+import LivingWheelCard, {
+  type LivingWheelCardState,
+} from "./LivingWheelCard";
 
 type Counts = Record<string, number>;
 
@@ -78,7 +81,6 @@ export default function AwarenessWheel() {
   const [patterns, setPatterns] = useState(defaultPatterns);
   const [investments, setInvestments] = useState(defaultInvestments);
   const [events, setEvents] = useState<NoticeEvent[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("Today");
   const [message, setMessage] = useState("");
   const [rippleKey, setRippleKey] = useState<number | null>(null);
@@ -87,12 +89,15 @@ export default function AwarenessWheel() {
   const [showAwakeMenu, setShowAwakeMenu] = useState(false);
   const [pendingSelection, setPendingSelection] =
     useState<PendingSelection | null>(null);
+  const [livingCard, setLivingCard] =
+    useState<LivingWheelCardState | null>(null);
   const [directions, setDirections] = useState<string[]>([]);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [isAutoCentering, setIsAutoCentering] = useState(false);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
   const autoCenterTimeoutRef = useRef<number | null>(null);
+  const livingCardTimeoutRef = useRef<number | null>(null);
   const dragStartAngleRef = useRef<number | null>(null);
   const dragStartRotationRef = useRef(0);
   const hasDraggedRef = useRef(false);
@@ -123,6 +128,10 @@ export default function AwarenessWheel() {
       return () => {
         if (autoCenterTimeoutRef.current !== null) {
           window.clearTimeout(autoCenterTimeoutRef.current);
+        }
+
+        if (livingCardTimeoutRef.current !== null) {
+          window.clearTimeout(livingCardTimeoutRef.current);
         }
       };
     }, []);
@@ -202,6 +211,25 @@ export default function AwarenessWheel() {
     }, 550);
   }
 
+  function showLivingCard(
+    nextState: LivingWheelCardState,
+    duration?: number
+  ) {
+    if (livingCardTimeoutRef.current !== null) {
+      window.clearTimeout(livingCardTimeoutRef.current);
+      livingCardTimeoutRef.current = null;
+    }
+
+    setLivingCard(nextState);
+
+    if (duration) {
+      livingCardTimeoutRef.current = window.setTimeout(() => {
+        setLivingCard(null);
+        livingCardTimeoutRef.current = null;
+      }, duration);
+    }
+  }
+
   function notice(name: string, type: "pattern" | "investment") {
     const nextCounts = {
       ...counts,
@@ -219,10 +247,17 @@ export default function AwarenessWheel() {
 
     setCounts(nextCounts);
     setEvents(nextEvents);
-    setSelected(name);
     setPendingSelection(null);
     setRippleKey((k) => (k ?? 0) + 1);
     setMessage(`Noticed ${name}`);
+
+    showLivingCard(
+      {
+        mode: "noticed",
+        name,
+      },
+      2600
+    );
 
     triggerHaptic("notice");
     centerSelectedSlice(name, type);
@@ -259,6 +294,11 @@ export default function AwarenessWheel() {
 
       triggerHaptic("light");
       setPendingSelection({ name, type });
+
+      showLivingCard({
+        mode: "preview",
+        name,
+      });
     }
 
     function changeWheelTheme(nextTheme: WheelTheme) {
@@ -319,6 +359,7 @@ export default function AwarenessWheel() {
       if (Math.abs(angleDifference) > 3) {
         hasDraggedRef.current = true;
         setPendingSelection(null);
+        setLivingCard(null);
       }
 
       setWheelRotation(
@@ -471,6 +512,10 @@ export default function AwarenessWheel() {
                 </div>
               )}
             </div>
+            <LivingWheelCard
+              state={livingCard}
+              isDark={isDark}
+            />
 
             <div
               className="relative mx-auto mb-8 aspect-square w-full max-w-[340px] rounded-full p-4 shadow-inner sm:mb-10 sm:max-w-[430px] md:max-w-[500px] lg:max-w-[520px]"
@@ -639,20 +684,6 @@ export default function AwarenessWheel() {
         </svg>
       </div>
 
-      {pendingSelection && (
-        <div className="mx-auto mt-3 max-w-sm rounded-2xl bg-white/85 px-4 py-3 text-sm text-stone-600 shadow-sm">
-          <p>
-            This slice is{" "}
-            <span className="font-medium text-stone-800">
-              {pendingSelection.name}
-            </span>
-          </p>
-          <p className="mt-1 text-xs text-stone-400">
-            Tap the same slice again to notice it.
-          </p>
-        </div>
-      )}
-
       <nav
         aria-label="Awake sections"
         className="mx-auto mt-10 max-w-md"
@@ -787,19 +818,6 @@ export default function AwarenessWheel() {
         </p>
       )}
 
-      {selected && (
-        <div className="mx-auto mt-8 max-w-md rounded-3xl bg-slate-800/70 p-6 text-left shadow-sm">
-          <p className="text-xs uppercase tracking-[0.25em] text-stone-400">
-            Noticed
-          </p>
-          <h2 className="mt-2 text-2xl font-light text-stone-800">
-            {selected}
-          </h2>
-          <p className="mt-3 text-sm leading-6 text-stone-500">
-            This is not a score. It is simply something your awareness touched.
-          </p>
-        </div>
-      )}
       <style jsx global>{`
         @keyframes awake-breathe {
           0%,
@@ -819,9 +837,32 @@ export default function AwarenessWheel() {
           transform-box: view-box;
           transform-origin: 50px 50px;
         }
+          @keyframes awake-living-card-enter {
+            0% {
+              opacity: 0;
+              transform: translateY(8px) scale(0.96);
+            }
+
+            70% {
+              opacity: 1;
+              transform: translateY(0) scale(1.01);
+            }
+
+            100% {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+
+          .awake-living-card {
+            animation: awake-living-card-enter 280ms
+              cubic-bezier(0.22, 1, 0.36, 1);
+            transform-origin: center bottom;
+          }
 
         @media (prefers-reduced-motion: reduce) {
-          .awake-breathe-halo {
+          .awake-breathe-halo,
+          .awake-living-card {
             animation: none;
           }
         }

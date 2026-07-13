@@ -590,7 +590,7 @@ function removeSliceFromCard() {
         triggerHaptic("settle");
 
         longPressTimeoutRef.current = null;
-      }, 500);
+      }, 420);
     }
 
     function handleWheelPointerDown(
@@ -877,17 +877,30 @@ function removeSliceFromCard() {
             return (
               <g
                 key={`${item.type}-${item.name}`}
-                onPointerDown={(event) => {
-                  event.stopPropagation();
+                onPointerDown={() => {
+                  clearLongPressTimer();
+
+                  longPressTriggeredRef.current = false;
+                  suppressClickRef.current = false;
+
                   startSliceLongPress(item.name, item.type);
                 }}
                 onPointerUp={() => {
                   clearLongPressTimer();
                   pressedSliceRef.current = null;
+
+                  if (longPressTriggeredRef.current) {
+                    window.setTimeout(() => {
+                      longPressTriggeredRef.current = false;
+                      suppressClickRef.current = false;
+                    }, 50);
+                  }
                 }}
                 onPointerCancel={() => {
                   clearLongPressTimer();
                   pressedSliceRef.current = null;
+                  longPressTriggeredRef.current = false;
+                  suppressClickRef.current = false;
                 }}
                 onPointerLeave={() => {
                   clearLongPressTimer();

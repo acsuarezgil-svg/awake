@@ -768,22 +768,13 @@ function removeSliceFromCard() {
             onClick={() => setShowAwakeMenu((current) => !current)}
             aria-expanded={showAwakeMenu}
             aria-controls="awake-home-menu"
-            className="flex w-full items-center gap-4 px-5 py-4 text-left"
+            className={`mx-auto flex items-center gap-2 rounded-full border px-4 py-2 text-xs transition ${
+              isDark
+                ? "border-white/15 bg-slate-800/80 text-slate-300 hover:border-white/25 hover:text-white"
+                : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700"
+            }`}
           >
-            <span
-              aria-hidden="true"
-              className={isDark ? "text-slate-400" : "text-stone-400"}
-            >
-              ✦
-            </span>
-
-            <span
-              className={`min-w-0 flex-1 text-base font-medium ${
-                isDark ? "text-stone-100" : "text-stone-700"
-              }`}
-            >
-              Shape Your Wheel
-            </span>
+            <span>Shape Your Wheel</span>
 
             <span
               aria-hidden="true"
@@ -809,6 +800,85 @@ function removeSliceFromCard() {
                   isDark ? "border-white/10" : "border-stone-100"
                 }`}
               >
+                <p
+                  className={`text-[10px] uppercase tracking-[0.2em] ${
+                    isDark ? "text-slate-400" : "text-stone-400"
+                  }`}
+                >
+                  Wheel appearance
+                </p>
+
+                <div className="mt-3 grid grid-cols-2 gap-2 min-[420px]:grid-cols-3">
+                  {(Object.keys(wheelThemes) as WheelTheme[]).map((themeKey) => {
+                    const theme = wheelThemes[themeKey];
+                    const isActive = wheelTheme === themeKey;
+
+                    return (
+                      <button
+                        key={themeKey}
+                        type="button"
+                        onClick={() => changeWheelTheme(themeKey)}
+                        aria-label={`Use ${theme.name} wheel colors`}
+                        aria-pressed={isActive}
+                        title={theme.name}
+                        className={`group min-w-[118px] rounded-2xl border p-2 text-left transition duration-200 ${
+                          isDark
+                            ? isActive
+                              ? "border-white/50 bg-slate-800 shadow-sm ring-1 ring-white/20"
+                              : "border-white/10 bg-slate-900/70 hover:-translate-y-0.5 hover:border-white/25"
+                            : isActive
+                              ? "border-stone-500 bg-white shadow-sm ring-1 ring-stone-300"
+                              : "border-stone-200 bg-white hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-sm"
+                        }`}
+                      >
+                        <span
+                          className="relative block h-8 w-full overflow-hidden rounded-xl border border-white/70"
+                          style={{ background: theme.wheelBackground }}
+                        >
+                          <span
+                            className="absolute inset-y-0 left-0 w-1/2"
+                            style={{ backgroundColor: theme.patternFill }}
+                          />
+
+                          <span
+                            className="absolute inset-y-0 right-0 w-1/2"
+                            style={{ backgroundColor: theme.investmentFill }}
+                          />
+
+                          {isActive && (
+                            <span className="absolute inset-0 flex items-center justify-center">
+                              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/90 text-[10px] text-stone-700 shadow-sm">
+                                ✓
+                              </span>
+                            </span>
+                          )}
+                        </span>
+
+                        <span
+                          className={`mt-2 block text-center text-[11px] ${
+                            isDark ? "text-slate-300" : "text-stone-500"
+                          }`}
+                        >
+                          {theme.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div
+                  className={`my-5 border-t ${
+                    isDark ? "border-white/10" : "border-stone-100"
+                  }`}
+                />
+
+                <p
+                  className={`text-[10px] uppercase tracking-[0.2em] ${
+                    isDark ? "text-slate-400" : "text-stone-400"
+                  }`}
+                >
+                  Shape your wheel
+                </p>
                 {/*<p
                   className={`text-[10px] uppercase tracking-[0.2em] ${
                     isDark ? "text-slate-400" : "text-stone-400"

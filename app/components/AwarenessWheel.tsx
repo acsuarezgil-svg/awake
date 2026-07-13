@@ -628,7 +628,10 @@ function removeSliceFromCard() {
       const angleDifference =
         currentPointerAngle - dragStartAngleRef.current;
 
-      if (Math.abs(angleDifference) > 3) {
+      const movementThreshold =
+        longPressTimeoutRef.current !== null ? 9 : 3;
+
+      if (Math.abs(angleDifference) > movementThreshold) {
         clearLongPressTimer();
         hasDraggedRef.current = true;
         setPendingSelection(null);
@@ -902,9 +905,7 @@ function removeSliceFromCard() {
                   longPressTriggeredRef.current = false;
                   suppressClickRef.current = false;
                 }}
-                onPointerLeave={() => {
-                  clearLongPressTimer();
-                }}
+                
                 onClick={() => {
                   if (longPressTriggeredRef.current) {
                     longPressTriggeredRef.current = false;
@@ -996,7 +997,6 @@ function removeSliceFromCard() {
           </text>
 
           <g
-            href="/direction"
             aria-label="Shape your wheel"
             onPointerDown={(event) => event.stopPropagation()}
             onClick={(event) => event.stopPropagation()}

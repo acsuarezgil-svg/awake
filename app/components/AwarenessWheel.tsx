@@ -777,7 +777,15 @@ function closeLivingCard() {
                       : "rgba(255,255,255,0.8)"
                   }
                   strokeWidth={isPending ? "1.5" : "0.8"}
-                  opacity={isPending ? 1 : 0.92}
+                  opacity={
+                    isPending
+                      ? 1
+                      : item.count > 0
+                        ? 0.98
+                        : isDark
+                          ? 0.38
+                          : 0.5
+                  }
                 />
 
                 {showLabel && (
@@ -830,7 +838,7 @@ function closeLivingCard() {
             Moment
           </text>
 
-          <a
+          <g
             href="/direction"
             aria-label="Shape your wheel"
             onPointerDown={(event) => event.stopPropagation()}
@@ -855,7 +863,7 @@ function closeLivingCard() {
             >
               +
             </text>
-          </a>
+          </g>
         </svg>
       </div>
 

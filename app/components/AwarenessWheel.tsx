@@ -1172,7 +1172,7 @@ function removeSliceFromCard() {
                   isDark ? "border-white/10" : "border-stone-100"
                 }`}
               >
-                <p
+                {/*<p
                   className={`text-[10px] uppercase tracking-[0.2em] ${
                     isDark ? "text-slate-400" : "text-stone-400"
                   }`}
@@ -1199,7 +1199,7 @@ function removeSliceFromCard() {
                       {item}
                     </button>
                   ))}
-                </div>
+                </div>*/}
 
                 <div className="mt-5 space-y-1">
                   <AwakeMenuLink
@@ -1376,6 +1376,56 @@ function AwakeMenuLink({
         →
       </span>
     </Link>
+  );
+}
+
+type PerspectiveOptionProps = {
+  x: number;
+  y: number;
+  label: string;
+  active: boolean;
+  isDark: boolean;
+  onClick: () => void;
+};
+
+function PerspectiveOption({
+  x,
+  y,
+  label,
+  active,
+  isDark,
+  onClick,
+}: PerspectiveOptionProps) {
+  return (
+    <g
+      onClick={onClick}
+      className="cursor-pointer"
+    >
+      <circle
+        cx={x}
+        cy={y}
+        r="5"
+        fill="transparent"
+      />
+
+      <text
+        x={x}
+        y={y}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        className={`select-none text-[2.6px] font-medium transition ${
+          active
+            ? isDark
+              ? "fill-rose-300"
+              : "fill-rose-600"
+            : isDark
+              ? "fill-slate-300"
+              : "fill-stone-500"
+        }`}
+      >
+        {label}
+      </text>
+    </g>
   );
 }
 function polarToCartesian(

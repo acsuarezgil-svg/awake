@@ -697,11 +697,11 @@ function removeSliceFromCard() {
     const perspectiveAccent = activeWheelTheme.patternFill;
 
     const perspectiveInactive = isDark
-      ? "rgba(226,232,240,0.82)"
+      ? "rgba(248,250,252,0.96)"
       : "rgba(87,83,78,0.82)";
 
     const perspectivePetalFill = isDark
-      ? "rgba(255,255,255,0.10)"
+      ? "rgba(255,255,255,0.18)"
       : "rgba(255,255,255,0.72)";
 
     const perspectivePetalStroke = isDark
@@ -1094,6 +1094,7 @@ function removeSliceFromCard() {
               inactiveColor={perspectiveInactive}
               petalFill={perspectivePetalFill}
               petalStroke={perspectivePetalStroke}
+              isDark={isDark}
               onClick={() => selectPerspective("Today")}
             />
 
@@ -1106,6 +1107,7 @@ function removeSliceFromCard() {
               inactiveColor={perspectiveInactive}
               petalFill={perspectivePetalFill}
               petalStroke={perspectivePetalStroke}
+              isDark={isDark}
               onClick={() => selectPerspective("7 Days")}
             />
 
@@ -1118,6 +1120,7 @@ function removeSliceFromCard() {
               inactiveColor={perspectiveInactive}
               petalFill={perspectivePetalFill}
               petalStroke={perspectivePetalStroke}
+              isDark={isDark}
               onClick={() => selectPerspective("Month")}
             />
 
@@ -1130,6 +1133,7 @@ function removeSliceFromCard() {
               inactiveColor={perspectiveInactive}
               petalFill={perspectivePetalFill}
               petalStroke={perspectivePetalStroke}
+              isDark={isDark}
               onClick={() => selectPerspective("All")}
             />
           </g>
@@ -1451,6 +1455,7 @@ type PerspectiveOptionProps = {
   inactiveColor: string;
   petalFill: string;
   petalStroke: string;
+  isDark: boolean;   // ← add this
   onClick: () => void;
 };
 
@@ -1463,6 +1468,7 @@ function PerspectiveOption({
   inactiveColor,
   petalFill,
   petalStroke,
+  isDark,
   onClick,
 }: PerspectiveOptionProps) {
   return (
@@ -1486,9 +1492,13 @@ function PerspectiveOption({
         dominantBaseline="middle"
         className="pointer-events-none select-none text-[2.8px] font-medium transition-[fill,filter] duration-300"
         style={{
-          fill: active ? accentColor : inactiveColor,
+          fill: active
+            ? isDark
+              ? "rgba(248,250,252,0.98)"
+              : accentColor
+            : inactiveColor,
           filter: active
-            ? `drop-shadow(0 0 1.4px ${accentColor})`
+            ? `drop-shadow(0 0 1.8px ${accentColor})`
             : "none",
         }}
       >

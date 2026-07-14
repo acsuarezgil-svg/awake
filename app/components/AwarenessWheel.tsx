@@ -13,6 +13,7 @@ import LivingWheelCard, {
 } from "./LivingWheelCard";
 
 type Counts = Record<string, number>;
+type WheelView = "awareness" | "compass";
 
 type NoticeEvent = {
   id: string;
@@ -28,6 +29,27 @@ type PendingSelection = {
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
+const defaultValues = [
+  "Honesty",
+  "Kindness",
+  "Growth",
+  "Health",
+  "Family",
+  "Courage",
+  "Creativity",
+  "Peace",
+];
+
+const defaultBoundaries = [
+  "Pause",
+  "Say No",
+  "Rest",
+  "Protect Sleep",
+  "Leave",
+  "Ask for Help",
+  "Limit Work",
+  "Take Space",
+];
 
 const filters = ["Today", "7 Days", "Month", "All"] as const;
 type Filter = (typeof filters)[number];
@@ -100,7 +122,13 @@ export default function AwarenessWheel() {
     useState(false);
   const [isLongPressHolding, setIsLongPressHolding] =
     useState(false);
-  
+  const [wheelView, setWheelView] =
+  useState<WheelView>("awareness");
+
+  const [values, setValues] = useState(defaultValues);
+  const [boundaries, setBoundaries] =
+    useState(defaultBoundaries);
+    
   const [directions, setDirections] = useState<string[]>([]);
   const [wheelRotation, setWheelRotation] = useState(0);
   const [isAutoCentering, setIsAutoCentering] = useState(false);
@@ -137,6 +165,25 @@ export default function AwarenessWheel() {
     if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
       setWheelTheme(savedWheelTheme);
     }
+
+    const savedWheelView = localStorage.getItem("awake-wheel-view");
+    if (
+      savedWheelView === "awareness" ||
+      savedWheelView === "compass"
+    ) {
+      setWheelView(savedWheelView);
+    }
+
+    setValues(
+      JSON.parse(localStorage.getItem("awake-values") || "null") ||
+        defaultValues
+    );
+
+    setBoundaries(
+      JSON.parse(
+        localStorage.getItem("awake-boundaries") || "null"
+      ) || defaultBoundaries
+    );
     }, []);
     useEffect(() => {
       return () => {
@@ -560,6 +607,19 @@ function removeSliceFromCard() {
       triggerHaptic("light");
     }
 
+    function changeWheelView(nextView: WheelView) {
+      setWheelView(nextView);
+      localStorage.setItem("awake-wheel-view", nextView);
+
+      setPendingSelection(null);
+      setLivingCard(null);
+      setIsLivingCardExpanded(false);
+      setShowCenterMenu(false);
+      setWheelRotation(0);
+
+      triggerHaptic("light");
+    }
+
     function changeWheelTheme(nextTheme: WheelTheme) {
       setWheelTheme(nextTheme);
       localStorage.setItem("awake-wheel-theme", nextTheme);
@@ -755,6 +815,49 @@ function removeSliceFromCard() {
           </p>
         </Link>
       )}
+      <div
+        className={`mx-auto mb-5 flex w-full max-w-sm rounded-full border p-1 transition-colors ${
+          isDark
+            ? "border-white/10 bg-slate-900/60"
+            : "border-stone-200 bg-white/80"
+        }`}
+        role="group"
+        aria-label="Choose wheel"
+      >
+        <button
+          type="button"
+          onClick={() => changeWheelView("awareness")}
+          aria-pressed={wheelView === "awareness"}
+          className={`relative z-10 min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm transition duration-300 ${
+            wheelView === "awareness"
+              ? isDark
+                ? "bg-slate-700 text-stone-100 shadow-sm"
+                : "bg-stone-800 text-white shadow-sm"
+              : isDark
+                ? "text-slate-400 hover:text-stone-100"
+                : "text-stone-400 hover:text-stone-700"
+          }`}
+        >
+          Awareness
+        </button>
+
+        <button
+          type="button"
+          onClick={() => changeWheelView("compass")}
+          aria-pressed={wheelView === "compass"}
+          className={`relative z-10 min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm transition duration-300 ${
+            wheelView === "compass"
+              ? isDark
+                ? "bg-slate-700 text-stone-100 shadow-sm"
+                : "bg-stone-800 text-white shadow-sm"
+              : isDark
+                ? "text-slate-400 hover:text-stone-100"
+                : "text-stone-400 hover:text-stone-700"
+          }`}
+        >
+          Compass
+        </button>
+      </div>
 
       <nav
         aria-label="Awake sections"
@@ -778,7 +881,11 @@ function removeSliceFromCard() {
                 : "border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-stone-700"
             }`}
           >
-            <span>Shape Your Wheel</span>
+            <span>
+              {wheelView === "awareness"
+                ? "Shape Your Awareness"
+                : "Shape Your Compass"}
+            </span>
 
             <span
               aria-hidden="true"

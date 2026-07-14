@@ -140,6 +140,7 @@ export default function AwarenessWheel() {
   const [isAutoCentering, setIsAutoCentering] = useState(false);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const wheelSwitchStartXRef = useRef<number | null>(null);
   const autoCenterTimeoutRef = useRef<number | null>(null);
   const livingCardTimeoutRef = useRef<number | null>(null);
   const dragStartAngleRef = useRef<number | null>(null);
@@ -899,10 +900,33 @@ function removeSliceFromCard() {
         }`}
         role="group"
         aria-label="Choose wheel"
+        onPointerDown={(event) => {
+          wheelSwitchStartXRef.current = event.clientX;
+        }}
+        onPointerUp={(event) => {
+          const startX = wheelSwitchStartXRef.current;
+
+          wheelSwitchStartXRef.current = null;
+
+          if (startX === null) return;
+
+          const distance = event.clientX - startX;
+
+          if (distance > 35) {
+            changeWheelView("awareness");
+          }
+
+          if (distance < -35) {
+            changeWheelView("compass");
+          }
+        }}
+        onPointerCancel={() => {
+          wheelSwitchStartXRef.current = null;
+        }}
       >
         <span
           aria-hidden="true"
-          className={`absolute bottom-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-transform duration-300 ${
+          className={`pointer-events-none absolute bottom-1 left-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-transform duration-300 ${
             isDark
               ? "bg-slate-700 shadow-sm"
               : "bg-stone-800 shadow-sm"

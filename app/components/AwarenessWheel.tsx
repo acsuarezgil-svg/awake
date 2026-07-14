@@ -18,14 +18,20 @@ type WheelView = "awareness" | "compass";
 type NoticeEvent = {
   id: string;
   name: string;
-  type: "pattern" | "investment";
+  type: WheelItemType;
   date: string;
 };
 
 type PendingSelection = {
   name: string;
-  type: "pattern" | "investment";
+  type: WheelItemType;
 };
+
+type WheelItemType =
+  | "pattern"
+  | "investment"
+  | "value"
+  | "boundary";
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
@@ -222,11 +228,11 @@ export default function AwarenessWheel() {
         : [
             ...boundaries.map((name) => ({
               name,
-              type: "pattern" as const,
+              type: "boundary" as const,
             })),
             ...values.map((name) => ({
               name,
-              type: "investment" as const,
+              type: "value" as const,
             })),
           ];
 
@@ -264,7 +270,7 @@ export default function AwarenessWheel() {
 
   function getSliceMidAngle(
     name: string,
-    type: "pattern" | "investment"
+    type: WheelItemType
   ) {
     let angle = 0;
 
@@ -288,7 +294,7 @@ export default function AwarenessWheel() {
 
   function centerSelectedSlice(
     name: string,
-    type: "pattern" | "investment"
+    type: WheelItemType
   ) {
     const midAngle = getSliceMidAngle(name, type);
 
@@ -361,7 +367,62 @@ function closeLivingCard() {
   setPendingSelection(null);
 }
 
-  function notice(name: string, type: "pattern" | "investment") {
+function getWheelList(type: WheelItemType) {
+  switch (type) {
+    case "pattern":
+      return patterns;
+
+    case "investment":
+      return investments;
+
+    case "value":
+      return values;
+
+    case "boundary":
+      return boundaries;
+  }
+}
+
+function saveWheelList(
+  type: WheelItemType,
+  nextList: string[]
+) {
+  switch (type) {
+    case "pattern":
+      setPatterns(nextList);
+      localStorage.setItem(
+        "awake-patterns",
+        JSON.stringify(nextList)
+      );
+      break;
+
+    case "investment":
+      setInvestments(nextList);
+      localStorage.setItem(
+        "awake-investments",
+        JSON.stringify(nextList)
+      );
+      break;
+
+    case "value":
+      setValues(nextList);
+      localStorage.setItem(
+        "awake-values",
+        JSON.stringify(nextList)
+      );
+      break;
+
+    case "boundary":
+      setBoundaries(nextList);
+      localStorage.setItem(
+        "awake-boundaries",
+        JSON.stringify(nextList)
+      );
+      break;
+  }
+}
+
+  function notice(name: string, type: WheelItemType) {
     const nextCounts = {
       ...counts,
       [name]: (counts[name] || 0) + 1,
@@ -476,12 +537,11 @@ function closeLivingCard() {
   const oldName = livingCard.name;
   const type = livingCard.type;
 
+
   if (!trimmedName || trimmedName === oldName) {
     return;
   }
-
-  const currentList =
-    type === "pattern" ? patterns : investments;
+  const currentList = getWheelList(type);
 
   const nameAlreadyExists = currentList.some(
     (item) =>
@@ -506,19 +566,7 @@ function closeLivingCard() {
     item === oldName ? trimmedName : item
   );
 
-  if (type === "pattern") {
-    setPatterns(nextList);
-    localStorage.setItem(
-      "awake-patterns",
-      JSON.stringify(nextList)
-    );
-  } else {
-    setInvestments(nextList);
-    localStorage.setItem(
-      "awake-investments",
-      JSON.stringify(nextList)
-    );
-  }
+  saveWheelList(type, nextList);
 
   const nextEvents = events.map((event) =>
     event.name === oldName && event.type === type
@@ -566,27 +614,13 @@ function removeSliceFromCard() {
 
   const { name, type } = livingCard;
 
-  if (type === "pattern") {
-    const nextPatterns = patterns.filter(
-      (item) => item !== name
-    );
+  const currentList = getWheelList(type);
 
-    setPatterns(nextPatterns);
-    localStorage.setItem(
-      "awake-patterns",
-      JSON.stringify(nextPatterns)
-    );
-  } else {
-    const nextInvestments = investments.filter(
-      (item) => item !== name
-    );
+  const nextList = currentList.filter(
+    (item) => item !== name
+  );
 
-    setInvestments(nextInvestments);
-    localStorage.setItem(
-      "awake-investments",
-      JSON.stringify(nextInvestments)
-    );
-  }
+  saveWheelList(type, nextList);
 
   setPendingSelection(null);
 
@@ -601,10 +635,9 @@ function removeSliceFromCard() {
   );
 }
 
-
     function handleSliceTap(
       name: string,
-      type: "pattern" | "investment",
+      type: WheelItemType,
       hasVisibleLabel: boolean
     ) {
       if (suppressClickRef.current) {
@@ -683,7 +716,7 @@ function removeSliceFromCard() {
 
     function startSliceLongPress(
       name: string,
-      type: "pattern" | "investment"
+      type: WheelItemType
     ) {
       clearLongPressTimer();
 
@@ -792,7 +825,15 @@ function removeSliceFromCard() {
 
     const activeWheelTheme = wheelThemes[wheelTheme];
     const isDark = isDarkWheelTheme(wheelTheme);
-    const centerFilterLabel = filter.toUpperCase();
+    const centerFilterLabel =
+      wheelView === "awareness"
+        ? filter.toUpperCase()
+        : "VALUES";
+
+    const centerSubtitle =
+      wheelView === "awareness"
+        ? "This Moment"
+        : "Stay True";
     const perspectiveAccent = activeWheelTheme.patternFill;
 
     const perspectiveInactive = isDark
@@ -1299,7 +1340,7 @@ function removeSliceFromCard() {
               livingCard.type === item.type;
 
             const fill =
-              item.type === "pattern"
+              item.type === "pattern" || item.type === "boundary"
                 ? activeWheelTheme.patternFill
                 : activeWheelTheme.investmentFill;
 
@@ -1517,7 +1558,7 @@ function removeSliceFromCard() {
             textAnchor="middle"
             className="pointer-events-none select-none fill-stone-600 text-[3.5px] font-light"
           >
-            This Moment
+            {centerSubtitle}
           </text>
         </svg>
       </div>

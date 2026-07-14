@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export type SliceType = "pattern" | "investment";
+export type SliceType =
+  | "pattern"
+  | "investment"
+  | "value"
+  | "boundary";
 
 export type LivingWheelCardState =
   | {

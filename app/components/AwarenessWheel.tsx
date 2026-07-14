@@ -898,28 +898,32 @@ function removeSliceFromCard() {
         <span
           aria-hidden="true"
           className={`pointer-events-none absolute bottom-1 left-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-[transform,background,box-shadow] duration-300 ${
-            isDark
-              ? "bg-slate-700"
-              : "bg-stone-800"
-          } ${
             wheelView === "compass"
               ? "translate-x-full awake-compass-glow"
               : "translate-x-0 shadow-sm"
           }`}
-          style={
-            wheelView === "compass"
-              ? {
-                  boxShadow: `0 0 0 1px ${activeWheelTheme.investmentFill}, 0 0 16px ${activeWheelTheme.investmentFill}`,
-                }
-              : undefined
-          }
+          style={{
+            backgroundColor:
+              wheelView === "compass"
+                ? `rgb(${activeWheelTheme.investment})`
+                : `rgb(${activeWheelTheme.pattern})`,
+
+            boxShadow:
+              wheelView === "compass"
+                ? `0 0 0 1px rgba(${activeWheelTheme.investment}, 0.55),
+                  0 0 10px rgba(${activeWheelTheme.investment}, 0.42),
+                  0 0 22px rgba(${activeWheelTheme.investment}, 0.22)`
+                : `0 0 0 1px rgba(${activeWheelTheme.pattern}, 0.28)`,
+          }}
         />
 
         <div className="relative z-10 grid grid-cols-2">
           <span
             className={`pointer-events-none px-4 py-2.5 text-center text-sm transition-colors ${
               wheelView === "awareness"
+              ? isDark
                 ? "text-white"
+                : "text-stone-900"
                 : isDark
                   ? "text-slate-400"
                   : "text-stone-400"
@@ -931,7 +935,9 @@ function removeSliceFromCard() {
           <span
             className={`pointer-events-none px-4 py-2.5 text-center text-sm transition-colors ${
               wheelView === "compass"
-                ? "text-white"
+                ? isDark
+                  ? "text-white"
+                  : "text-stone-900"
                 : isDark
                   ? "text-slate-400"
                   : "text-stone-400"

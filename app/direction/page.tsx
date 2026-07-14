@@ -213,6 +213,71 @@ export default function DirectionPage() {
     saveInvestments([...investments, name]);
   }
 
+  function addValue() {
+    const name = prompt("New value:")?.trim();
+
+    if (!name || values.includes(name)) return;
+
+    saveValues([...values, name]);
+  }
+
+  function editValue(oldName: string) {
+    const newName = prompt("Edit value:", oldName)?.trim();
+
+    if (!newName || newName === oldName) return;
+    if (values.includes(newName)) return;
+
+    saveValues(
+      values.map((item) =>
+        item === oldName ? newName : item
+      )
+    );
+  }
+
+  function deleteValue(name: string) {
+    const confirmed = confirm(`Delete value "${name}"?`);
+
+    if (!confirmed) return;
+
+    saveValues(values.filter((item) => item !== name));
+  }
+
+  function addBoundary() {
+    const name = prompt("New boundary:")?.trim();
+
+    if (!name || boundaries.includes(name)) return;
+
+    saveBoundaries([...boundaries, name]);
+  }
+
+  function editBoundary(oldName: string) {
+    const newName = prompt(
+      "Edit boundary:",
+      oldName
+    )?.trim();
+
+    if (!newName || newName === oldName) return;
+    if (boundaries.includes(newName)) return;
+
+    saveBoundaries(
+      boundaries.map((item) =>
+        item === oldName ? newName : item
+      )
+    );
+  }
+
+  function deleteBoundary(name: string) {
+    const confirmed = confirm(
+      `Delete boundary "${name}"?`
+    );
+
+    if (!confirmed) return;
+
+    saveBoundaries(
+      boundaries.filter((item) => item !== name)
+    );
+  }
+
   function editInvestment(oldName: string) {
     const newName = prompt(
       "Edit investment:",
@@ -312,7 +377,9 @@ export default function DirectionPage() {
 
         <header className="mt-10 text-center">
           <p className="text-xs lowercase tracking-[0.4em] text-stone-400">
-            shape your wheel
+            {wheelView === "awareness"
+              ? "shape your wheel"
+              : "shape your compass"}
           </p>
 
           <h1
@@ -320,7 +387,9 @@ export default function DirectionPage() {
               isDark ? "text-stone-100" : "text-stone-800"
             }`}
           >
-            What are you learning to notice?
+            {wheelView === "awareness"
+              ? "What are you learning to notice?"
+              : "What guides your choices?"}
           </h1>
 
           <p
@@ -328,8 +397,9 @@ export default function DirectionPage() {
               isDark ? "text-slate-300" : "text-stone-400"
             }`}
           >
-            Your wheel can change as you discover new patterns,
-            investments, and directions.
+            {wheelView === "awareness"
+              ? "Your wheel can change as you discover new patterns, investments, and directions."
+              : "Your compass can change as you discover what matters and the boundaries that protect it."}
           </p>
         </header>
         <nav
@@ -528,6 +598,166 @@ export default function DirectionPage() {
                       type="button"
                       onClick={() => deleteInvestment(item)}
                       className="rounded-full px-3 py-1 text-xs text-emerald-500 transition hover:bg-emerald-50 hover:text-emerald-700"
+                    >
+                      {t.delete}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+        {activeSection === "values" && (
+          <section
+            className={`mt-8 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
+              isDark
+                ? "border-emerald-400/20 bg-slate-800/70"
+                : "border-emerald-100 bg-emerald-50/40"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  className={`text-xl font-light ${
+                    isDark ? "text-stone-100" : "text-stone-700"
+                  }`}
+                >
+                  Values
+                </h2>
+
+                <p
+                  className={`mt-1 text-sm leading-6 ${
+                    isDark ? "text-slate-300" : "text-stone-400"
+                  }`}
+                >
+                  What matters most to you?
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addValue}
+                className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  isDark
+                    ? "border-emerald-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
+                    : "border-emerald-200 bg-white text-stone-500 hover:border-emerald-300 hover:text-stone-700"
+                }`}
+              >
+                + Add
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {values.map((item) => (
+                <div
+                  key={item}
+                  className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors ${
+                    isDark
+                      ? "border-slate-600 bg-slate-700/80"
+                      : "border-emerald-100 bg-white"
+                  }`}
+                >
+                  <span
+                    className={`min-w-0 flex-1 text-sm ${
+                      isDark ? "text-stone-100" : "text-stone-700"
+                    }`}
+                  >
+                    {item}
+                  </span>
+
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => editValue(item)}
+                      className="rounded-full px-3 py-1 text-xs text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
+                    >
+                      {t.edit}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => deleteValue(item)}
+                      className="rounded-full px-3 py-1 text-xs text-emerald-500 transition hover:bg-emerald-50 hover:text-emerald-700"
+                    >
+                      {t.delete}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+        {activeSection === "boundaries" && (
+          <section
+            className={`mt-8 rounded-3xl border px-5 py-6 transition-colors duration-500 ${
+              isDark
+                ? "border-rose-400/20 bg-slate-800/70"
+                : "border-rose-100 bg-rose-50/40"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2
+                  className={`text-xl font-light ${
+                    isDark ? "text-stone-100" : "text-stone-700"
+                  }`}
+                >
+                  Boundaries
+                </h2>
+
+                <p
+                  className={`mt-1 text-sm leading-6 ${
+                    isDark ? "text-slate-300" : "text-stone-400"
+                  }`}
+                >
+                  What protects what matters?
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={addBoundary}
+                className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                  isDark
+                    ? "border-rose-400/20 bg-slate-700 text-stone-100 hover:bg-slate-600"
+                    : "border-rose-200 bg-white text-stone-500 hover:border-rose-300 hover:text-stone-700"
+                }`}
+              >
+                + Add
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {boundaries.map((item) => (
+                <div
+                  key={item}
+                  className={`flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 transition-colors ${
+                    isDark
+                      ? "border-slate-600 bg-slate-700/80"
+                      : "border-rose-100 bg-white"
+                  }`}
+                >
+                  <span
+                    className={`min-w-0 flex-1 text-sm ${
+                      isDark ? "text-stone-100" : "text-stone-700"
+                    }`}
+                  >
+                    {item}
+                  </span>
+
+                  <div className="flex shrink-0 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => editBoundary(item)}
+                      className="rounded-full px-3 py-1 text-xs text-stone-400 transition hover:bg-stone-50 hover:text-stone-700"
+                    >
+                      {t.edit}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => deleteBoundary(item)}
+                      className="rounded-full px-3 py-1 text-xs text-rose-400 transition hover:bg-rose-50 hover:text-rose-700"
                     >
                       {t.delete}
                     </button>

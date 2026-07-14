@@ -892,7 +892,7 @@ function removeSliceFromCard() {
         </Link>
       )}
       <div
-        className={`mx-auto mb-5 flex w-full max-w-sm rounded-full border p-1 transition-colors ${
+        className={`relative mx-auto mb-5 flex w-full max-w-sm rounded-full border p-1 transition-colors ${
           isDark
             ? "border-white/10 bg-slate-900/60"
             : "border-stone-200 bg-white/80"
@@ -900,15 +900,26 @@ function removeSliceFromCard() {
         role="group"
         aria-label="Choose wheel"
       >
+        <span
+          aria-hidden="true"
+          className={`absolute bottom-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-transform duration-300 ${
+            isDark
+              ? "bg-slate-700 shadow-sm"
+              : "bg-stone-800 shadow-sm"
+          } ${
+            wheelView === "compass"
+              ? "translate-x-full"
+              : "translate-x-0"
+          }`}
+        />
+
         <button
           type="button"
           onClick={() => changeWheelView("awareness")}
           aria-pressed={wheelView === "awareness"}
-          className={`relative z-10 min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm transition duration-300 ${
+          className={`relative z-10 min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm transition-colors duration-300 ${
             wheelView === "awareness"
-              ? isDark
-                ? "bg-slate-700 text-stone-100 shadow-sm"
-                : "bg-stone-800 text-white shadow-sm"
+              ? "text-white"
               : isDark
                 ? "text-slate-400 hover:text-stone-100"
                 : "text-stone-400 hover:text-stone-700"
@@ -921,11 +932,9 @@ function removeSliceFromCard() {
           type="button"
           onClick={() => changeWheelView("compass")}
           aria-pressed={wheelView === "compass"}
-          className={`relative z-10 min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm transition duration-300 ${
+          className={`relative z-10 min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm transition-colors duration-300 ${
             wheelView === "compass"
-              ? isDark
-                ? "bg-slate-700 text-stone-100 shadow-sm"
-                : "bg-stone-800 text-white shadow-sm"
+              ? "text-white"
               : isDark
                 ? "text-slate-400 hover:text-stone-100"
                 : "text-stone-400 hover:text-stone-700"

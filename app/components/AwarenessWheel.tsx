@@ -905,8 +905,8 @@ function removeSliceFromCard() {
           style={{
             backgroundColor:
               wheelView === "compass"
-                ? `rgb(${activeWheelTheme.investment})`
-                : `rgb(${activeWheelTheme.pattern})`,
+                ? `rgb(${activeWheelTheme.investment}, 0.82)`
+                : `rgb(${activeWheelTheme.pattern}, 0.82)`,
 
             boxShadow:
               wheelView === "compass"

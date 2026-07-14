@@ -444,9 +444,13 @@ export default function InsightsPage() {
                         insights
                     </p>
 
-                    <h1 className="mx-auto mt-4 max-w-xl text-3xl font-light leading-tight text-stone-800 sm:text-[2rem]">
+                    <h1
+                        className={`mx-auto mt-4 max-w-xl text-3xl font-light leading-tight sm:text-[2rem] ${
+                            isDark ? "text-stone-100" : "text-stone-800"
+                        }`}
+                        >
                         How has awareness been showing up?
-                    </h1>
+                        </h1>
 
                     <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-stone-400">
                         A quiet view of when you paused and noticed.

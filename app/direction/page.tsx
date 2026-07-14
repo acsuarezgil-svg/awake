@@ -12,7 +12,37 @@ import {
 
 const defaultPatterns = ["Urgency", "Overthinking", "Avoidance"];
 const defaultInvestments = ["Exercise", "Learning", "Creativity"];
-type WheelSection = "direction" | "patterns" | "investments";
+
+const defaultValues = [
+  "Honesty",
+  "Kindness",
+  "Growth",
+  "Health",
+  "Family",
+  "Courage",
+  "Creativity",
+  "Peace",
+];
+
+const defaultBoundaries = [
+  "Pause",
+  "Say No",
+  "Rest",
+  "Protect Sleep",
+  "Leave",
+  "Ask for Help",
+  "Limit Work",
+  "Take Space",
+];
+
+type WheelView = "awareness" | "compass";
+
+type WheelSection =
+  | "direction"
+  | "patterns"
+  | "investments"
+  | "values"
+  | "boundaries";
 
 const defaultDirections = [
   "Rest",
@@ -30,6 +60,12 @@ const defaultDirections = [
 export default function DirectionPage() {
   const [patterns, setPatterns] = useState(defaultPatterns);
   const [investments, setInvestments] = useState(defaultInvestments);
+  const [values, setValues] = useState(defaultValues);
+  const [boundaries, setBoundaries] =
+    useState(defaultBoundaries);
+
+  const [wheelView, setWheelView] =
+    useState<WheelView>("awareness");
   const [directions, setDirections] = useState(defaultDirections);
   const [selected, setSelected] = useState<string[]>([]);
   const [language, setLanguage] = useState<Language>("en");
@@ -45,9 +81,29 @@ export default function DirectionPage() {
     const savedInvestments = localStorage.getItem("awake-investments");
     const savedDirections = localStorage.getItem("awake-directions");
     const savedSelected = localStorage.getItem("awake-direction");
-    const savedLanguage = localStorage.getItem(
-      "awake-language"
-    ) as Language | null;
+    const savedLanguage = localStorage.getItem("awake-language") as Language | null;
+    const savedWheelView = localStorage.getItem("awake-wheel-view");
+    const savedValues = localStorage.getItem("awake-values");
+    const savedBoundaries = localStorage.getItem("awake-boundaries");
+
+    if (
+      savedWheelView === "awareness" ||
+      savedWheelView === "compass"
+    ) {
+      setWheelView(savedWheelView);
+
+      if (savedWheelView === "compass") {
+        setActiveSection("values");
+      }
+    }
+
+    if (savedValues) {
+      setValues(JSON.parse(savedValues));
+    }
+
+    if (savedBoundaries) {
+      setBoundaries(JSON.parse(savedBoundaries));
+    }
 
     if (savedPatterns) {
       setPatterns(JSON.parse(savedPatterns));
@@ -85,6 +141,22 @@ export default function DirectionPage() {
   function saveInvestments(updated: string[]) {
     setInvestments(updated);
     localStorage.setItem("awake-investments", JSON.stringify(updated));
+  }
+
+  function saveValues(updated: string[]) {
+    setValues(updated);
+    localStorage.setItem(
+      "awake-values",
+      JSON.stringify(updated)
+    );
+  }
+
+  function saveBoundaries(updated: string[]) {
+    setBoundaries(updated);
+    localStorage.setItem(
+      "awake-boundaries",
+      JSON.stringify(updated)
+    );
   }
 
   function saveDirections(updated: string[]) {
@@ -269,11 +341,16 @@ export default function DirectionPage() {
           }`}
         >
           {(
-            [
-              ["direction", "Direction"],
-              ["patterns", "Patterns"],
-              ["investments", "Investments"],
-            ] as const
+            wheelView === "awareness"
+              ? ([
+                  ["direction", "Direction"],
+                  ["patterns", "Patterns"],
+                  ["investments", "Investments"],
+                ] as const)
+              : ([
+                  ["values", "Values"],
+                  ["boundaries", "Boundaries"],
+                ] as const)
           ).map(([sectionKey, label]) => {
             const isActive = activeSection === sectionKey;
 

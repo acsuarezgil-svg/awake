@@ -140,7 +140,6 @@ export default function AwarenessWheel() {
   const [isAutoCentering, setIsAutoCentering] = useState(false);
 
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const wheelSwitchStartXRef = useRef<number | null>(null);
   const autoCenterTimeoutRef = useRef<number | null>(null);
   const livingCardTimeoutRef = useRef<number | null>(null);
   const dragStartAngleRef = useRef<number | null>(null);
@@ -1145,7 +1144,11 @@ function removeSliceFromCard() {
                   <AwakeMenuLink
                     href="/direction"
                     symbol="✦"
-                    title="Shape Your Wheel"
+                    title={
+                      wheelView === "awareness"
+                        ? "Direction, Patterns & Investments"
+                        : "Values & Boundaries"
+                    }
                     isDark={isDark}
                   />
 

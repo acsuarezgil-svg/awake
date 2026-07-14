@@ -897,15 +897,22 @@ function removeSliceFromCard() {
       >
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute bottom-1 left-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-transform duration-300 ${
+          className={`pointer-events-none absolute bottom-1 left-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-[transform,background,box-shadow] duration-300 ${
             isDark
-              ? "bg-slate-700 shadow-sm"
-              : "bg-stone-800 shadow-sm"
+              ? "bg-slate-700"
+              : "bg-stone-800"
           } ${
             wheelView === "compass"
-              ? "translate-x-full"
-              : "translate-x-0"
+              ? "translate-x-full awake-compass-glow"
+              : "translate-x-0 shadow-sm"
           }`}
+          style={
+            wheelView === "compass"
+              ? {
+                  boxShadow: `0 0 0 1px ${activeWheelTheme.investmentFill}, 0 0 16px ${activeWheelTheme.investmentFill}`,
+                }
+              : undefined
+          }
         />
 
         <div className="relative z-10 grid grid-cols-2">
@@ -1705,13 +1712,28 @@ function removeSliceFromCard() {
                 .awake-menu-pulse {
                   animation: awake-menu-pulse 4.8s ease-in-out infinite;
                 }
+                  @keyframes awake-compass-glow {
+                    0%,
+                    100% {
+                      filter: brightness(1);
+                    }
+
+                    50% {
+                      filter: brightness(1.12);
+                    }
+                  }
+
+                  .awake-compass-glow {
+                    animation: awake-compass-glow 4.8s ease-in-out infinite;
+                  }
 
         @media (prefers-reduced-motion: reduce) {
           .awake-breathe-halo,
           .awake-living-card,
           .awake-slice-preview,
           .awake-preview-label,
-          .awake-menu-pulse {
+          .awake-menu-pulse,
+          .awake-compass-glow {
             animation: none;
           }
  

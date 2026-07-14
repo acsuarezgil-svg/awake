@@ -207,23 +207,58 @@ export default function AwarenessWheel() {
   );
 
   const wheelItems = useMemo(() => {
-    const allItems = [
-      ...patterns.map((name) => ({ name, type: "pattern" as const })),
-      ...investments.map((name) => ({ name, type: "investment" as const })),
-    ];
+    const allItems =
+      wheelView === "awareness"
+        ? [
+            ...patterns.map((name) => ({
+              name,
+              type: "pattern" as const,
+            })),
+            ...investments.map((name) => ({
+              name,
+              type: "investment" as const,
+            })),
+          ]
+        : [
+            ...boundaries.map((name) => ({
+              name,
+              type: "pattern" as const,
+            })),
+            ...values.map((name) => ({
+              name,
+              type: "investment" as const,
+            })),
+          ];
 
     return allItems.map((item) => {
-      const count = filteredEvents.filter(
-        (event) => event.name === item.name && event.type === item.type
-      ).length;
+      const count =
+        wheelView === "awareness"
+          ? filteredEvents.filter(
+              (event) =>
+                event.name === item.name &&
+                event.type === item.type
+            ).length
+          : 0;
 
       return {
         ...item,
         count,
-        value: count === 0 ? 1 : Math.min(1 + Math.sqrt(count), 5),
+        value:
+          wheelView === "awareness"
+            ? count === 0
+              ? 1
+              : Math.min(1 + Math.sqrt(count), 5)
+            : 1,
       };
     });
-  }, [patterns, investments, filteredEvents]);
+  }, [
+    wheelView,
+    patterns,
+    investments,
+    boundaries,
+    values,
+    filteredEvents,
+  ]);
 
   const totalValue = wheelItems.reduce((sum, item) => sum + item.value, 0);
 

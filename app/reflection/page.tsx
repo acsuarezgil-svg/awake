@@ -266,14 +266,14 @@ export default function ReflectionPage() {
           value={happened}
           onChange={(e) => setHappened(e.target.value)}
           placeholder={t.whatHappened}
-          className="w-full rounded-xl border p-3 min-h-24 mb-4"
+          className={`${fieldClass} mb-4 min-h-24 rounded-xl`}
         />
 
         <textarea
           value={feeling}
           onChange={(e) => setFeeling(e.target.value)}
           placeholder={t.whatFeeling}
-          className="w-full rounded-xl border p-3 min-h-24"
+          className={`${fieldClass} min-h-24 rounded-xl`}
         />
       </section>
 
@@ -286,7 +286,7 @@ export default function ReflectionPage() {
           value={seeking}
           onChange={(e) => setSeeking(e.target.value)}
           placeholder={t.whatSeeking}
-          className="w-full rounded-xl border p-3"
+          className={`${fieldClass} rounded-xl`}
         />
       </section>
 
@@ -299,7 +299,7 @@ export default function ReflectionPage() {
           value={action}
           onChange={(e) => setAction(e.target.value)}
           placeholder={t.whatDidIDo}
-          className="w-full rounded-xl border p-3 min-h-24"
+          className={`${fieldClass} min-h-24 rounded-xl`}
         />
       </section>
 
@@ -312,7 +312,7 @@ export default function ReflectionPage() {
           value={learned}
           onChange={(e) => setLearned(e.target.value)}
           placeholder={t.whatLearned}
-          className="w-full rounded-xl border p-3 min-h-24"
+          className={`${fieldClass} min-h-24 rounded-xl`}
         />
       </section>
       </>

@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { translations, type Language } from "../translations";
+import {
+  isDarkWheelTheme,
+  isWheelTheme,
+  wheelThemes,
+  type WheelTheme,
+} from "../theme";
 
 type Reflection = {
   id: string;
@@ -26,10 +32,13 @@ export default function ReflectionsPage() {
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [timeFilter, setTimeFilter] = useState("all");
   const [editText, setEditText] = useState("");
+  const [wheelTheme, setWheelTheme] =
+    useState<WheelTheme>("roseSage");
 
   useEffect(() => {
     const saved = localStorage.getItem("awake-reflections");
     const savedLanguage = localStorage.getItem("awake-language") as Language | null;
+    const savedWheelTheme = localStorage.getItem("awake-wheel-theme");
 
     if (saved) {
       setReflections(JSON.parse(saved));
@@ -37,7 +46,14 @@ export default function ReflectionsPage() {
     if (savedLanguage) {
         setLanguage(savedLanguage);
         }
+
+    if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
+      setWheelTheme(savedWheelTheme);
+    }
   }, []);
+
+  const activeTheme = wheelThemes[wheelTheme];
+  const isDark = isDarkWheelTheme(wheelTheme);
 
   useEffect(() => {
     localStorage.setItem("awake-reflections", JSON.stringify(reflections));
@@ -151,7 +167,13 @@ const displayedReflections = showFavoritesOnly
   : filteredReflections;
 
   return (
-    <main className="min-h-screen bg-white p-6 w-full max-w-md mx-auto">
+    <main
+        className={`min-h-screen w-full px-5 py-8 transition-[background] duration-500 ${
+          isDark ? "text-stone-100" : "text-stone-800"
+        }`}
+        style={{ background: activeTheme.pageBackground }}
+      >
+        <section className="mx-auto w-full max-w-md">
       <a href="/" className="text-sm text-gray-500">
         {t.back}
       </a>
@@ -299,6 +321,7 @@ const displayedReflections = showFavoritesOnly
                       </article>
         ))}
       </div>
+      </section>
     </main>
   );
 }

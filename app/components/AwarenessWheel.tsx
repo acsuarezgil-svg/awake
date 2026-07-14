@@ -1484,18 +1484,28 @@ function removeSliceFromCard() {
           <g
             role="button"
             tabIndex={0}
-            aria-label="Change wheel perspective"
+            aria-label={
+              wheelView === "awareness"
+                ? "Change wheel perspective"
+                : "Compass center"
+            }
             onPointerDown={(event) => {
               event.preventDefault();
               event.stopPropagation();
             }}
             onClick={(event) => {
               event.stopPropagation();
-              setShowCenterMenu((current) => !current);
-              triggerHaptic("light");
+
+              if (wheelView === "awareness") {
+                setShowCenterMenu((current) => !current);
+                triggerHaptic("light");
+              }
             }}
             onKeyDown={(event) => {
-              if (event.key === "Enter" || event.key === " ") {
+              if (
+                wheelView === "awareness" &&
+                (event.key === "Enter" || event.key === " ")
+              ) {
                 event.preventDefault();
                 setShowCenterMenu((current) => !current);
                 triggerHaptic("light");
@@ -1525,6 +1535,7 @@ function removeSliceFromCard() {
               +
             </text>
           </g>
+          {wheelView === "awareness" && (
           <g
             className={`awake-perspective-bloom ${
               showCenterMenu
@@ -1532,6 +1543,7 @@ function removeSliceFromCard() {
                 : "pointer-events-none"
             }`}
           >
+            
             <PerspectiveOption
               x={50}
               y={28}
@@ -1584,6 +1596,7 @@ function removeSliceFromCard() {
               onClick={() => selectPerspective("All")}
             />
           </g>
+        )}
           
           <text
             x="50"

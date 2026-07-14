@@ -238,14 +238,11 @@ export default function AwarenessWheel() {
           ];
 
     return allItems.map((item) => {
-      const count =
-        wheelView === "awareness"
-          ? filteredEvents.filter(
-              (event) =>
-                event.name === item.name &&
-                event.type === item.type
-            ).length
-          : 0;
+      const count = filteredEvents.filter(
+        (event) =>
+          event.name === item.name &&
+          event.type === item.type
+      ).length;
 
       return {
         ...item,
@@ -893,36 +890,11 @@ function removeSliceFromCard() {
         </Link>
       )}
       <div
-        className={`relative mx-auto mb-5 flex w-full max-w-sm rounded-full border p-1 transition-colors ${
+        className={`relative mx-auto mb-5 w-full max-w-sm rounded-full border p-1 transition-colors ${
           isDark
             ? "border-white/10 bg-slate-900/60"
             : "border-stone-200 bg-white/80"
         }`}
-        role="group"
-        aria-label="Choose wheel"
-        onPointerDown={(event) => {
-          wheelSwitchStartXRef.current = event.clientX;
-        }}
-        onPointerUp={(event) => {
-          const startX = wheelSwitchStartXRef.current;
-
-          wheelSwitchStartXRef.current = null;
-
-          if (startX === null) return;
-
-          const distance = event.clientX - startX;
-
-          if (distance > 35) {
-            changeWheelView("awareness");
-          }
-
-          if (distance < -35) {
-            changeWheelView("compass");
-          }
-        }}
-        onPointerCancel={() => {
-          wheelSwitchStartXRef.current = null;
-        }}
       >
         <span
           aria-hidden="true"
@@ -937,35 +909,48 @@ function removeSliceFromCard() {
           }`}
         />
 
-        <button
-          type="button"
-          onClick={() => changeWheelView("awareness")}
-          aria-pressed={wheelView === "awareness"}
-          className={`relative z-10 min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm transition-colors duration-300 ${
-            wheelView === "awareness"
-              ? "text-white"
-              : isDark
-                ? "text-slate-400 hover:text-stone-100"
-                : "text-stone-400 hover:text-stone-700"
-          }`}
-        >
-          Awareness
-        </button>
+        <div className="relative z-10 grid grid-cols-2">
+          <span
+            className={`pointer-events-none px-4 py-2.5 text-center text-sm transition-colors ${
+              wheelView === "awareness"
+                ? "text-white"
+                : isDark
+                  ? "text-slate-400"
+                  : "text-stone-400"
+            }`}
+          >
+            Awareness
+          </span>
 
-        <button
-          type="button"
-          onClick={() => changeWheelView("compass")}
-          aria-pressed={wheelView === "compass"}
-          className={`relative z-10 min-w-0 flex-1 rounded-full px-4 py-2.5 text-sm transition-colors duration-300 ${
-            wheelView === "compass"
-              ? "text-white"
-              : isDark
-                ? "text-slate-400 hover:text-stone-100"
-                : "text-stone-400 hover:text-stone-700"
-          }`}
-        >
-          Compass
-        </button>
+          <span
+            className={`pointer-events-none px-4 py-2.5 text-center text-sm transition-colors ${
+              wheelView === "compass"
+                ? "text-white"
+                : isDark
+                  ? "text-slate-400"
+                  : "text-stone-400"
+            }`}
+          >
+            Compass
+          </span>
+        </div>
+
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="1"
+          value={wheelView === "awareness" ? 0 : 1}
+          onChange={(event) => {
+            changeWheelView(
+              event.target.value === "0"
+                ? "awareness"
+                : "compass"
+            );
+          }}
+          aria-label="Slide between Awareness and Compass"
+          className="absolute inset-0 z-20 h-full w-full cursor-grab opacity-0 active:cursor-grabbing"
+        />
       </div>
 
       <nav
@@ -1484,28 +1469,18 @@ function removeSliceFromCard() {
           <g
             role="button"
             tabIndex={0}
-            aria-label={
-              wheelView === "awareness"
-                ? "Change wheel perspective"
-                : "Compass center"
-            }
+            aria-label="Change wheel perspective"
             onPointerDown={(event) => {
               event.preventDefault();
               event.stopPropagation();
             }}
             onClick={(event) => {
               event.stopPropagation();
-
-              if (wheelView === "awareness") {
-                setShowCenterMenu((current) => !current);
-                triggerHaptic("light");
-              }
+              setShowCenterMenu((current) => !current);
+              triggerHaptic("light");
             }}
             onKeyDown={(event) => {
-              if (
-                wheelView === "awareness" &&
-                (event.key === "Enter" || event.key === " ")
-              ) {
+              if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
                 setShowCenterMenu((current) => !current);
                 triggerHaptic("light");
@@ -1535,7 +1510,6 @@ function removeSliceFromCard() {
               +
             </text>
           </g>
-          {wheelView === "awareness" && (
           <g
             className={`awake-perspective-bloom ${
               showCenterMenu
@@ -1596,7 +1570,6 @@ function removeSliceFromCard() {
               onClick={() => selectPerspective("All")}
             />
           </g>
-        )}
           
           <text
             x="50"

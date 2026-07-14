@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { translations, type Language } from "../translations";
+import {
+    isDarkWheelTheme,
+    isWheelTheme,
+    wheelThemes,
+    type WheelTheme,
+} from "../theme";
 
 type NoticeEvent = {
     id: string;
@@ -12,8 +19,15 @@ type NoticeEvent = {
 
 type TimePeriod = "morning" | "afternoon" | "evening" | "night";
 
-const filters = ["Today", "7 Days", "Month", "All"] as const;
-type Filter = (typeof filters)[number];
+const filters = [
+  { key: "Today", label: "Today" },
+  { key: "7 Days", label: "7 Days" },
+  { key: "Month", label: "Month" },
+  { key: "All", label: "All" },
+] as const;
+
+type Filter = (typeof filters)[number]["key"];
+
 
 const timePeriods: {
     key: TimePeriod;
@@ -24,50 +38,6 @@ const timePeriods: {
         { key: "evening", label: "Evening" },
         { key: "night", label: "Night" },
     ];
-
-const wheelThemes = {
-    roseSage: {
-        pattern: "251, 113, 133",
-        investment: "52, 211, 153",
-    },
-
-    clayMoss: {
-        pattern: "194, 120, 91",
-        investment: "112, 143, 95",
-    },
-
-    lavenderMint: {
-        pattern: "167, 139, 250",
-        investment: "45, 212, 191",
-    },
-
-    yinYang: {
-        pattern: "63, 63, 70",
-        investment: "168, 162, 158",
-    },
-
-    ocean: {
-        pattern: "30, 64, 175",
-        investment: "45, 212, 191",
-    },
-
-    forest: {
-        pattern: "22, 101, 52",
-        investment: "132, 204, 22",
-    },
-
-    sunset: {
-        pattern: "194, 65, 12",
-        investment: "251, 191, 36",
-    },
-
-    midnight: {
-        pattern: "51, 65, 85",
-        investment: "20, 184, 166",
-    },
-} as const;
-
-type WheelTheme = keyof typeof wheelThemes;
 
 type AwarenessCell = {
     pattern: number;
@@ -235,52 +205,61 @@ function getCellStyle(
 
 export default function InsightsPage() {
     const [events, setEvents] = useState<NoticeEvent[]>([]);
-    const [filter, setFilter] = useState<Filter>("7 Days");
+    const [filter, setFilter] = useState<Filter>("Today");
     const [wheelTheme, setWheelTheme] =
         useState<WheelTheme>("roseSage");
+    const [language, setLanguage] = useState<Language>("en");
     const [loaded, setLoaded] = useState(false);
     const [selectedCell, setSelectedCell] =
         useState<SelectedCell | null>(null);
-useEffect(() => {
-    const savedEvents = localStorage.getItem(
-        "awake-notice-events"
-    );
 
-    if (savedEvents) {
-        setEvents(JSON.parse(savedEvents));
-    }
+    const t = translations[language];
 
-    const savedWheelTheme = localStorage.getItem(
-        "awake-wheel-theme"
-    );
+    useEffect(() => {
+        const savedEvents = localStorage.getItem(
+            "awake-notice-events"
+        );
 
-    if (
-        savedWheelTheme &&
-        savedWheelTheme in wheelThemes
-    ) {
-        setWheelTheme(savedWheelTheme as WheelTheme);
-    }
+        const savedWheelTheme = localStorage.getItem(
+            "awake-wheel-theme"
+        );
 
-    setLoaded(true);
-}, []);
+        const savedLanguage = localStorage.getItem(
+            "awake-language"
+        ) as Language | null;
 
-useEffect(() => {
-    if (!selectedCell) {
-        return;
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-        if (event.key === "Escape") {
-            setSelectedCell(null);
+        if (savedEvents) {
+            setEvents(JSON.parse(savedEvents));
         }
-    }
 
-    window.addEventListener("keydown", handleKeyDown);
+        if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
+            setWheelTheme(savedWheelTheme);
+        }
 
-    return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-    };
-}, [selectedCell]);
+        if (savedLanguage) {
+            setLanguage(savedLanguage);
+        }
+
+        setLoaded(true);
+    }, []);
+
+    useEffect(() => {
+        if (!selectedCell) {
+            return;
+        }
+
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                setSelectedCell(null);
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [selectedCell]);
 
     const visibleDates = useMemo(
         () => getDateRange(filter, events),
@@ -444,9 +423,14 @@ useEffect(() => {
     }, [filteredEvents]);
 
     const activeTheme = wheelThemes[wheelTheme];
+    const isDark = isDarkWheelTheme(wheelTheme);
 
     return (
-        <main className="min-h-screen bg-white px-4 py-8">
+        <main
+            className={`min-h-screen px-4 py-8 transition-[background] duration-500 ${isDark ? "text-stone-100" : "text-stone-800"
+                }`}
+            style={{ background: activeTheme.pageBackground }}
+        >
             <section className="mx-auto max-w-3xl">
                 <Link
                     href="/"
@@ -472,18 +456,22 @@ useEffect(() => {
                 <div className="mt-8 flex flex-wrap justify-center gap-2">
                     {filters.map((item) => (
                         <button
-                            key={item}
+                            key={item.key}
                             type="button"
                             onClick={() => {
-                                setFilter(item);
+                                setFilter(item.key);
                                 setSelectedCell(null);
                             }}
-                            className={`rounded-full px-4 py-2 text-sm transition ${filter === item
-                                    ? "bg-stone-800 text-white"
-                                    : "border border-stone-200 bg-white text-stone-500"
+                            className={`rounded-full border px-4 py-2 text-sm transition ${filter === item.key
+                                    ? isDark
+                                        ? "border-slate-500 bg-slate-600 text-white"
+                                        : "border-stone-800 bg-stone-800 text-white"
+                                    : isDark
+                                        ? "border-white/15 bg-slate-900/50 text-slate-300"
+                                        : "border-stone-200 bg-white text-stone-500"
                                 }`}
                         >
-                            {item}
+                            {item.label}
                         </button>
                     ))}
                 </div>
@@ -544,12 +532,11 @@ useEffect(() => {
                                                     title={`${formatDateLabel(
                                                         date
                                                     )} · ${period.label} · ${description}`}
-                                                    className={`aspect-square rounded-xl border transition duration-200 sm:rounded-2xl ${
-                                                        selectedCell?.dateKey === dateKey &&
-                                                        selectedCell?.period === period.key
+                                                    className={`aspect-square rounded-xl border transition duration-200 sm:rounded-2xl ${selectedCell?.dateKey === dateKey &&
+                                                            selectedCell?.period === period.key
                                                             ? "awake-selected-cell z-10 scale-[1.04] ring-2 ring-stone-500 ring-offset-2"
                                                             : "hover:scale-[1.03]"
-                                                    }`}
+                                                        }`}
                                                     style={getCellStyle(cell, activeTheme)}
                                                 />
                                             );
@@ -634,151 +621,151 @@ useEffect(() => {
                 </p>
             </section>
             {selectedCell && (
-    <div
-        className="fixed inset-0 z-50 flex items-center justify-center px-3 py-6 sm:px-6"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="selected-moment-title"
-    >
-        <button
-            type="button"
-            onClick={() => setSelectedCell(null)}
-            aria-label="Close selected moment"
-            className="absolute inset-0 bg-stone-900/10 backdrop-blur-[2px]"
-        />
-
-        <section
-            className="awake-moment-card relative z-10 max-h-[88vh] w-full max-w-[520px] overflow-y-auto rounded-3xl border border-white/80 bg-white/95 px-4 py-5 shadow-[0_24px_70px_rgba(41,37,36,0.16)] sm:px-7 sm:py-7"
-            onClick={(event) => event.stopPropagation()}
-        >
-            <div className="flex min-w-0 items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 sm:text-xs">
-                        Selected moment
-                    </p>
-
-                    <h2
-                        id="selected-moment-title"
-                        className="mt-2 break-words text-xl font-light text-stone-700"
-                    >
-                        {selectedCell.dateLabel}
-                    </h2>
-
-                    <p className="mt-1 text-sm text-stone-400">
-                        {selectedCell.periodLabel}
-                    </p>
-                </div>
-
-                <button
-                    type="button"
-                    onClick={() => setSelectedCell(null)}
-                    aria-label="Close selected moment"
-                    className="shrink-0 rounded-full px-3 py-1.5 text-xs text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center px-3 py-6 sm:px-6"
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="selected-moment-title"
                 >
-                    Close
-                </button>
-            </div>
-            {selectedCellEvents.length === 0 ? (
-                <p className="mt-6 text-sm leading-6 text-stone-400">
-                    No awareness moments were recorded during this part of the
-                    day.
-                </p>
-            ) : (
-                <>
-                    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                        <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
-                            <p className="text-2xl font-light text-stone-700">
-                                {selectedCellEvents.length}
-                            </p>
+                    <button
+                        type="button"
+                        onClick={() => setSelectedCell(null)}
+                        aria-label="Close selected moment"
+                        className="absolute inset-0 bg-stone-900/10 backdrop-blur-[2px]"
+                    />
 
-                            <p className="mt-1 break-words text-xs text-stone-400">
-                                Moments
-                            </p>
-                        </div>
-
-                        <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
-                            <p
-                                className="text-2xl font-light"
-                                style={{
-                                    color: `rgb(${activeTheme.pattern})`,
-                                }}
-                            >
-                                {selectedPatterns.length}
-                            </p>
-
-                            <p className="mt-1 break-words text-xs text-stone-400">
-                                Patterns
-                            </p>
-                        </div>
-
-                        <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
-                            <p
-                                className="text-2xl font-light"
-                                style={{
-                                    color: `rgb(${activeTheme.investment})`,
-                                }}
-                            >
-                                {selectedInvestments.length}
-                            </p>
-
-                            <p className="mt-1 break-words text-xs text-stone-400">
-                                Investments
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="mt-6 space-y-5">
-                        {uniqueSelectedPatterns.length > 0 && (
-                            <div>
-                                <p className="break-words text-[10px] uppercase tracking-[0.16em] text-stone-400 sm:text-xs sm:tracking-[0.18em]">
-                                    Patterns noticed
+                    <section
+                        className="awake-moment-card relative z-10 max-h-[88vh] w-full max-w-[520px] overflow-y-auto rounded-3xl border border-white/80 bg-white/95 px-4 py-5 shadow-[0_24px_70px_rgba(41,37,36,0.16)] sm:px-7 sm:py-7"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="flex min-w-0 items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="text-[10px] uppercase tracking-[0.2em] text-stone-400 sm:text-xs">
+                                    Selected moment
                                 </p>
 
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    {uniqueSelectedPatterns.map((name) => (
-                                        <span
-                                            key={name}
-                                            className="max-w-full break-words rounded-full px-3 py-1.5 text-sm text-stone-600"
-                                            style={{
-                                                background: `rgba(${activeTheme.pattern}, 0.16)`,
-                                            }}
-                                        >
-                                            {name}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                                <h2
+                                    id="selected-moment-title"
+                                    className="mt-2 break-words text-xl font-light text-stone-700"
+                                >
+                                    {selectedCell.dateLabel}
+                                </h2>
 
-                        {uniqueSelectedInvestments.length > 0 && (
-                            <div>
-                                <p className="break-words text-[10px] uppercase tracking-[0.16em] text-stone-400 sm:text-xs sm:tracking-[0.18em]">
-                                    Investments noticed
+                                <p className="mt-1 text-sm text-stone-400">
+                                    {selectedCell.periodLabel}
                                 </p>
+                            </div>
 
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                    {uniqueSelectedInvestments.map((name) => (
-                                        <span
-                                            key={name}
-                                            className="max-w-full break-words rounded-full px-3 py-1.5 text-sm text-stone-600"
+                            <button
+                                type="button"
+                                onClick={() => setSelectedCell(null)}
+                                aria-label="Close selected moment"
+                                className="shrink-0 rounded-full px-3 py-1.5 text-xs text-stone-400 transition hover:bg-stone-100 hover:text-stone-700"
+                            >
+                                Close
+                            </button>
+                        </div>
+                        {selectedCellEvents.length === 0 ? (
+                            <p className="mt-6 text-sm leading-6 text-stone-400">
+                                No awareness moments were recorded during this part of the
+                                day.
+                            </p>
+                        ) : (
+                            <>
+                                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                    <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
+                                        <p className="text-2xl font-light text-stone-700">
+                                            {selectedCellEvents.length}
+                                        </p>
+
+                                        <p className="mt-1 break-words text-xs text-stone-400">
+                                            Moments
+                                        </p>
+                                    </div>
+
+                                    <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
+                                        <p
+                                            className="text-2xl font-light"
                                             style={{
-                                                background: `rgba(${activeTheme.investment}, 0.16)`,
+                                                color: `rgb(${activeTheme.pattern})`,
                                             }}
                                         >
-                                            {name}
-                                        </span>
-                                    ))}
+                                            {selectedPatterns.length}
+                                        </p>
+
+                                        <p className="mt-1 break-words text-xs text-stone-400">
+                                            Patterns
+                                        </p>
+                                    </div>
+
+                                    <div className="min-w-0 rounded-2xl bg-stone-50 px-3 py-4 text-center">
+                                        <p
+                                            className="text-2xl font-light"
+                                            style={{
+                                                color: `rgb(${activeTheme.investment})`,
+                                            }}
+                                        >
+                                            {selectedInvestments.length}
+                                        </p>
+
+                                        <p className="mt-1 break-words text-xs text-stone-400">
+                                            Investments
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
+
+                                <div className="mt-6 space-y-5">
+                                    {uniqueSelectedPatterns.length > 0 && (
+                                        <div>
+                                            <p className="break-words text-[10px] uppercase tracking-[0.16em] text-stone-400 sm:text-xs sm:tracking-[0.18em]">
+                                                Patterns noticed
+                                            </p>
+
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                {uniqueSelectedPatterns.map((name) => (
+                                                    <span
+                                                        key={name}
+                                                        className="max-w-full break-words rounded-full px-3 py-1.5 text-sm text-stone-600"
+                                                        style={{
+                                                            background: `rgba(${activeTheme.pattern}, 0.16)`,
+                                                        }}
+                                                    >
+                                                        {name}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {uniqueSelectedInvestments.length > 0 && (
+                                        <div>
+                                            <p className="break-words text-[10px] uppercase tracking-[0.16em] text-stone-400 sm:text-xs sm:tracking-[0.18em]">
+                                                Investments noticed
+                                            </p>
+
+                                            <div className="mt-3 flex flex-wrap gap-2">
+                                                {uniqueSelectedInvestments.map((name) => (
+                                                    <span
+                                                        key={name}
+                                                        className="max-w-full break-words rounded-full px-3 py-1.5 text-sm text-stone-600"
+                                                        style={{
+                                                            background: `rgba(${activeTheme.investment}, 0.16)`,
+                                                        }}
+                                                    >
+                                                        {name}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
                         )}
-                    </div>
-                </>
+                    </section>
+                </div>
             )}
-        </section>
-    </div>
-)}
 
-<style jsx global>{`
+            <style jsx global>{`
 @keyframes awake-moment-enter {
     0% {
         opacity: 0;

@@ -11,10 +11,14 @@ import {
 } from "../theme";
 
 type NoticeEvent = {
-    id: string;
-    name: string;
-    type: "pattern" | "investment";
-    date: string;
+  id: string;
+  name: string;
+  type:
+    | "pattern"
+    | "investment"
+    | "value"
+    | "boundary";
+  date: string;
 };
 
 type TimePeriod = "morning" | "afternoon" | "evening" | "night";
@@ -296,18 +300,26 @@ export default function InsightsPage() {
     const filteredEvents = useMemo(
         () =>
             events.filter((event) => {
-                const eventDate = new Date(event.date);
+            const eventDate = new Date(event.date);
 
-                if (Number.isNaN(eventDate.getTime())) {
-                    return false;
-                }
+            if (Number.isNaN(eventDate.getTime())) {
+                return false;
+            }
 
-                return visibleDateKeys.has(
-                    getLocalDateKey(eventDate)
-                );
+            const belongsToView =
+                insightView === "awareness"
+                ? event.type === "pattern" ||
+                    event.type === "investment"
+                : event.type === "value" ||
+                    event.type === "boundary";
+
+            return (
+                belongsToView &&
+                visibleDateKeys.has(getLocalDateKey(eventDate))
+            );
             }),
-        [events, visibleDateKeys]
-    );
+        [events, visibleDateKeys, insightView]
+        );
 
     const awarenessMap = useMemo(() => {
         const map: Record<string, AwarenessCell> = {};
@@ -333,7 +345,14 @@ export default function InsightsPage() {
                 continue;
             }
 
-            map[key][event.type] += 1;
+            if (
+                event.type === "pattern" ||
+                event.type === "boundary"
+                ) {
+                map[key].pattern += 1;
+                } else {
+                map[key].investment += 1;
+                }
         }
 
         return map;
@@ -356,19 +375,23 @@ export default function InsightsPage() {
 
     const selectedPatterns = useMemo(
         () =>
-            selectedCellEvents.filter(
-                (event) => event.type === "pattern"
+            selectedCellEvents.filter((event) =>
+            insightView === "awareness"
+                ? event.type === "pattern"
+                : event.type === "boundary"
             ),
-        [selectedCellEvents]
-    );
+        [selectedCellEvents, insightView]
+        );
 
-    const selectedInvestments = useMemo(
+        const selectedInvestments = useMemo(
         () =>
-            selectedCellEvents.filter(
-                (event) => event.type === "investment"
+            selectedCellEvents.filter((event) =>
+            insightView === "awareness"
+                ? event.type === "investment"
+                : event.type === "value"
             ),
-        [selectedCellEvents]
-    );
+        [selectedCellEvents, insightView]
+        );
 
     const uniqueSelectedPatterns = useMemo(
         () => [...new Set(selectedPatterns.map((event) => event.name))],

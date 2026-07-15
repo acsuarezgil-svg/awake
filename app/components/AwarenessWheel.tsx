@@ -1238,6 +1238,13 @@ function removeSliceFromCard() {
                   />
 
                   <AwakeMenuLink
+                    href="/privacy"
+                    symbol="🛡"
+                    title="Privacy"
+                    isDark={isDark}
+                  />
+
+                  <AwakeMenuLink
                     href="/about"
                     symbol="♡"
                     title="About Awake"

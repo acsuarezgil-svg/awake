@@ -155,7 +155,7 @@ export default function PrivacyPage() {
               : "text-stone-400 hover:text-stone-700"
           }`}
         >
-          ← Back
+          {t.back}
         </Link>
 
         <header className="mt-10 text-center">
@@ -164,7 +164,7 @@ export default function PrivacyPage() {
               isDark ? "text-slate-400" : "text-stone-400"
             }`}
           >
-            privacy
+            {t.privacyPage.label}
           </p>
 
           <h1
@@ -172,14 +172,13 @@ export default function PrivacyPage() {
               isDark ? "text-stone-100" : "text-stone-800"
             }`}
           >
-            Your thoughts belong to you.
+            {t.privacyPage.title}
           </h1>
 
           <p
             className={`mx-auto mt-4 max-w-sm text-sm leading-7 ${bodyTextClass}`}
           >
-            Awake was built to help you understand yourself,
-            not to collect information about you.
+            {t.privacyPage.intro}
           </p>
         </header>
 
@@ -194,16 +193,13 @@ export default function PrivacyPage() {
                 isDark ? "text-stone-100" : "text-stone-700"
               }`}
             >
-              Private by default
+              {t.privacyPage.privateTitle}
             </h2>
 
             <p
               className={`mt-3 text-sm leading-7 ${bodyTextClass}`}
             >
-              Everything you create stays on your device.
-              Reflections, awareness, values, boundaries,
-              direction, and insights remain local unless you
-              choose otherwise.
+              {t.privacyPage.privateText}
             </p>
           </section>
 
@@ -220,7 +216,7 @@ export default function PrivacyPage() {
                     : "border-stone-200 bg-stone-50 text-stone-400"
                 }`}
               >
-                Coming soon
+                {t.privacyPage.comingSoon}
               </span>
             </div>
 
@@ -229,15 +225,13 @@ export default function PrivacyPage() {
                 isDark ? "text-stone-100" : "text-stone-700"
               }`}
             >
-              Cloud backup
+              {t.privacyPage.cloudTitle}
             </h2>
 
             <p
               className={`mt-3 text-sm leading-7 ${bodyTextClass}`}
             >
-              If you ever want to back up or sync your journey,
-              you will be able to choose that later. Nothing is
-              uploaded automatically.
+              {t.privacyPage.cloudText}
             </p>
           </section>
 
@@ -251,14 +245,13 @@ export default function PrivacyPage() {
                 isDark ? "text-stone-100" : "text-stone-700"
               }`}
             >
-              Your choice
+              {t.privacyPage.choiceTitle}
             </h2>
 
             <p
               className={`mt-3 text-sm leading-7 ${bodyTextClass}`}
             >
-              You decide where your data is stored, when it is
-              backed up, and when it is deleted.
+              {t.privacyPage.choiceText}
             </p>
           </section>
 
@@ -278,15 +271,13 @@ export default function PrivacyPage() {
                 isDark ? "text-stone-100" : "text-stone-700"
               }`}
             >
-              Delete everything
+              {t.privacyPage.deleteTitle}
             </h2>
 
             <p
               className={`mt-3 text-sm leading-7 ${bodyTextClass}`}
             >
-              Remove all Awake data stored on this device. This
-              includes reflections, wheel activity, values,
-              boundaries, direction, and preferences.
+              {t.privacyPage.deleteText}
             </p>
 
             <button
@@ -298,7 +289,7 @@ export default function PrivacyPage() {
                   : "border-rose-200 bg-white text-rose-600 hover:bg-rose-50"
               }`}
             >
-              Delete Everything
+              {t.privacyPage.deleteTitle}
             </button>
           </section>
         </div>
@@ -358,14 +349,13 @@ export default function PrivacyPage() {
               id="delete-everything-title"
               className="text-2xl font-light"
             >
-              Delete everything?
+              {t.privacyPage.confirmTitle}
             </h2>
 
             <p
               className={`mt-4 text-sm leading-7 ${bodyTextClass}`}
             >
-              Everything Awake stored on this device will be
-              permanently removed.
+              {t.privacyPage.confirmText}
             </p>
 
             <p
@@ -373,7 +363,7 @@ export default function PrivacyPage() {
                 isDark ? "text-slate-400" : "text-stone-400"
               }`}
             >
-              This cannot be undone.
+              {t.privacyPage.cannotUndo}
             </p>
 
             <div className="mt-6 flex justify-end gap-2">
@@ -386,7 +376,7 @@ export default function PrivacyPage() {
                     : "text-stone-500 hover:bg-stone-50"
                 }`}
               >
-                Cancel
+                {t.privacyPage.cancel}
               </button>
 
               <button
@@ -398,7 +388,7 @@ export default function PrivacyPage() {
                     : "bg-rose-50 text-rose-600 hover:bg-rose-100"
                 }`}
               >
-                Delete Everything
+                {t.privacyPage.deleteButton}
               </button>
             </div>
           </section>

@@ -913,19 +913,50 @@ function removeSliceFromCard() {
           : "pointer-events-none opacity-0"
       }`}
     >
-      <div className="absolute right-4 top-4 flex gap-2">
+      <div className="absolute right-4 top-4 z-30 flex items-center gap-1 text-xs">
         <button
           type="button"
           onClick={() => changeLanguage("en")}
           aria-pressed={language === "en"}
+          className={`rounded-full px-2 py-1 transition ${
+            language === "en"
+              ? "font-medium"
+              : isDark
+                ? "text-slate-500"
+                : "text-stone-300"
+          }`}
+          style={
+            language === "en"
+              ? { color: `rgb(${activeWheelTheme.pattern})` }
+              : undefined
+          }
         >
           EN
         </button>
+
+        <span
+          aria-hidden="true"
+          className={isDark ? "text-slate-600" : "text-stone-300"}
+        >
+          ·
+        </span>
 
         <button
           type="button"
           onClick={() => changeLanguage("es")}
           aria-pressed={language === "es"}
+          className={`rounded-full px-2 py-1 transition ${
+            language === "es"
+              ? "font-medium"
+              : isDark
+                ? "text-slate-500"
+                : "text-stone-300"
+          }`}
+          style={
+            language === "es"
+              ? { color: `rgb(${activeWheelTheme.pattern})` }
+              : undefined
+          }
         >
           ES
         </button>

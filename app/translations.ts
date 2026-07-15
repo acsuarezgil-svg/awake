@@ -137,8 +137,46 @@ export const translations = {
     all: "All",
 
     privacy: "privacy",
+    privacyTitle: "Your thoughts belong to you.",
 
+    common: {
+      back: "← Back",
+      edit: "Edit",
+      delete: "Delete",
+      cancel: "Cancel",
+      today: "Today",
+      sevenDays: "7 Days",
+      month: "Month",
+      all: "All",
+    },
+
+    about: {
+      label: "about awake",
+      title: "Observe. Choose. Grow.",
+
+    },
+
+    privacyPage: {
+      label: "privacy",
+      title: "Your thoughts belong to you.",
+      intro:
+        "Awake was built to help you understand yourself, not to collect information about you.",
+
+      privateTitle: "Private by default",
+      privateText:
+        "Everything you create stays on your device. Reflections, awareness, values, boundaries, direction, and insights remain local unless you choose otherwise.",
+      cloudTitle: "Cloud backup",
+      comingSoon: "Coming soon",
+      cloudText:
+        "If you ever want to back up or sync your journey, you will be able to choose that later. Nothing is uploaded automatically.",
+
+      choiceTitle: "Your choice",
+      choiceText:
+        "You decide where your data is stored, when it is backed up, and when it is deleted.",
+
+    },
   },
+    
   es: {
     appName: "Awake",
     tagline: "Observa. Elige. Crece.",
@@ -274,6 +312,41 @@ export const translations = {
     all: "Todo",
 
     privacy: "privacidad",
+    privacyTitle: "Tus pensamientos te pertenecen.",
 
+    common: {
+    back: "← Volver",
+    edit: "Editar",
+    delete: "Eliminar",
+    cancel: "Cancelar",
+    today: "Hoy",
+    sevenDays: "7 días",
+    month: "Mes",
+    all: "Todo",
+  },
+
+  aboutPage: {
+    label: "sobre awake",
+    title: "Observa. Elige. Crece.",
+  },
+
+  privacyPage: {
+    label: "privacidad",
+    title: "Tus pensamientos te pertenecen.",
+    intro:
+      "Awake fue creado para ayudarte a comprenderte, no para recopilar información sobre ti.",
+
+    privateTitle: "Privado por defecto",
+    privateText:
+      "Todo lo que creas permanece en tu dispositivo. Tus reflexiones, conciencia, valores, límites, dirección y aprendizajes permanecen de forma local, a menos que elijas otra opción.",
+    cloudTitle: "Copia de seguridad en la nube",
+    comingSoon: "Próximamente",
+    cloudText:
+      "Si algún día deseas respaldar o sincronizar tu camino, podrás elegir hacerlo más adelante. Nada se carga automáticamente.",
+
+    choiceTitle: "Tu elección",
+    choiceText:
+      "Tú decides dónde se almacenan tus datos, cuándo se respaldan y cuándo se eliminan.",
+  },
   },
 };

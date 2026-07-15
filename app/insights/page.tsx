@@ -423,7 +423,9 @@ export default function InsightsPage() {
 
     const observation = useMemo(() => {
         if (filteredEvents.length === 0) {
-            return "There is not enough history here yet. Keep noticing gently.";
+            return insightView === "awareness"
+            ? "There is not enough history here yet. Keep noticing gently."
+            : "There is not enough history here yet. Keep living what matters to you.";
         }
 
         const periodTotals: Record<TimePeriod, number> = {
@@ -433,8 +435,8 @@ export default function InsightsPage() {
             night: 0,
         };
 
-        let patternTotal = 0;
-        let investmentTotal = 0;
+        let primaryTotal = 0;
+        let secondaryTotal = 0;
 
         for (const event of filteredEvents) {
             const eventDate = new Date(event.date);
@@ -442,27 +444,24 @@ export default function InsightsPage() {
 
             periodTotals[period] += 1;
 
-            if (event.type === "pattern") {
-                patternTotal += 1;
+            const isPrimary =
+            insightView === "awareness"
+                ? event.type === "pattern"
+                : event.type === "boundary";
+
+            if (isPrimary) {
+            primaryTotal += 1;
             } else {
-                investmentTotal += 1;
+            secondaryTotal += 1;
             }
         }
 
-        const orderedPeriods = Object.entries(
-            periodTotals
-        ).sort(
+        const orderedPeriods = Object.entries(periodTotals).sort(
             (a, b) => b[1] - a[1]
         ) as [TimePeriod, number][];
 
-        const [strongestPeriod, strongestValue] =
-            orderedPeriods[0];
-
+        const [strongestPeriod, strongestValue] = orderedPeriods[0];
         const [, secondValue] = orderedPeriods[1];
-
-        if (strongestValue === secondValue) {
-            return "Your awareness was gently spread across different parts of the day.";
-        }
 
         const periodLabels: Record<TimePeriod, string> = {
             morning: "mornings",
@@ -471,16 +470,34 @@ export default function InsightsPage() {
             night: "nights",
         };
 
-        if (patternTotal > investmentTotal) {
+        if (strongestValue === secondValue) {
+            return insightView === "awareness"
+            ? "Your awareness was gently spread across different parts of the day."
+            : "Your values and boundaries were gently spread across different parts of the day.";
+        }
+
+        if (insightView === "awareness") {
+            if (primaryTotal > secondaryTotal) {
             return `Patterns appeared more often during the ${periodLabels[strongestPeriod]}.`;
-        }
+            }
 
-        if (investmentTotal > patternTotal) {
+            if (secondaryTotal > primaryTotal) {
             return `Investments appeared more often during the ${periodLabels[strongestPeriod]}.`;
+            }
+
+            return `Both patterns and investments appeared more often during the ${periodLabels[strongestPeriod]}.`;
         }
 
-        return `Both patterns and investments appeared more often during the ${periodLabels[strongestPeriod]}.`;
-    }, [filteredEvents]);
+        if (primaryTotal > secondaryTotal) {
+            return `Boundaries were honored more often during the ${periodLabels[strongestPeriod]}.`;
+        }
+
+        if (secondaryTotal > primaryTotal) {
+            return `Values were lived more often during the ${periodLabels[strongestPeriod]}.`;
+        }
+
+        return `Both values and boundaries appeared more often during the ${periodLabels[strongestPeriod]}.`;
+        }, [filteredEvents, insightView]);
 
 
     return (
@@ -730,7 +747,9 @@ export default function InsightsPage() {
                     <p className="mt-4 text-lg font-light leading-8 text-stone-700">
                         {loaded
                             ? observation
-                            : "Looking gently at your awareness…"}
+                            : insightView === "awareness"
+                                ? "Looking gently at your awareness…"
+                                : "Looking gently at your compass…"}
                     </p>
                 </section>
 

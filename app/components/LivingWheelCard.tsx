@@ -63,6 +63,70 @@ export default function LivingWheelCard({
 
   const [renameValue, setRenameValue] = useState("");
 
+  function getCompletedLabel(type: SliceType) {
+    switch (type) {
+      case "pattern":
+        return "✓ Noticed";
+
+      case "investment":
+        return "✓ Invested";
+
+      case "value":
+        return "✓ Lived";
+
+      case "boundary":
+        return "✓ Honored";
+    }
+  }
+
+  function getRepeatLabel(type: SliceType) {
+    switch (type) {
+      case "pattern":
+        return "Notice Again";
+
+      case "investment":
+        return "Invest Again";
+
+      case "value":
+        return "Stay True Again";
+
+      case "boundary":
+        return "Honor Again";
+    }
+  }
+
+  function getUndoLabel(type: SliceType) {
+    switch (type) {
+      case "pattern":
+        return "Undo Last Notice";
+
+      case "investment":
+        return "Undo Last Investment";
+
+      case "value":
+        return "Undo Last Value Choice";
+
+      case "boundary":
+        return "Undo Last Boundary";
+    }
+  }
+
+  function getSliceHeading(type: SliceType) {
+    switch (type) {
+      case "pattern":
+        return "Pattern";
+
+      case "investment":
+        return "Investment";
+
+      case "value":
+        return "Value";
+
+      case "boundary":
+        return "Boundary";
+    }
+  }
+
   useEffect(() => {
     setPanelMode("actions");
     setRenameValue(state?.name ?? "");
@@ -115,12 +179,12 @@ export default function LivingWheelCard({
                   }`}
                 >
                   {state.mode === "noticed"
-                    ? "✓ Noticed"
+                    ? getCompletedLabel(state.type)
                     : state.mode === "preview"
-                        ? "Preview"
-                        : state.mode === "feedback"
+                      ? getSliceHeading(state.type)
+                      : state.mode === "feedback"
                         ? state.message
-                        : "Slice actions"}
+                        : `${getSliceHeading(state.type)} actions`}
                 </p>
               </div>
 
@@ -159,7 +223,7 @@ export default function LivingWheelCard({
                         isDark ? "text-slate-400" : "text-stone-400"
                       }`}
                     >
-                      This slice
+                      {getSliceHeading(state.type)}
                     </p>
 
                     <button
@@ -178,14 +242,14 @@ export default function LivingWheelCard({
                   {panelMode === "actions" && (
                     <div className="mt-3 space-y-1">
                         <LivingCardAction
-                        label="Notice Again"
+                        label={getRepeatLabel(state.type)}
                         symbol="+"
                         isDark={isDark}
                         onClick={onNoticeAgain}
                         />
 
                         <LivingCardAction
-                        label="Undo Last Notice"
+                        label={getUndoLabel(state.type)}
                         symbol="↶"
                         isDark={isDark}
                         onClick={onUndoLastNotice}

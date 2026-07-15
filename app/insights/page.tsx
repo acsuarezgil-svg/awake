@@ -507,11 +507,15 @@ export default function InsightsPage() {
                             isDark ? "text-stone-100" : "text-stone-800"
                         }`}
                         >
-                        How has awareness been showing up?
+                        {insightView === "awareness"
+                            ? "How has awareness been showing up?"
+                            : "How have you been staying true?"}
                         </h1>
 
                     <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-stone-400">
-                        A quiet view of when you paused and noticed.
+                        {insightView === "awareness"
+                            ? "A quiet view of when you paused and noticed."
+                            : "A quiet view of when you lived your values and honored your boundaries."}
                     </p>
                 </header>
 

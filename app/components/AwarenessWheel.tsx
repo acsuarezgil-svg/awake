@@ -117,6 +117,8 @@ export default function AwarenessWheel() {
   const [showAwakeMenu, setShowAwakeMenu] = useState(false);
   const [showAppearanceSection, setShowAppearanceSection] =
     useState(false);
+  const [preferencesLoaded, setPreferencesLoaded] =
+    useState(false);
   const [showCenterMenu, setShowCenterMenu] =
     useState(false);
 
@@ -190,6 +192,8 @@ export default function AwarenessWheel() {
         localStorage.getItem("awake-boundaries") || "null"
       ) || defaultBoundaries
     );
+    
+    setPreferencesLoaded(true);
     }, []);
     useEffect(() => {
       return () => {
@@ -897,12 +901,14 @@ function removeSliceFromCard() {
       >
         <span
           aria-hidden="true"
-          className={`pointer-events-none absolute bottom-1 left-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-all duration-400 ease-out ${
+          className={`pointer-events-none absolute bottom-1 left-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-[transform,background-color,box-shadow,opacity] duration-300 ease-out ${
             wheelView === "compass"
               ? "translate-x-full awake-compass-glow"
               : "translate-x-0 shadow-sm"
           }`}
           style={{
+            opacity: preferencesLoaded ? 1 : 0,
+
             backgroundColor:
               wheelView === "compass"
                 ? `rgba(${activeWheelTheme.investment}, 0.82)`

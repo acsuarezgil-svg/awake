@@ -858,7 +858,13 @@ function removeSliceFromCard() {
     }`}
     style={{ background: activeWheelTheme.pageBackground }}
   >
-    <section className="mx-auto max-w-4xl px-4 py-8 text-center">
+    <section
+      className={`mx-auto max-w-4xl px-4 py-8 text-center transition-opacity duration-200 ${
+        preferencesLoaded
+          ? "opacity-100"
+          : "pointer-events-none opacity-0"
+      }`}
+    >
       <div className="mb-7">
         <p className="text-xs lowercase tracking-[0.4em] text-stone-400">
           awake
@@ -907,8 +913,6 @@ function removeSliceFromCard() {
               : "translate-x-0 shadow-sm"
           }`}
           style={{
-            opacity: preferencesLoaded ? 1 : 0,
-
             backgroundColor:
               wheelView === "compass"
                 ? `rgba(${activeWheelTheme.investment}, 0.82)`

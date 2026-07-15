@@ -27,6 +27,7 @@ const filters = [
 ] as const;
 
 type Filter = (typeof filters)[number]["key"];
+type InsightView = "awareness" | "compass";
 
 
 const timePeriods: {
@@ -206,6 +207,8 @@ function getCellStyle(
 export default function InsightsPage() {
     const [events, setEvents] = useState<NoticeEvent[]>([]);
     const [filter, setFilter] = useState<Filter>("Today");
+    const [insightView, setInsightView] =
+        useState<InsightView>("awareness");
     const [wheelTheme, setWheelTheme] =
         useState<WheelTheme>("roseSage");
     const [language, setLanguage] = useState<Language>("en");
@@ -241,6 +244,15 @@ export default function InsightsPage() {
         }
 
         setLoaded(true);
+        const savedInsightView =
+            localStorage.getItem("awake-insight-view");
+
+            if (
+            savedInsightView === "awareness" ||
+            savedInsightView === "compass"
+            ) {
+            setInsightView(savedInsightView);
+}
     }, []);
 
     useEffect(() => {
@@ -260,6 +272,13 @@ export default function InsightsPage() {
             window.removeEventListener("keydown", handleKeyDown);
         };
     }, [selectedCell]);
+
+    useEffect(() => {
+        localStorage.setItem(
+            "awake-insight-view",
+            insightView
+        );
+        }, [insightView]);
 
     const visibleDates = useMemo(
         () => getDateRange(filter, events),
@@ -456,6 +475,60 @@ export default function InsightsPage() {
                         A quiet view of when you paused and noticed.
                     </p>
                 </header>
+
+                <div className="mt-8 flex justify-center">
+                    <div
+                        className={`relative flex w-80 rounded-full p-1 ${
+                        isDark
+                            ? "bg-slate-800"
+                            : "bg-stone-200"
+                        }`}
+                    >
+                        <span
+                        className={`absolute bottom-1 top-1 w-[calc(50%-0.25rem)] rounded-full transition-all duration-300 ${
+                            insightView === "compass"
+                            ? "translate-x-full awake-compass-glow"
+                            : ""
+                        }`}
+                        style={{
+                            backgroundColor:
+                            insightView === "compass"
+                                ? `rgba(${activeTheme.investment},0.82)`
+                                : `rgba(${activeTheme.pattern},0.82)`,
+                        }}
+                        />
+
+                        <button
+                        className={`relative z-10 flex-1 rounded-full py-2 text-sm ${
+                            insightView === "awareness"
+                            ? "text-white"
+                            : isDark
+                            ? "text-slate-300"
+                            : "text-stone-500"
+                        }`}
+                        onClick={() =>
+                            setInsightView("awareness")
+                        }
+                        >
+                        Awareness
+                        </button>
+
+                        <button
+                        className={`relative z-10 flex-1 rounded-full py-2 text-sm ${
+                            insightView === "compass"
+                            ? "text-white"
+                            : isDark
+                            ? "text-slate-300"
+                            : "text-stone-500"
+                        }`}
+                        onClick={() =>
+                            setInsightView("compass")
+                        }
+                        >
+                        Compass
+                        </button>
+                    </div>
+                    </div>
 
                 <div className="mt-8 flex flex-wrap justify-center gap-2">
                     {filters.map((item) => (

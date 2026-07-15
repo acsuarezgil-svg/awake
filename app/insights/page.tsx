@@ -10,6 +10,8 @@ import {
     type WheelTheme,
 } from "../theme";
 
+
+
 type NoticeEvent = {
   id: string;
   name: string;
@@ -22,6 +24,7 @@ type NoticeEvent = {
 };
 
 type TimePeriod = "morning" | "afternoon" | "evening" | "night";
+
 
 const filters = [
   { key: "Today", label: "Today" },
@@ -221,6 +224,20 @@ export default function InsightsPage() {
         useState<SelectedCell | null>(null);
 
     const t = translations[language];
+    const activeTheme = wheelThemes[wheelTheme];
+    const isDark = isDarkWheelTheme(wheelTheme);
+
+    const primaryLabel =
+        insightView === "awareness"
+            ? "Patterns"
+            : "Boundaries";
+
+        const secondaryLabel =
+        insightView === "awareness"
+            ? "Investments"
+            : "Values";
+
+        const bothLabel = "Both";    
 
     useEffect(() => {
         const savedEvents = localStorage.getItem(
@@ -246,6 +263,7 @@ export default function InsightsPage() {
         if (savedLanguage) {
             setLanguage(savedLanguage);
         }
+
 
         setLoaded(true);
         const savedInsightView =
@@ -464,8 +482,6 @@ export default function InsightsPage() {
         return `Both patterns and investments appeared more often during the ${periodLabels[strongestPeriod]}.`;
     }, [filteredEvents]);
 
-    const activeTheme = wheelThemes[wheelTheme];
-    const isDark = isDarkWheelTheme(wheelTheme);
 
     return (
         <main
@@ -654,7 +670,7 @@ export default function InsightsPage() {
                                         background: `rgba(${activeTheme.pattern}, 0.55)`,
                                     }}
                                 />
-                                <span>Patterns</span>
+                                <span>{primaryLabel}</span>
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -664,7 +680,7 @@ export default function InsightsPage() {
                                         background: `rgba(${activeTheme.investment}, 0.55)`,
                                     }}
                                 />
-                                <span>Investments</span>
+                                <span>{secondaryLabel}</span>
                             </div>
 
                             <div className="flex items-center gap-2">
@@ -794,7 +810,7 @@ export default function InsightsPage() {
                                         </p>
 
                                         <p className="mt-1 break-words text-xs text-stone-400">
-                                            Patterns
+                                            {primaryLabel}
                                         </p>
                                     </div>
 
@@ -809,7 +825,7 @@ export default function InsightsPage() {
                                         </p>
 
                                         <p className="mt-1 break-words text-xs text-stone-400">
-                                            Investments
+                                            {secondaryLabel}
                                         </p>
                                     </div>
                                 </div>
@@ -818,7 +834,9 @@ export default function InsightsPage() {
                                     {uniqueSelectedPatterns.length > 0 && (
                                         <div>
                                             <p className="break-words text-[10px] uppercase tracking-[0.16em] text-stone-400 sm:text-xs sm:tracking-[0.18em]">
-                                                Patterns noticed
+                                                {insightView === "awareness"
+                                                    ? "Patterns noticed"
+                                                    : "Boundaries honored"}
                                             </p>
 
                                             <div className="mt-3 flex flex-wrap gap-2">
@@ -840,7 +858,9 @@ export default function InsightsPage() {
                                     {uniqueSelectedInvestments.length > 0 && (
                                         <div>
                                             <p className="break-words text-[10px] uppercase tracking-[0.16em] text-stone-400 sm:text-xs sm:tracking-[0.18em]">
-                                                Investments noticed
+                                                {insightView === "awareness"
+                                                    ? "Investments noticed"
+                                                    : "Values lived"}
                                             </p>
 
                                             <div className="mt-3 flex flex-wrap gap-2">

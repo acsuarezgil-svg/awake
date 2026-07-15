@@ -422,6 +422,40 @@ function saveWheelList(
       break;
   }
 }
+function getActionMessage(
+  name: string,
+  type: WheelItemType
+) {
+  switch (type) {
+    case "pattern":
+      return `Noticed ${name}`;
+
+    case "investment":
+      return `Invested in ${name}`;
+
+    case "value":
+      return `Lived ${name}`;
+
+    case "boundary":
+      return `Honored ${name}`;
+  }
+}
+
+function getUndoMessage(type: WheelItemType) {
+  switch (type) {
+    case "pattern":
+      return "↶ Last notice removed";
+
+    case "investment":
+      return "↶ Last investment removed";
+
+    case "value":
+      return "↶ Last value choice removed";
+
+    case "boundary":
+      return "↶ Last boundary removed";
+  }
+}
 
   function notice(name: string, type: WheelItemType) {
     const nextCounts = {
@@ -442,7 +476,7 @@ function saveWheelList(
     setEvents(nextEvents);
     setPendingSelection(null);
     setRippleKey((k) => (k ?? 0) + 1);
-    setMessage(`Noticed ${name}`);
+    setMessage(getActionMessage(name, type));
 
     showLivingCard(
       {
@@ -483,7 +517,14 @@ function saveWheelList(
           mode: "feedback",
           name: livingCard.name,
           type: livingCard.type,
-          message: "No notice to undo",
+          message:
+            livingCard.type === "pattern"
+              ? "No notice to undo"
+              : livingCard.type === "investment"
+                ? "No investment to undo"
+                : livingCard.type === "value"
+                  ? "No value choice to undo"
+                  : "No boundary to undo",
         },
         2400
       );
@@ -525,7 +566,7 @@ function saveWheelList(
         mode: "feedback",
         name: livingCard.name,
         type: livingCard.type,
-        message: "↶ Last notice removed",
+        message: getUndoMessage(livingCard.type),
       },
       2600
     );

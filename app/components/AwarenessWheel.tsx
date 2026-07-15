@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { translations, type Language } from "../translations";
 import {
   isDarkWheelTheme,
   isWheelTheme,
@@ -56,6 +57,8 @@ const defaultBoundaries = [
   "Limit Work",
   "Take Space",
 ];
+
+
 
 const filters = ["Today", "7 Days", "Month", "All"] as const;
 type Filter = (typeof filters)[number];
@@ -115,6 +118,13 @@ export default function AwarenessWheel() {
   const [wheelTheme, setWheelTheme] = useState<WheelTheme>("roseSage");
   const [showWheelAppearance, setShowWheelAppearance] = useState(false);
   const [showAwakeMenu, setShowAwakeMenu] = useState(false);
+  const [language, setLanguage] = useState<Language>("en");
+  const t = translations[language];
+
+  function changeLanguage(nextLanguage: Language) {
+    setLanguage(nextLanguage);
+    localStorage.setItem("awake-language", nextLanguage);
+  }
   const [showAppearanceSection, setShowAppearanceSection] =
     useState(false);
   const [preferencesLoaded, setPreferencesLoaded] =
@@ -174,7 +184,10 @@ export default function AwarenessWheel() {
       setWheelTheme(savedWheelTheme);
     }
 
-    const savedWheelView = localStorage.getItem("awake-wheel-view");
+    const savedWheelView = localStorage.getItem(
+      "awake-wheel-view"
+    );
+
     if (
       savedWheelView === "awareness" ||
       savedWheelView === "compass"
@@ -182,9 +195,18 @@ export default function AwarenessWheel() {
       setWheelView(savedWheelView);
     }
 
+    const savedLanguage = localStorage.getItem(
+      "awake-language"
+    ) as Language | null;
+
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+
     setValues(
-      JSON.parse(localStorage.getItem("awake-values") || "null") ||
-        defaultValues
+      JSON.parse(
+        localStorage.getItem("awake-values") || "null"
+      ) || defaultValues
     );
 
     setBoundaries(
@@ -192,23 +214,8 @@ export default function AwarenessWheel() {
         localStorage.getItem("awake-boundaries") || "null"
       ) || defaultBoundaries
     );
-    
+
     setPreferencesLoaded(true);
-    }, []);
-    useEffect(() => {
-      return () => {
-        if (autoCenterTimeoutRef.current !== null) {
-          window.clearTimeout(autoCenterTimeoutRef.current);
-        }
-
-        if (livingCardTimeoutRef.current !== null) {
-          window.clearTimeout(livingCardTimeoutRef.current);
-        }
-
-        if (longPressTimeoutRef.current !== null) {
-          window.clearTimeout(longPressTimeoutRef.current);
-        }
-      };
     }, []);
 
   const filteredEvents = useMemo(
@@ -906,6 +913,23 @@ function removeSliceFromCard() {
           : "pointer-events-none opacity-0"
       }`}
     >
+      <div className="absolute right-4 top-4 flex gap-2">
+        <button
+          type="button"
+          onClick={() => changeLanguage("en")}
+          aria-pressed={language === "en"}
+        >
+          EN
+        </button>
+
+        <button
+          type="button"
+          onClick={() => changeLanguage("es")}
+          aria-pressed={language === "es"}
+        >
+          ES
+        </button>
+      </div>
       <div className="mb-7">
         <p className="text-xs lowercase tracking-[0.4em] text-stone-400">
           awake

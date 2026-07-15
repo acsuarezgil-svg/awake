@@ -9,22 +9,37 @@ import {
   type WheelTheme,
 } from "../theme";
 
+import { translations, type Language } from "../translations";
+
+
 export default function AboutPage() {
   const [wheelTheme, setWheelTheme] =
     useState<WheelTheme>("roseSage");
+
+  const [language, setLanguage] = useState<Language>("en");
+  const t = translations[language];
 
   useEffect(() => {
     const savedWheelTheme = localStorage.getItem(
       "awake-wheel-theme"
     );
-
+    
     if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
       setWheelTheme(savedWheelTheme);
     }
+
+    const savedLanguage = localStorage.getItem(
+      "awake-language"
+    ) as Language | null;
+
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+  }
   }, []);
 
   const activeTheme = wheelThemes[wheelTheme];
   const isDark = isDarkWheelTheme(wheelTheme);
+  
 
   const cardClass = `rounded-3xl border px-6 py-7 transition-colors ${
     isDark
@@ -61,7 +76,7 @@ export default function AboutPage() {
               isDark ? "text-slate-400" : "text-stone-400"
             }`}
           >
-            about awake
+            {t.aboutLabel}
           </p>
 
           <h1
@@ -69,15 +84,13 @@ export default function AboutPage() {
               isDark ? "text-stone-100" : "text-stone-800"
             }`}
           >
-            Observe. Choose. Grow.
+            {t.aboutTitle}
           </h1>
 
           <p
             className={`mx-auto mt-5 max-w-lg text-sm leading-7 ${bodyTextClass}`}
           >
-            Awake was created to help us notice before we react,
-            reconnect with what matters, and learn from each
-            moment with curiosity rather than judgment.
+            {t.aboutIntro}
           </p>
         </header>
 
@@ -92,14 +105,13 @@ export default function AboutPage() {
                 isDark ? "text-stone-100" : "text-stone-700"
               }`}
             >
-              Observe
+              {t.aboutObserveTitle}
             </h2>
 
             <p
               className={`mt-3 text-sm leading-6 ${bodyTextClass}`}
             >
-              Notice what is happening without rushing to judge
-              or change it.
+              {t.aboutObserveText}
             </p>
           </div>
 
@@ -113,14 +125,13 @@ export default function AboutPage() {
                 isDark ? "text-stone-100" : "text-stone-700"
               }`}
             >
-              Choose
+              {t.aboutChooseTitle}
             </h2>
 
             <p
               className={`mt-3 text-sm leading-6 ${bodyTextClass}`}
             >
-              Reconnect with your values, boundaries, and
-              direction.
+              {t.aboutChooseText}
             </p>
           </div>
 
@@ -134,14 +145,13 @@ export default function AboutPage() {
                 isDark ? "text-stone-100" : "text-stone-700"
               }`}
             >
-              Grow
+              {t.aboutGrowTitle}
             </h2>
 
             <p
               className={`mt-3 text-sm leading-6 ${bodyTextClass}`}
             >
-              Reflect on what you learned and let your awareness
-              deepen over time.
+              {t.aboutGrowText}
             </p>
           </div>
         </section>
@@ -152,16 +162,16 @@ export default function AboutPage() {
               isDark ? "text-stone-100" : "text-stone-700"
             }`}
           >
-            What Awake is
+            {t.whatAwakeIs}
           </h2>
 
           <div
             className={`mt-5 space-y-3 text-sm leading-6 ${bodyTextClass}`}
           >
-            <p>A mirror for what you are noticing.</p>
-            <p>A compass for what matters to you.</p>
-            <p>A quiet place to reflect and learn.</p>
-            <p>A tool that leaves the choice with you.</p>
+            <p>{t.awakeIsMirror}</p>
+            <p>{t.awakeIsCompass}</p>
+            <p>{t.awakeIsReflection}</p>
+            <p>{t.awakeIsChoice}</p>
           </div>
         </section>
 
@@ -171,16 +181,16 @@ export default function AboutPage() {
               isDark ? "text-stone-100" : "text-stone-700"
             }`}
           >
-            What Awake is not
+            {t.whatAwakeIsNot}
           </h2>
 
           <div
             className={`mt-5 space-y-3 text-sm leading-6 ${bodyTextClass}`}
           >
-            <p>No streaks.</p>
-            <p>No shame.</p>
-            <p>No pressure to be perfect.</p>
-            <p>No judgment about what you notice.</p>
+            <p>{t.noStreaks}</p>
+            <p>{t.noShame}</p>
+            <p>{t.noPressure}</p>
+            <p>{t.noJudgment}</p>
           </div>
         </section>
 
@@ -196,15 +206,13 @@ export default function AboutPage() {
               isDark ? "text-stone-100" : "text-stone-700"
             }`}
           >
-            Your thoughts belong to you.
+            {t.thoughtsBelongToYou}
           </h2>
 
           <p
             className={`mt-4 text-sm leading-7 ${bodyTextClass}`}
           >
-            Awake is private by default. Your reflections,
-            awareness, values, boundaries, and journey stay on
-            your device unless you choose otherwise.
+            {t.aboutPrivacyText}
           </p>
 
           <Link
@@ -215,7 +223,7 @@ export default function AboutPage() {
                 : "border-stone-200 text-stone-500 hover:border-stone-300 hover:text-stone-700"
             }`}
           >
-            Read the Privacy Promise
+            {t.privacyPromise}
           </Link>
         </section>
 
@@ -226,8 +234,7 @@ export default function AboutPage() {
               : "border-stone-200 text-stone-600"
           }`}
         >
-          Awareness is not about becoming perfect. It is about
-          noticing.
+          {t.aboutQuote}
         </blockquote>
 
         <footer className="mt-14 text-center">
@@ -236,7 +243,7 @@ export default function AboutPage() {
               isDark ? "text-slate-400" : "text-stone-400"
             }`}
           >
-            Awake · Version 1.0
+            {t.awakeVersion}
           </p>
 
           <p
@@ -244,7 +251,7 @@ export default function AboutPage() {
               isDark ? "text-slate-500" : "text-stone-300"
             }`}
           >
-            Made with curiosity.
+            {t.madeWithCuriosity}
           </p>
 
           <Link
@@ -255,7 +262,7 @@ export default function AboutPage() {
                 : "border-stone-200 text-stone-500 hover:border-stone-300 hover:text-stone-700"
             }`}
           >
-            Return to the wheel
+            {t.returnToWheel}
           </Link>
         </footer>
       </article>

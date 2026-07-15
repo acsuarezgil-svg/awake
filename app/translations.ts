@@ -91,6 +91,53 @@ export const translations = {
     solarSystem: "Solar System",
     milkyWay: "Milky Way",
 
+    aboutLabel: "about awake",
+    aboutTitle: "Observe. Choose. Grow.",
+    aboutIntro:
+      "Awake was created to help us notice before we react, reconnect with what matters, and learn from each moment with curiosity rather than judgment.",
+
+    aboutObserveTitle: "Observe",
+    aboutObserveText:
+      "Notice what is happening without rushing to judge or change it.",
+
+    aboutChooseTitle: "Choose",
+    aboutChooseText:
+      "Reconnect with your values, boundaries, and direction.",
+
+    aboutGrowTitle: "Grow",
+    aboutGrowText:
+      "Reflect on what you learned and let your awareness deepen over time.",
+
+    whatAwakeIs: "What Awake is",
+    awakeIsMirror: "A mirror for what you are noticing.",
+    awakeIsCompass: "A compass for what matters to you.",
+    awakeIsReflection: "A quiet place to reflect and learn.",
+    awakeIsChoice: "A tool that leaves the choice with you.",
+
+    whatAwakeIsNot: "What Awake is not",
+    noStreaks: "No streaks.",
+    noShame: "No shame.",
+    noPressure: "No pressure to be perfect.",
+    noJudgment: "No judgment about what you notice.",
+
+    thoughtsBelongToYou: "Your thoughts belong to you.",
+    aboutPrivacyText:
+      "Awake is private by default. Your reflections, awareness, values, boundaries, and journey stay on your device unless you choose otherwise.",
+    privacyPromise: "Read the Privacy Promise",
+
+    aboutQuote:
+      "Awareness is not about becoming perfect. It is about noticing.",
+
+    awakeVersion: "Awake · Version 1.0",
+    madeWithCuriosity: "Made with curiosity.",
+    returnToWheel: "Return to the wheel",
+
+    sevenDays: "7 Days",
+    month: "Month",
+    all: "All",
+
+    privacy: "privacy",
+
   },
   es: {
     appName: "Awake",
@@ -180,6 +227,53 @@ export const translations = {
     moon: "Luna",
     solarSystem: "Sistema Solar",
     milkyWay: "Vía Láctea",
+
+    aboutLabel: "sobre awake",
+    aboutTitle: "Observa. Elige. Crece.",
+    aboutIntro:
+      "Awake fue creado para ayudarnos a notar antes de reaccionar, reconectar con lo que importa y aprender de cada momento con curiosidad en lugar de juicio.",
+
+    aboutObserveTitle: "Observa",
+    aboutObserveText:
+      "Nota lo que está ocurriendo sin apresurarte a juzgarlo o cambiarlo.",
+
+    aboutChooseTitle: "Elige",
+    aboutChooseText:
+      "Reconecta con tus valores, límites y dirección.",
+
+    aboutGrowTitle: "Crece",
+    aboutGrowText:
+      "Reflexiona sobre lo que aprendiste y permite que tu conciencia se profundice con el tiempo.",
+
+    whatAwakeIs: "Lo que Awake es",
+    awakeIsMirror: "Un espejo para lo que estás notando.",
+    awakeIsCompass: "Una brújula para lo que te importa.",
+    awakeIsReflection: "Un espacio tranquilo para reflexionar y aprender.",
+    awakeIsChoice: "Una herramienta que deja la elección en tus manos.",
+
+    whatAwakeIsNot: "Lo que Awake no es",
+    noStreaks: "Sin rachas.",
+    noShame: "Sin vergüenza.",
+    noPressure: "Sin presión por ser perfecto.",
+    noJudgment: "Sin juicios sobre lo que notas.",
+
+    thoughtsBelongToYou: "Tus pensamientos te pertenecen.",
+    aboutPrivacyText:
+      "Awake es privado por defecto. Tus reflexiones, conciencia, valores, límites y camino permanecen en tu dispositivo, a menos que elijas otra opción.",
+    privacyPromise: "Lee la Promesa de Privacidad",
+
+    aboutQuote:
+      "La conciencia no se trata de ser perfecto. Se trata de notar.",
+
+    awakeVersion: "Awake · Versión 1.0",
+    madeWithCuriosity: "Hecho con curiosidad.",
+    returnToWheel: "Volver a la rueda",
+
+    sevenDays: "7 días",
+    month: "Mes",
+    all: "Todo",
+
+    privacy: "privacidad",
 
   },
 };

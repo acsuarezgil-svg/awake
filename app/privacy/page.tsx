@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { translations, type Language } from "../translations";
+
 import {
   isDarkWheelTheme,
   isWheelTheme,
@@ -25,24 +27,38 @@ const awakeStorageKeys = [
 ];
 
 export default function PrivacyPage() {
-  const [wheelTheme, setWheelTheme] =
-    useState<WheelTheme>("roseSage");
+    
+    const [wheelTheme, setWheelTheme] =
+        useState<WheelTheme>("roseSage");
+    
+    const [language, setLanguage] =
+        useState<Language>("en");
 
-  const [showDeleteConfirmation, setShowDeleteConfirmation] =
-    useState(false);
+    const t = translations[language];
 
-  const [journeyCleared, setJourneyCleared] =
-    useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] =
+        useState(false);
+        
+    const [journeyCleared, setJourneyCleared] =
+        useState(false);
 
-  useEffect(() => {
-    const savedWheelTheme = localStorage.getItem(
-      "awake-wheel-theme"
-    );
+    useEffect(() => {
+        const savedLanguage = localStorage.getItem(
+            "awake-language"
+        ) as Language | null;
 
-    if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
-      setWheelTheme(savedWheelTheme);
-    }
-  }, []);
+        const savedWheelTheme = localStorage.getItem(
+            "awake-wheel-theme"
+        );
+
+        if (savedLanguage) {
+            setLanguage(savedLanguage);
+        }
+
+        if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
+            setWheelTheme(savedWheelTheme);
+        }
+        }, []);
 
   function deleteEverything() {
     awakeStorageKeys.forEach((key) => {

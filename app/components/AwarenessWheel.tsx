@@ -120,6 +120,7 @@ export default function AwarenessWheel() {
   const [showAwakeMenu, setShowAwakeMenu] = useState(false);
   const [language, setLanguage] = useState<Language>("en");
   const t = translations[language];
+  const homeText = t.homePage;
 
   function changeLanguage(nextLanguage: Language) {
     setLanguage(nextLanguage);
@@ -971,7 +972,7 @@ function removeSliceFromCard() {
             isDark ? "text-slate-300" : "text-stone-500"
           }`}
         >
-          Observe · Choose · Grow
+          {t.tagline}
         </p>
       </div>
 
@@ -981,7 +982,7 @@ function removeSliceFromCard() {
           className="mx-auto mb-6 block max-w-md rounded-2xl px-4 py-3 text-center transition hover:bg-stone-50"
         >
           <p className="text-[10px] uppercase tracking-[0.22em] text-stone-400">
-            Your direction
+            {t.currentDirection}
           </p>
 
           <p
@@ -1035,7 +1036,7 @@ function removeSliceFromCard() {
                   : "text-stone-400"
             }`}
           >
-            Awareness
+            {t.homePage.awareness}
           </span>
 
           <span
@@ -1049,7 +1050,7 @@ function removeSliceFromCard() {
                   : "text-stone-400"
             }`}
           >
-            Compass
+            {t.homePage.compass}
           </span>
         </div>
 
@@ -1095,8 +1096,8 @@ function removeSliceFromCard() {
           >
             <span>
               {wheelView === "awareness"
-                ? "Shape Your Awareness"
-                : "Shape Your Compass"}
+                ? t.homePage.shapeYourAwareness
+                : t.homePage.shapeYourCompass}
             </span>
 
             <span
@@ -1136,7 +1137,7 @@ function removeSliceFromCard() {
                   }`}
                 >
                   <span className="text-[10px] uppercase tracking-[0.2em]">
-                    Wheel appearance
+                    {t.homePage.wheelAppearance}
                   </span>
 
                   <span
@@ -1228,7 +1229,7 @@ function removeSliceFromCard() {
                     isDark ? "text-slate-400" : "text-stone-400"
                   }`}
                 >
-                  Shape your wheel
+                  {t.homePage.shapeWheel}
                 </p>
                 {/*<p
                   className={`text-[10px] uppercase tracking-[0.2em] ${
@@ -1265,8 +1266,8 @@ function removeSliceFromCard() {
                     symbol="✦"
                     title={
                       wheelView === "awareness"
-                        ? "Direction, Patterns & Investments"
-                        : "Values & Boundaries"
+                        ? homeText.directionPatternsInvestments
+                        : homeText.valuesBoundaries
                     }
                     isDark={isDark}
                   />
@@ -1274,35 +1275,35 @@ function removeSliceFromCard() {
                   <AwakeMenuLink
                     href="/reflection"
                     symbol="✍︎"
-                    title="Reflection"
+                    title={homeText.reflection}
                     isDark={isDark}
                   />
 
                   <AwakeMenuLink
                     href="/reflections"
                     symbol="◌"
-                    title="Journey"
+                    title={homeText.journey}
                     isDark={isDark}
                   />
 
                   <AwakeMenuLink
                     href="/insights"
                     symbol="⌁"
-                    title="Insights"
+                    title={homeText.insights}
                     isDark={isDark}
                   />
 
                   <AwakeMenuLink
                     href="/privacy"
                     symbol="🛡"
-                    title="Privacy"
+                    title={homeText.privacy}
                     isDark={isDark}
                   />
 
                   <AwakeMenuLink
                     href="/about"
                     symbol="♡"
-                    title="About Awake"
+                    title={homeText.aboutAwake}
                     isDark={isDark}
                   />
                 </div>
@@ -1897,7 +1898,7 @@ function AwakeMenuLink({
         {symbol}
       </span>
 
-      <span className="min-w-0 flex-1 text-sm">
+      <span className="min-w-0 flex-1 text-left text-sm">
         {title}
       </span>
 

@@ -2,6 +2,39 @@ export type Language = "en" | "es";
 
 export const translations = {
   en: {
+    homePage: {
+    atmosphere: "Atmosphere",
+    shapeYourAwareness: "Shape Your Awareness",
+
+    awareness: "Awareness",
+    compass: "Compass",
+
+    thisMoment: "This Moment",
+    patterns: "Patterns",
+    investments: "Investments",
+    values: "Values",
+    boundaries: "Boundaries",
+
+    noticed: "Noticed",
+    nothingYet: "Nothing noticed yet.",
+
+    today: "Today",
+    sevenDays: "7 Days",
+    month: "Month",
+    all: "All",
+
+    shapeYourCompass: "Shape Your Compass",
+    wheelAppearance: "Wheel Appearance",
+    shapeWheel: "Shape your wheel",
+
+    directionPatternsInvestments: "Direction, Patterns & Investments",
+    valuesBoundaries: "Values & Boundaries",
+    reflection: "Reflection",
+    journey: "Journey",
+    insights: "Insights",
+    privacy: "Privacy",
+    aboutAwake: "About Awake",
+  },
     appName: "Awake",
     tagline: "Observe. Choose. Grow.",
 
@@ -203,6 +236,40 @@ export const translations = {
   },
     
   es: {
+    homePage: {
+    atmosphere: "Ambiente",
+    shapeYourAwareness: "Da Forma a Tu Conciencia",
+
+    awareness: "Conciencia",
+    compass: "Brújula",
+
+    thisMoment: "Este Momento",
+    patterns: "Patrones",
+    investments: "Inversiones",
+    values: "Valores",
+    boundaries: "Límites",
+
+    noticed: "Observado",
+    nothingYet: "Aún no has observado nada.",
+
+    today: "Hoy",
+    sevenDays: "7 días",
+    month: "Mes",
+    all: "Todo",
+
+    shapeYourCompass: "Da Forma a Tu Brújula",
+    wheelAppearance: "Apariencia de la rueda",
+    shapeWheel: "Da forma a tu rueda",
+
+    directionPatternsInvestments:
+      "Dirección, Patrones e Inversiones",
+    valuesBoundaries: "Valores y Límites",
+    reflection: "Reflexión",
+    journey: "Camino",
+    insights: "Aprendizajes",
+    privacy: "Privacidad",
+    aboutAwake: "Sobre Awake",
+  },
     appName: "Awake",
     tagline: "Observa. Elige. Crece.",
 
@@ -397,6 +464,7 @@ export const translations = {
       "La tecnología debería ayudar a las personas a comprenderse, no recopilar información sobre ellas.",
 
     tagline: "Observa · Elige · Crece",
+    
   },
   },
 };

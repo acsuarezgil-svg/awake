@@ -913,12 +913,12 @@ function removeSliceFromCard() {
           : "pointer-events-none opacity-0"
       }`}
     >
-      <div className="absolute right-4 top-4 z-30 flex items-center gap-1 text-xs">
+      <div className="fixed right-4 top-4 z-[100] flex items-center gap-1 text-xs">
         <button
           type="button"
           onClick={() => changeLanguage("en")}
           aria-pressed={language === "en"}
-          className={`rounded-full px-2 py-1 transition ${
+          className={`min-h-10 min-w-10 rounded-full px-2 py-1 transition ${
             language === "en"
               ? "font-medium"
               : isDark
@@ -945,7 +945,7 @@ function removeSliceFromCard() {
           type="button"
           onClick={() => changeLanguage("es")}
           aria-pressed={language === "es"}
-          className={`rounded-full px-2 py-1 transition ${
+          className={`min-h-10 min-w-10 rounded-full px-2 py-1 transition ${
             language === "es"
               ? "font-medium"
               : isDark

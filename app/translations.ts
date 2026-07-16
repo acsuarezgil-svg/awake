@@ -150,7 +150,7 @@ export const translations = {
       all: "All",
     },
 
-    about: {
+    aboutPage: {
       label: "about awake",
       title: "Observe. Choose. Grow.",
 
@@ -383,6 +383,20 @@ export const translations = {
       "Todo lo que Awake almacenó en este dispositivo será eliminado permanentemente.",
     cannotUndo: "Esta acción no se puede deshacer.",
     cancel: "Cancelar",
+
+    clearedTitle: "Tu camino ha sido borrado.",
+    clearedText:
+      "Todo lo que Awake almacenó en este dispositivo ha sido eliminado.",
+    thankYou: "Gracias por compartir parte de tu camino con Awake.",
+    beginAgain: "Comenzar de nuevo",
+
+    aboutTitle: "Sobre Awake",
+    aboutTextOne:
+      "Awake fue creado con la creencia de que la conciencia crece mediante la curiosidad en lugar del juicio.",
+    aboutTextTwo:
+      "La tecnología debería ayudar a las personas a comprenderse, no recopilar información sobre ellas.",
+
+    tagline: "Observa · Elige · Crece",
   },
   },
 };

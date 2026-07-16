@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { translations, type Language } from "../translations";
 
 export type SliceType =
   | "pattern"
@@ -78,6 +79,20 @@ export default function LivingWheelCard({
         return "✓ Honored";
     }
   }
+
+  const [language, setLanguage] = useState<Language>("en");
+
+  useEffect(() => {
+    const savedLanguage = localStorage.getItem(
+      "awake-language"
+    ) as Language | null;
+
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+  }, []);
+
+  const t = translations[language];
 
   function getRepeatLabel(type: SliceType) {
     switch (type) {
@@ -235,7 +250,7 @@ export default function LivingWheelCard({
                           : "text-stone-400 hover:bg-stone-50 hover:text-stone-700"
                       }`}
                     >
-                      Close
+                      {t.livingCard.close}
                     </button>
                   </div>
 
@@ -280,7 +295,7 @@ export default function LivingWheelCard({
                             isDark ? "text-slate-400" : "text-stone-400"
                         }`}
                         >
-                        New name
+                        {t.livingCard.newName}
                         </label>
 
                         <input
@@ -303,7 +318,7 @@ export default function LivingWheelCard({
                             isDark ? "text-slate-400" : "text-stone-400"
                             }`}
                         >
-                            Cancel
+                            {t.livingCard.cancel}
                         </button>
 
                         <button
@@ -315,7 +330,7 @@ export default function LivingWheelCard({
                                 : "bg-stone-800 text-white"
                             }`}
                         >
-                            Save
+                            {t.livingCard.save}
                         </button>
                         </div>
                     </div>
@@ -328,7 +343,7 @@ export default function LivingWheelCard({
                             isDark ? "text-slate-200" : "text-stone-600"
                         }`}
                         >
-                        Remove <span className="font-medium">{state.name}</span> from your
+                        {t.livingCard.remove}<span className="font-medium">{state.name}</span> from your
                         current wheel?
                         </p>
 
@@ -348,7 +363,7 @@ export default function LivingWheelCard({
                             isDark ? "text-slate-400" : "text-stone-400"
                             }`}
                         >
-                            Cancel
+                            {t.livingCard.cancel}
                         </button>
 
                         <button
@@ -360,7 +375,7 @@ export default function LivingWheelCard({
                                 : "bg-rose-50 text-rose-600"
                             }`}
                         >
-                            Remove
+                            {t.livingCard.remove}
                         </button>
                         </div>
                     </div>
@@ -377,7 +392,7 @@ export default function LivingWheelCard({
                       isDark ? "text-slate-400" : "text-stone-400"
                     }`}
                   >
-                    Continue
+                    {t.livingCard.continue}
                   </p>
 
                   <div className="mt-3 space-y-1">

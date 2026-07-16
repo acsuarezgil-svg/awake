@@ -40,6 +40,15 @@ export const translations = {
     switchWheel: "Slide between Awareness and Compass",
     changePerspective: "Change perspective",
   },
+    livingCard: {
+    close: "Close",
+    rename: "Rename",
+    remove: "Remove",
+    cancel: "Cancel",
+    save: "Save",
+    continue: "Continue",
+    newName: "New name",
+  },
     appName: "Awake",
     tagline: "Observe. Choose. Grow.",
 
@@ -279,6 +288,16 @@ export const translations = {
 
     switchWheel: "Desliza entre Conciencia y Brújula",
     changePerspective: "Cambiar perspectiva",
+  },
+
+    livingCard: {
+    close: "Cerrar",
+    rename: "Renombrar",
+    remove: "Eliminar",
+    cancel: "Cancelar",
+    save: "Guardar",
+    continue: "Continuar",
+    newName: "Nuevo nombre",
   },
     appName: "Awake",
     tagline: "Observa. Elige. Crece.",

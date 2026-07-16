@@ -34,6 +34,11 @@ export const translations = {
     insights: "Insights",
     privacy: "Privacy",
     aboutAwake: "About Awake",
+
+    stayTrue: "Stay True",
+
+    switchWheel: "Slide between Awareness and Compass",
+    changePerspective: "Change perspective",
   },
     appName: "Awake",
     tagline: "Observe. Choose. Grow.",
@@ -269,6 +274,11 @@ export const translations = {
     insights: "Aprendizajes",
     privacy: "Privacidad",
     aboutAwake: "Sobre Awake",
+
+    stayTrue: "Mantente Fiel",
+
+    switchWheel: "Desliza entre Conciencia y Brújula",
+    changePerspective: "Cambiar perspectiva",
   },
     appName: "Awake",
     tagline: "Observa. Elige. Crece.",

@@ -877,13 +877,21 @@ function removeSliceFromCard() {
     const isDark = isDarkWheelTheme(wheelTheme);
     const centerFilterLabel =
       wheelView === "awareness"
-        ? filter.toUpperCase()
-        : "VALUES";
+        ? (
+            filter === "Today"
+              ? t.homePage.today
+              : filter === "7 Days"
+                ? t.homePage.sevenDays
+                : filter === "Month"
+                  ? t.homePage.month
+                  : t.homePage.all
+          ).toUpperCase()
+        : t.homePage.values.toUpperCase();
 
     const centerSubtitle =
       wheelView === "awareness"
-        ? "This Moment"
-        : "Stay True";
+        ? t.thisMoment
+        : t.homePage.stayTrue;
     const perspectiveAccent = activeWheelTheme.patternFill;
 
     const perspectiveInactive = isDark
@@ -1067,7 +1075,7 @@ function removeSliceFromCard() {
                 : "compass"
             );
           }}
-          aria-label="Slide between Awareness and Compass"
+          aria-label={t.homePage.switchWheel}
           className="absolute inset-0 z-20 h-full w-full cursor-grab opacity-0 active:cursor-grabbing"
         />
       </div>
@@ -1618,7 +1626,7 @@ function removeSliceFromCard() {
             }}
             className="group cursor-pointer"
           >
-            <title>Change perspective</title>
+            <title>{t.homePage.changePerspective}</title>
 
             <circle
               cx="50"
@@ -1651,7 +1659,7 @@ function removeSliceFromCard() {
             <PerspectiveOption
               x={50}
               y={28}
-              label="TODAY"
+              label={t.homePage.today.toUpperCase()}
               active={filter === "Today"}
               accentColor={perspectiveAccent}
               inactiveColor={perspectiveInactive}
@@ -1664,7 +1672,7 @@ function removeSliceFromCard() {
             <PerspectiveOption
               x={26}
               y={50}
-              label="7 DAYS"
+              label={t.homePage.sevenDays.toUpperCase()}
               active={filter === "7 Days"}
               accentColor={perspectiveAccent}
               inactiveColor={perspectiveInactive}
@@ -1677,7 +1685,7 @@ function removeSliceFromCard() {
             <PerspectiveOption
               x={74}
               y={50}
-              label="MONTH"
+              label={t.homePage.month.toUpperCase()}
               active={filter === "Month"}
               accentColor={perspectiveAccent}
               inactiveColor={perspectiveInactive}
@@ -1690,7 +1698,7 @@ function removeSliceFromCard() {
             <PerspectiveOption
               x={50}
               y={74}
-              label="ALL"
+              label={t.homePage.all.toUpperCase()}
               active={filter === "All"}
               accentColor={perspectiveAccent}
               inactiveColor={perspectiveInactive}

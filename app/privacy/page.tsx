@@ -100,20 +100,19 @@ export default function PrivacyPage() {
               isDark ? "text-stone-100" : "text-stone-800"
             }`}
           >
-            Your journey has been cleared.
+            {t.privacyPage.clearedTitle}
           </h1>
 
           <p
             className={`mt-4 max-w-sm text-sm leading-7 ${bodyTextClass}`}
           >
-            Everything Awake stored on this device has been
-            removed.
+            {t.privacyPage.clearedText}
           </p>
 
           <p
             className={`mt-6 text-sm leading-7 ${bodyTextClass}`}
           >
-            Thank you for spending time with Awake.
+            {t.privacyPage.thankYou}
           </p>
 
           <p
@@ -121,7 +120,7 @@ export default function PrivacyPage() {
               isDark ? "text-slate-400" : "text-stone-400"
             }`}
           >
-            Observe · Choose · Grow
+            {t.privacyPage.tagline}
           </p>
 
           <Link
@@ -132,7 +131,7 @@ export default function PrivacyPage() {
                 : "border-stone-800 bg-stone-800 text-white hover:bg-stone-700"
             }`}
           >
-            Begin Again
+            {t.privacyPage.beginAgain}
           </Link>
         </section>
       </main>
@@ -304,21 +303,19 @@ export default function PrivacyPage() {
               isDark ? "text-stone-100" : "text-stone-700"
             }`}
           >
-            About Awake
+            {t.privacyPage.aboutTitle}
           </h2>
 
           <p
             className={`mt-4 text-sm leading-7 ${bodyTextClass}`}
           >
-            Awake was created with the belief that awareness
-            grows through curiosity rather than judgment.
+            {t.privacyPage.aboutTextOne}
           </p>
 
           <p
             className={`mt-4 text-sm leading-7 ${bodyTextClass}`}
           >
-            Technology should help people understand
-            themselves—not collect information about them.
+            {t.privacyPage.aboutTextTwo}
           </p>
 
           <p
@@ -326,7 +323,7 @@ export default function PrivacyPage() {
               isDark ? "text-slate-400" : "text-stone-400"
             }`}
           >
-            Observe · Choose · Grow
+            {t.privacyPage.tagline}
           </p>
         </section>
       </section>

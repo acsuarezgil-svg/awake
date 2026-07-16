@@ -174,6 +174,31 @@ export const translations = {
       choiceText:
         "You decide where your data is stored, when it is backed up, and when it is deleted.",
 
+      deleteTitle: "Delete everything",
+      deleteText:
+        "Remove all Awake data stored on this device. This includes reflections, wheel activity, values, boundaries, direction, and preferences.",
+      deleteButton: "Delete Everything",
+
+      confirmTitle: "Delete everything?",
+      confirmText:
+        "Everything Awake stored on this device will be permanently removed.",
+      cannotUndo: "This cannot be undone.",
+      cancel: "Cancel",
+
+      clearedTitle: "Your journey has been cleared.",
+      clearedText:
+        "Everything Awake stored on this device has been removed.",
+      thankYou: "Thank you for spending time with Awake.",
+      beginAgain: "Begin Again",
+
+      aboutTitle: "About Awake",
+      aboutTextOne:
+        "Awake was created with the belief that awareness grows through curiosity rather than judgment.",
+      aboutTextTwo:
+        "Technology should help people understand themselves—not collect information about them.",
+
+      tagline: "Observe · Choose · Grow",
+
     },
   },
     
@@ -347,6 +372,17 @@ export const translations = {
     choiceTitle: "Tu elección",
     choiceText:
       "Tú decides dónde se almacenan tus datos, cuándo se respaldan y cuándo se eliminan.",
+    
+    deleteTitle: "Eliminar todo",
+    deleteText:
+      "Elimina todos los datos de Awake almacenados en este dispositivo. Esto incluye reflexiones, actividad de las ruedas, valores, límites, dirección y preferencias.",
+    deleteButton: "Eliminar todo",
+
+    confirmTitle: "¿Eliminar todo?",
+    confirmText:
+      "Todo lo que Awake almacenó en este dispositivo será eliminado permanentemente.",
+    cannotUndo: "Esta acción no se puede deshacer.",
+    cancel: "Cancelar",
   },
   },
 };

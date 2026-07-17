@@ -15,6 +15,15 @@ type BreathPracticeProps = {
 const INHALE_LENGTH = 4000;
 const EXHALE_LENGTH = 6000;
 
+const introWords = [
+  "Awake",
+  "Observe",
+  "Pause",
+  "Notice",
+  "Breathe",
+  "Return",
+];
+
 export default function BreathPractice({
   onBack,
   onFinish,
@@ -24,6 +33,9 @@ export default function BreathPractice({
 }: BreathPracticeProps) {
   const [phase, setPhase] = useState<BreathPhase>("inhale");
   const [isVisible, setIsVisible] = useState(false);
+  const [displayWord, setDisplayWord] = useState("Awake");
+  const [showWord, setShowWord] = useState(true);
+  const [closing, setClosing] = useState(false);
 
   const primaryRgb = cleanRgb(primaryColor);
   const secondaryRgb = cleanRgb(secondaryColor);
@@ -43,6 +55,19 @@ export default function BreathPractice({
 
         timeoutId = window.setTimeout(() => {
             startCycle();
+            const secondWord = introWords[
+                Math.floor(Math.random() * (introWords.length - 1)) + 1
+                ];
+
+                const firstTimeout = window.setTimeout(() => {
+                setDisplayWord(secondWord);
+                }, 3500);
+
+                const hideTimeout = window.setTimeout(() => {
+                setShowWord(false);
+                }, 7000);
+                window.clearTimeout(firstTimeout);
+                window.clearTimeout(hideTimeout);
         }, EXHALE_LENGTH);
         }, INHALE_LENGTH);
     };
@@ -87,13 +112,19 @@ export default function BreathPractice({
       >
         ← Practice
       </button>
-      <div className="absolute top-8 text-center">
-        <p className="text-[10px] uppercase tracking-[0.35em] text-white/50">
-            Practice
+      <div className="absolute top-12 flex flex-col items-center">
+        <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">
+            Long Breath
         </p>
 
-        <h1 className="mt-2 text-lg font-light text-white/85">
-            Long Breath
+        <h1
+            className={`mt-6 text-3xl font-extralight tracking-wide transition-all duration-1000 ${
+            showWord
+                ? "opacity-100 blur-0"
+                : "opacity-0 blur-sm"
+            }`}
+        >
+            {displayWord}
         </h1>
         </div>
 
@@ -151,7 +182,15 @@ export default function BreathPractice({
 
       <button
         type="button"
-        onClick={onFinish}
+        onClick={() => {
+            setDisplayWord("Choose");
+            setShowWord(true);
+            setClosing(true);
+
+            setTimeout(() => {
+                onFinish();
+            }, 1800);
+            }}
         className="absolute bottom-10 rounded-full border border-white/40 bg-white/15 px-7 py-3 text-sm text-white/80 backdrop-blur-sm transition hover:bg-white/25"
       >
         Finish

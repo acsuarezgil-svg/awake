@@ -128,7 +128,7 @@ export default function RhythmPractice({
           <span
             key={`pulse-${pulseKey}`}
             aria-hidden="true"
-            className="awake-rhythm-pulse absolute h-32 w-32 rounded-full border border-white/60"
+            className="awake-rhythm-pulse absolute h-32 w-32 rounded-full"
           />
 
           <span
@@ -137,8 +137,12 @@ export default function RhythmPractice({
             className="awake-tap-ripple absolute h-28 w-28 rounded-full border border-white/70"
           />
 
-          <span className="awake-water-breathe flex h-32 w-32 items-center justify-center rounded-full bg-white/20 shadow-[0_0_60px_rgba(255,255,255,0.32)]">
-            <span className="h-20 w-20 rounded-full bg-white/15" />
+          <span className="awake-water-breathe relative flex h-32 w-32 items-center justify-center rounded-full">
+            <span className="awake-water-core absolute inset-0 rounded-full" />
+
+            <span className="awake-water-shimmer absolute left-[18%] top-[22%] h-[22%] w-[48%] rounded-full" />
+
+            <span className="relative h-20 w-20 rounded-full bg-white/10" />
           </span>
         </button>
 
@@ -181,23 +185,27 @@ export default function RhythmPractice({
           0%,
           100% {
             transform: scale(0.96);
-            opacity: 0.72;
+            filter: brightness(0.92);
           }
 
           50% {
             transform: scale(1.06);
-            opacity: 1;
+            filter: brightness(1.15);
           }
         }
 
         @keyframes awake-rhythm-pulse {
           0% {
-            transform: scale(0.55);
-            opacity: 0.85;
+            transform: scale(0.45);
+            opacity: 0.95;
+          }
+
+          45% {
+            opacity: 0.72;
           }
 
           100% {
-            transform: scale(1.65);
+            transform: scale(2);
             opacity: 0;
           }
         }
@@ -241,15 +249,52 @@ export default function RhythmPractice({
         }
 
         .awake-water-breathe {
-          animation: awake-water-breathe 4.8s ease-in-out infinite;
+          animation: awake-water-breathe 5.6s ease-in-out infinite;
+        }
+
+        .awake-water-core {
+          background:
+            radial-gradient(
+              circle at 50% 42%,
+              rgba(255, 255, 255, 0.38) 0%,
+              rgba(255, 255, 255, 0.18) 38%,
+              rgba(200, 240, 247, 0.12) 62%,
+              rgba(255, 255, 255, 0.03) 100%
+            );
+
+          border: 1px solid rgba(255, 255, 255, 0.42);
+
+          box-shadow:
+            0 0 14px rgba(255, 255, 255, 0.5),
+            0 0 32px rgba(210, 244, 250, 0.38),
+            0 0 70px rgba(170, 226, 238, 0.32),
+            inset 0 0 22px rgba(255, 255, 255, 0.16);
+        }
+
+        .awake-water-shimmer {
+          background: rgba(255, 255, 255, 0.28);
+          filter: blur(5px);
+          transform: rotate(-14deg);
         }
 
         .awake-rhythm-pulse {
+          border: 2px solid rgba(255, 255, 255, 0.88);
+
+          box-shadow:
+            0 0 10px rgba(255, 255, 255, 0.72),
+            0 0 24px rgba(225, 250, 255, 0.48),
+            0 0 52px rgba(176, 230, 242, 0.34);
+
           animation: awake-rhythm-pulse
             ${BEAT_LENGTH}ms ease-out forwards;
         }
-
         .awake-tap-ripple {
+          border-width: 2px;
+
+          box-shadow:
+            0 0 8px rgba(255, 255, 255, 0.6),
+            0 0 20px rgba(220, 248, 255, 0.35);
+
           animation: awake-tap-ripple 550ms ease-out forwards;
         }
 

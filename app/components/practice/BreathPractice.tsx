@@ -12,7 +12,8 @@ type BreathPracticeProps = {
   pageBackground: string;
 };
 
-const PHASE_LENGTH = 6000;
+const INHALE_LENGTH = 4000;
+const EXHALE_LENGTH = 6000;
 
 export default function BreathPractice({
   onBack,
@@ -28,21 +29,34 @@ export default function BreathPractice({
   const secondaryRgb = cleanRgb(secondaryColor);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      setIsVisible(true);
+    const frame = window.requestAnimationFrame(() => {
+        setIsVisible(true);
     });
 
-    const interval = window.setInterval(() => {
-      setPhase((current) =>
-        current === "inhale" ? "exhale" : "inhale"
-      );
-    }, PHASE_LENGTH);
+    let timeoutId: number | undefined;
+
+    const startCycle = () => {
+        setPhase("inhale");
+
+        timeoutId = window.setTimeout(() => {
+        setPhase("exhale");
+
+        timeoutId = window.setTimeout(() => {
+            startCycle();
+        }, EXHALE_LENGTH);
+        }, INHALE_LENGTH);
+    };
+
+    startCycle();
 
     return () => {
-      cancelAnimationFrame(frame);
-      window.clearInterval(interval);
+        window.cancelAnimationFrame(frame);
+
+        if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+        }
     };
-  }, []);
+    }, []);
 
   return (
     <div
@@ -73,6 +87,15 @@ export default function BreathPractice({
       >
         ← Practice
       </button>
+      <div className="absolute top-8 text-center">
+        <p className="text-[10px] uppercase tracking-[0.35em] text-white/50">
+            Practice
+        </p>
+
+        <h1 className="mt-2 text-lg font-light text-white/85">
+            Long Breath
+        </h1>
+        </div>
 
       <div className="relative flex flex-col items-center">
         <div className="relative flex h-[310px] w-[310px] items-center justify-center">
@@ -138,9 +161,9 @@ export default function BreathPractice({
         .awake-breath-core,
         .awake-breath-ring {
           transition:
-            transform ${PHASE_LENGTH}ms ease-in-out,
-            opacity ${PHASE_LENGTH}ms ease-in-out,
-            filter ${PHASE_LENGTH}ms ease-in-out;
+            transform ${phase === "inhale" ? INHALE_LENGTH : EXHALE_LENGTH}ms ease-in-out,
+            opacity ${phase === "inhale" ? INHALE_LENGTH : EXHALE_LENGTH}ms ease-in-out,
+            filter ${phase === "inhale" ? INHALE_LENGTH : EXHALE_LENGTH}ms ease-in-out;
         }
 
         .awake-breath-core-inhale {

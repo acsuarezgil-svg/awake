@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import RhythmPractice from "./rhythm/RhythmPractice";
 import { translations, type Language } from "../translations";
+
 import {
   isDarkWheelTheme,
   isWheelTheme,
@@ -133,6 +135,12 @@ export default function AwarenessWheel() {
   const [showCenterMenu, setShowCenterMenu] =
     useState(false);
 
+  const [rhythmPracticeOpen, setRhythmPracticeOpen] =
+    useState(false);
+
+  const [isCenterHolding, setIsCenterHolding] =
+    useState(false);
+
   const [pendingSelection, setPendingSelection] =
     useState<PendingSelection | null>(null);
   const [livingCard, setLivingCard] =
@@ -160,8 +168,18 @@ export default function AwarenessWheel() {
   const hasDraggedRef = useRef(false);
   const suppressClickRef = useRef(false);
   const longPressTimeoutRef = useRef<number | null>(null);
-  const longPressTriggeredRef = useRef(false);
   const pressedSliceRef = useRef<PendingSelection | null>(null);
+
+  const longPressTriggeredRef = useRef(false);
+  
+  const centerHoldTimeoutRef = useRef<number | null>(null);
+
+  const centerHoldStartRef = useRef<{
+    x: number;
+    y: number;
+  } | null>(null);
+
+  const centerHoldTriggeredRef = useRef(false);
   const isManagingSliceRef = useRef(false);
 
   useEffect(() => {
@@ -797,6 +815,82 @@ function removeSliceFromCard() {
         longPressTimeoutRef.current = null;
       }, 650);
     }
+    function clearCenterHold() {
+      if (centerHoldTimeoutRef.current !== null) {
+        window.clearTimeout(centerHoldTimeoutRef.current);
+        centerHoldTimeoutRef.current = null;
+      }
+
+      centerHoldStartRef.current = null;
+      setIsCenterHolding(false);
+    }
+
+    function beginCenterHold(
+      event: React.PointerEvent<SVGCircleElement>
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      clearCenterHold();
+
+      centerHoldTriggeredRef.current = false;
+
+      centerHoldStartRef.current = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      setIsCenterHolding(true);
+
+      event.currentTarget.setPointerCapture(event.pointerId);
+
+      centerHoldTimeoutRef.current = window.setTimeout(() => {
+        centerHoldTriggeredRef.current = true;
+        centerHoldTimeoutRef.current = null;
+
+        setIsCenterHolding(false);
+        setShowCenterMenu(false);
+        setPendingSelection(null);
+        setLivingCard(null);
+        setIsLivingCardExpanded(false);
+
+        triggerHaptic("settle");
+        setRhythmPracticeOpen(true);
+      }, 700);
+    }
+
+    function moveCenterHold(
+      event: React.PointerEvent<SVGCircleElement>
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const start = centerHoldStartRef.current;
+
+      if (!start) return;
+
+      const distance = Math.hypot(
+        event.clientX - start.x,
+        event.clientY - start.y
+      );
+
+      if (distance > 10) {
+        clearCenterHold();
+      }
+    }
+
+    function endCenterHold(
+      event: React.PointerEvent<SVGCircleElement>
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      clearCenterHold();
+    }
 
     function handleWheelPointerDown(
       event: React.PointerEvent<SVGSVGElement>
@@ -888,8 +982,9 @@ function removeSliceFromCard() {
           ).toUpperCase()
         : t.homePage.values.toUpperCase();
 
-    const centerSubtitle =
-      wheelView === "awareness"
+    const centerSubtitle = isCenterHolding
+      ? "Be Here"
+      : wheelView === "awareness"
         ? t.thisMoment
         : t.homePage.stayTrue;
     const perspectiveAccent = activeWheelTheme.patternFill;
@@ -916,8 +1011,8 @@ function removeSliceFromCard() {
     style={{ background: activeWheelTheme.pageBackground }}
   >
     <section
-      className={`mx-auto max-w-4xl px-4 py-8 text-center transition-opacity duration-200 ${
-        preferencesLoaded
+      className={`mx-auto max-w-4xl px-4 py-8 text-center transition-opacity duration-700 ${
+        preferencesLoaded && !rhythmPracticeOpen
           ? "opacity-100"
           : "pointer-events-none opacity-0"
       }`}
@@ -1585,13 +1680,31 @@ function removeSliceFromCard() {
             fill="rgba(255,255,255,0.9)"
             className="awake-breathe-halo"
           />
-          
 
           <circle
             cx="50"
             cy="50"
             r="22"
             fill="rgba(255,255,255,0.9)"
+          />
+
+          <circle
+            cx="50"
+            cy="50"
+            r="21"
+            fill="transparent"
+            role="button"
+            tabIndex={0}
+            aria-label="Press and hold to enter Rhythm Practice"
+            onPointerDown={beginCenterHold}
+            onPointerMove={moveCenterHold}
+            onPointerUp={endCenterHold}
+            onPointerCancel={endCenterHold}
+            className={`cursor-pointer transition-[stroke,stroke-width,opacity] duration-300 ${
+              isCenterHolding
+                ? "awake-center-holding"
+                : ""
+            }`}
           />
 
           <text
@@ -1854,6 +1967,25 @@ function removeSliceFromCard() {
                   .awake-compass-glow {
                     animation: awake-compass-glow 4.8s ease-in-out infinite;
                   }
+                    @keyframes awake-center-hold {
+                      0% {
+                        stroke: rgba(255, 255, 255, 0);
+                        stroke-width: 0.4px;
+                        opacity: 0.2;
+                      }
+
+                      100% {
+                        stroke: rgba(255, 255, 255, 0.95);
+                        stroke-width: 1.4px;
+                        opacity: 1;
+                      }
+                    }
+
+                    .awake-center-holding {
+                      animation: awake-center-hold 700ms linear forwards;
+                      transform-box: view-box;
+                      transform-origin: 50px 50px;
+                    }
 
         @media (prefers-reduced-motion: reduce) {
           .awake-breathe-halo,
@@ -1861,7 +1993,8 @@ function removeSliceFromCard() {
           .awake-slice-preview,
           .awake-preview-label,
           .awake-menu-pulse,
-          .awake-compass-glow {
+          .awake-compass-glow,
+          .awake-center-holding {
             animation: none;
           }
  
@@ -1872,9 +2005,18 @@ function removeSliceFromCard() {
           }
         }
       `}</style>
-    </section>
-    </div>
-  );
+        </section>
+
+        {rhythmPracticeOpen && (
+          <RhythmPractice
+            onFinish={() => {
+              setRhythmPracticeOpen(false);
+              centerHoldTriggeredRef.current = false;
+            }}
+          />
+        )}
+      </div>
+    );
 }
 
 type AwakeMenuLinkProps = {

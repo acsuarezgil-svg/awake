@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import RhythmPractice from "./rhythm/RhythmPractice";
+import PracticeSpace from "./practice/PracticeSpace";
 import { translations, type Language } from "../translations";
 
 import {
@@ -2008,10 +2008,11 @@ function removeSliceFromCard() {
         </section>
 
         {rhythmPracticeOpen && (
-          <RhythmPractice
+          <PracticeSpace
             primaryColor={`rgb(${activeWheelTheme.pattern})`}
             secondaryColor={`rgb(${activeWheelTheme.investment})`}
             pageBackground={activeWheelTheme.pageBackground}
+            isDark={isDark}
             onFinish={() => {
               setRhythmPracticeOpen(false);
               centerHoldTriggeredRef.current = false;

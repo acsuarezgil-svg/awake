@@ -2009,6 +2009,9 @@ function removeSliceFromCard() {
 
         {rhythmPracticeOpen && (
           <RhythmPractice
+            primaryColor={`rgb(${activeWheelTheme.pattern})`}
+            secondaryColor={`rgb(${activeWheelTheme.investment})`}
+            pageBackground={activeWheelTheme.pageBackground}
             onFinish={() => {
               setRhythmPracticeOpen(false);
               centerHoldTriggeredRef.current = false;

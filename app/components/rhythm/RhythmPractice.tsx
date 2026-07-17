@@ -4,12 +4,18 @@ import { useEffect, useRef, useState } from "react";
 
 type RhythmPracticeProps = {
   onFinish: () => void;
+  primaryColor: string;
+  secondaryColor: string;
+  pageBackground: string;
 };
 
 const BEAT_LENGTH = 2400;
 
 export default function RhythmPractice({
   onFinish,
+  primaryColor,
+  secondaryColor,
+  pageBackground,
 }: RhythmPracticeProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
@@ -18,6 +24,13 @@ export default function RhythmPractice({
   const [feedback, setFeedback] = useState(
     "Notice the ripple"
   );
+  const primaryRgb = primaryColor
+  .replace("rgb(", "")
+  .replace(")", "");
+
+  const secondaryRgb = secondaryColor
+    .replace("rgb(", "")
+    .replace(")", "");
 
   const lastPulseTimeRef = useRef(0);
   const feedbackTimeoutRef = useRef<number | null>(null);
@@ -108,8 +121,20 @@ export default function RhythmPractice({
           : "opacity-0"
       }`}
       style={{
-        background:
-          "linear-gradient(180deg, #dceff2 0%, #b9dce2 48%, #8ebfc9 100%)",
+        background: `
+          radial-gradient(
+            circle at 50% 34%,
+            rgba(${secondaryRgb}, 0.34) 0%,
+            transparent 46%
+          ),
+          linear-gradient(
+            180deg,
+            rgba(${primaryRgb}, 0.16) 0%,
+            rgba(${secondaryRgb}, 0.32) 52%,
+            rgba(${primaryRgb}, 0.48) 100%
+          ),
+          ${pageBackground}
+        `,
       }}
     >
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -123,12 +148,12 @@ export default function RhythmPractice({
           type="button"
           onClick={handleRhythmTap}
           aria-label="Tap with the water ripple"
-          className="relative flex h-48 w-48 touch-manipulation items-center justify-center rounded-full outline-none transition-transform active:scale-95"
+          className="relative flex h-[320px] w-[320px] touch-manipulation items-center justify-center rounded-full outline-none transition-transform active:scale-[0.98] sm:h-[390px] sm:w-[390px]"
         >
           <span
             key={`pulse-${pulseKey}`}
             aria-hidden="true"
-            className="awake-rhythm-pulse absolute h-32 w-32 rounded-full"
+            className="awake-rhythm-pulse absolute h-40 w-40 rounded-full"
           />
 
           <span
@@ -196,16 +221,20 @@ export default function RhythmPractice({
 
         @keyframes awake-rhythm-pulse {
           0% {
-            transform: scale(0.45);
-            opacity: 0.95;
+            transform: scale(0.42);
+            opacity: 0.96;
           }
 
-          45% {
-            opacity: 0.72;
+          28% {
+            opacity: 0.82;
+          }
+
+          68% {
+            opacity: 0.42;
           }
 
           100% {
-            transform: scale(2);
+            transform: scale(2.65);
             opacity: 0;
           }
         }
@@ -255,20 +284,20 @@ export default function RhythmPractice({
         .awake-water-core {
           background:
             radial-gradient(
-              circle at 50% 42%,
-              rgba(255, 255, 255, 0.38) 0%,
-              rgba(255, 255, 255, 0.18) 38%,
-              rgba(200, 240, 247, 0.12) 62%,
-              rgba(255, 255, 255, 0.03) 100%
+              circle at 42% 34%,
+              rgba(255, 255, 255, 0.78) 0%,
+              rgba(255, 255, 255, 0.32) 18%,
+              rgba(${secondaryRgb}, 0.26) 52%,
+              rgba(${primaryRgb}, 0.12) 100%
             );
 
-          border: 1px solid rgba(255, 255, 255, 0.42);
+          border: 1px solid rgba(255, 255, 255, 0.72);
 
           box-shadow:
-            0 0 14px rgba(255, 255, 255, 0.5),
-            0 0 32px rgba(210, 244, 250, 0.38),
-            0 0 70px rgba(170, 226, 238, 0.32),
-            inset 0 0 22px rgba(255, 255, 255, 0.16);
+            0 0 16px rgba(255, 255, 255, 0.72),
+            0 0 38px rgba(${secondaryRgb}, 0.55),
+            0 0 86px rgba(${primaryRgb}, 0.4),
+            inset 0 0 28px rgba(255, 255, 255, 0.26);
         }
 
         .awake-water-shimmer {
@@ -278,15 +307,16 @@ export default function RhythmPractice({
         }
 
         .awake-rhythm-pulse {
-          border: 2px solid rgba(255, 255, 255, 0.88);
+          border: 2px solid rgba(255, 255, 255, 0.9);
 
           box-shadow:
-            0 0 10px rgba(255, 255, 255, 0.72),
-            0 0 24px rgba(225, 250, 255, 0.48),
-            0 0 52px rgba(176, 230, 242, 0.34);
+            0 0 10px rgba(255, 255, 255, 0.82),
+            0 0 26px rgba(${secondaryRgb}, 0.56),
+            0 0 58px rgba(${primaryRgb}, 0.38);
 
           animation: awake-rhythm-pulse
-            ${BEAT_LENGTH}ms ease-out forwards;
+            ${BEAT_LENGTH}ms cubic-bezier(0.18, 0.72, 0.32, 1)
+            forwards;
         }
         .awake-tap-ripple {
           border-width: 2px;

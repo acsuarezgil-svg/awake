@@ -112,7 +112,7 @@ export default function BreathPractice({
       >
         ← Practice
       </button>
-      <div className="absolute top-12 flex flex-col items-center">
+      <div className="absolute top-12 text-center">
         <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">
             Long Breath
         </p>
@@ -147,28 +147,50 @@ export default function BreathPractice({
           />
 
           <span
-            className={`awake-breath-core flex h-32 w-32 items-center justify-center rounded-full ${
-              phase === "inhale"
+            className={`awake-breath-core relative flex h-40 w-40 items-center justify-center overflow-hidden rounded-full ${
+                phase === "inhale"
                 ? "awake-breath-core-inhale"
                 : "awake-breath-core-exhale"
             }`}
             style={{
-              background: `
+                background: `
                 radial-gradient(
-                  circle at 38% 32%,
-                  rgba(255,255,255,0.8),
-                  rgba(${secondaryRgb},0.35) 38%,
-                  rgba(${primaryRgb},0.16) 100%
+                    circle at 38% 32%,
+                    rgba(255,255,255,0.72),
+                    rgba(${secondaryRgb},0.32) 42%,
+                    rgba(${primaryRgb},0.14) 100%
                 )
-              `,
-              boxShadow: `
-                0 0 18px rgba(255,255,255,0.7),
-                0 0 55px rgba(${secondaryRgb},0.45)
-              `,
+                `,
+                boxShadow: `
+                inset 0 0 24px rgba(255,255,255,0.18),
+                0 0 18px rgba(255,255,255,0.55),
+                0 0 55px rgba(${secondaryRgb},0.36)
+                `,
             }}
-          >
-            <span className="h-20 w-20 rounded-full bg-white/10" />
-          </span>
+            >
+            {[0, 1, 2].map((ring) => (
+                <span
+                key={ring}
+                aria-hidden="true"
+                className="awake-inner-ripple absolute rounded-full border border-white/45"
+                style={{
+                    animationDelay: `${ring * 1100}ms`,
+                }}
+                />
+            ))}
+
+            <span
+                className={`relative z-10 text-2xl font-extralight tracking-[0.08em] text-white/90 transition-all duration-1000 ${
+                showWord
+                    ? phase === "inhale"
+                    ? "scale-105 opacity-100 blur-0"
+                    : "scale-100 opacity-75 blur-[0.7px]"
+                    : "scale-95 opacity-0 blur-sm"
+                }`}
+            >
+                {displayWord}
+            </span>
+            </span>
         </div>
 
         <p className="mt-8 text-lg font-light tracking-[0.18em] text-white/85">
@@ -224,6 +246,40 @@ export default function BreathPractice({
           transform: scale(0.8);
           opacity: 0.36;
         }
+          @keyframes awake-inner-ripple {
+            0% {
+                width: 18px;
+                height: 18px;
+                opacity: 0;
+                transform: scale(0.4);
+            }
+
+            20% {
+                opacity: 0.55;
+            }
+
+            100% {
+                width: 150px;
+                height: 150px;
+                opacity: 0;
+                transform: scale(1);
+            }
+            }
+
+            .awake-inner-ripple {
+            width: 18px;
+            height: 18px;
+            animation: awake-inner-ripple 4.8s ease-out infinite;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+            .awake-inner-ripple {
+                animation: none;
+                width: 105px;
+                height: 105px;
+                opacity: 0.22;
+            }
+            }
 
         @media (prefers-reduced-motion: reduce) {
           .awake-breath-core,

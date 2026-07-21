@@ -27,6 +27,13 @@ type NoticeEvent = {
   date: string;
 };
 
+type ReflectionSignature = {
+  patterns: number;
+  investments: number;
+  values: number;
+  boundaries: number;
+};
+
 type Reflection = {
   id: string;
   date: string;
@@ -39,9 +46,12 @@ type Reflection = {
   learned?: string;
   updatedAt?: string;
   favorite?: boolean;
+  
 
   // Links this reflection to both wheels.
   connections?: ReflectionConnection[];
+
+  signature?: ReflectionSignature;
 };
 
 export default function ReflectionPage() {
@@ -227,6 +237,24 @@ export default function ReflectionPage() {
   const saved = localStorage.getItem("awake-reflections");
     const existingReflections: Reflection[] = saved ? JSON.parse(saved) : [];
 
+    const signature: ReflectionSignature = {
+      patterns: selectedConnections.filter(
+        (c) => c.type === "pattern"
+      ).length,
+
+      investments: selectedConnections.filter(
+        (c) => c.type === "investment"
+      ).length,
+
+      values: selectedConnections.filter(
+        (c) => c.type === "value"
+      ).length,
+
+      boundaries: selectedConnections.filter(
+        (c) => c.type === "boundary"
+      ).length,
+    };
+
     const newReflection: Reflection =
       mode === "free"
         ? {
@@ -235,6 +263,7 @@ export default function ReflectionPage() {
             mode: "free",
             text,
             connections: selectedConnections,
+            signature,
           }
         : {
             id: crypto.randomUUID(),
@@ -246,6 +275,7 @@ export default function ReflectionPage() {
             action,
             learned,
             connections: selectedConnections,
+            signature,
           }
 
     localStorage.setItem(

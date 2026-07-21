@@ -161,6 +161,7 @@ export default function ReflectionPage() {
     }, []);
 
     setTodayConnections(uniqueConnections);
+    setSelectedConnections(uniqueConnections);  
   }, []);
 
   function toggleConnection(connection: ReflectionConnection) {

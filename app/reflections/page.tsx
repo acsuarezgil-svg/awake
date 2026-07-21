@@ -133,30 +133,6 @@ function toggleFavorite(id: string) {
   );
 }
 
-function getReflectionSignature(reflection: Reflection) {
-  if (!reflection.signature) return null;
-
-  return (
-    <>
-      {reflection.signature.patterns > 0 && (
-        <span>•{reflection.signature.patterns}</span>
-      )}
-
-      {reflection.signature.investments > 0 && (
-        <span> +{reflection.signature.investments}</span>
-      )}
-
-      {reflection.signature.values > 0 && (
-        <span> ★{reflection.signature.values}</span>
-      )}
-
-      {reflection.signature.boundaries > 0 && (
-        <span> ▢{reflection.signature.boundaries}</span>
-      )}
-    </>
-  );
-}
-
 let filteredReflections = [...reflections];
 
 
@@ -200,6 +176,25 @@ if (timeFilter === "month") {
 const displayedReflections = showFavoritesOnly
   ? filteredReflections.filter((reflection) => reflection.favorite)
   : filteredReflections;
+
+  const summary = displayedReflections.reduce(
+    (totals, reflection) => {
+      if (!reflection.signature) return totals;
+
+      totals.patterns += reflection.signature.patterns;
+      totals.investments += reflection.signature.investments;
+      totals.values += reflection.signature.values;
+      totals.boundaries += reflection.signature.boundaries;
+
+      return totals;
+    },
+    {
+      patterns: 0,
+      investments: 0,
+      values: 0,
+      boundaries: 0,
+    }
+  );
 
   return (
     <main
@@ -268,6 +263,8 @@ const displayedReflections = showFavoritesOnly
           </button>
         </div>
 
+
+
         <div className="mb-6 flex flex-wrap gap-2">
           {[
             ["today", "Today"],
@@ -291,6 +288,29 @@ const displayedReflections = showFavoritesOnly
               {label}
             </button>
           ))}
+        </div>
+
+        <div
+          className={`mb-6 rounded-2xl border p-4 ${
+            isDark
+              ? "border-white/10 bg-slate-800/70"
+              : "border-stone-200 bg-white"
+          }`}
+        >
+          <div className="flex justify-center gap-6 text-lg font-semibold">
+            {summary.patterns > 0 && <span>• {summary.patterns}</span>}
+            {summary.investments > 0 && <span>+ {summary.investments}</span>}
+            {summary.values > 0 && <span>★ {summary.values}</span>}
+            {summary.boundaries > 0 && <span>▢ {summary.boundaries}</span>}
+          </div>
+
+          <p
+            className={`mt-2 text-center text-sm ${
+              isDark ? "text-slate-400" : "text-stone-500"
+            }`}
+          >
+            Connected during this period
+          </p>
         </div>
 
         <div className="space-y-4">
@@ -362,16 +382,9 @@ const displayedReflections = showFavoritesOnly
                 <>
                   {reflection.mode === "free" ? (
                     <>
-                      <p
-                        className={`text-lg font-semibold tracking-wide ${
-                          isDark ? "text-stone-100" : "text-stone-800"
-                        }`}
-                      >
-                        {getReflectionSignature(reflection)}
-                      </p>
 
                       <p
-                        className={`mt-3 whitespace-pre-wrap leading-7 ${
+                        className={`whitespace-pre-wrap leading-7 ${
                           isDark ? "text-slate-200" : "text-stone-700"
                         }`}
                       >

@@ -9,6 +9,24 @@ import {
   type WheelTheme,
 } from "../theme";
 
+type ConnectionType =
+  | "pattern"
+  | "investment"
+  | "value"
+  | "boundary";
+
+type ReflectionConnection = {
+  name: string;
+  type: ConnectionType;
+};
+
+type NoticeEvent = {
+  id: string;
+  name: string;
+  type: ConnectionType;
+  date: string;
+};
+
 type Reflection = {
   id: string;
   date: string;
@@ -21,6 +39,9 @@ type Reflection = {
   learned?: string;
   updatedAt?: string;
   favorite?: boolean;
+
+  // Links this reflection to both wheels.
+  connections?: ReflectionConnection[];
 };
 
 export default function ReflectionPage() {
@@ -31,6 +52,13 @@ export default function ReflectionPage() {
   const [question, setQuestion] = useState("");
   const [wheelTheme, setWheelTheme] =
     useState<WheelTheme>("roseSage");
+  const [todayConnections, setTodayConnections] = useState<
+    ReflectionConnection[]
+  >([]);
+
+  const [selectedConnections, setSelectedConnections] = useState<
+    ReflectionConnection[]
+  >([]);
   
 
   const [happened, setHappened] = useState("");
@@ -55,6 +83,110 @@ export default function ReflectionPage() {
       setWheelTheme(savedWheelTheme);
     }
   }, []);
+
+  useEffect(() => {
+    function readNoticeEvents(storageKey: string): NoticeEvent[] {
+      try {
+        const saved = localStorage.getItem(storageKey);
+
+        if (!saved) return [];
+
+        const parsed: unknown = JSON.parse(saved);
+
+        if (!Array.isArray(parsed)) return [];
+
+        return parsed.filter((item): item is NoticeEvent => {
+          if (!item || typeof item !== "object") return false;
+
+          const event = item as Partial<NoticeEvent>;
+
+          return (
+            typeof event.id === "string" &&
+            typeof event.name === "string" &&
+            typeof event.date === "string" &&
+            (event.type === "pattern" ||
+              event.type === "investment" ||
+              event.type === "value" ||
+              event.type === "boundary")
+          );
+        });
+      } catch {
+        return [];
+      }
+    }
+
+    const awarenessEvents = readNoticeEvents("awake-notice-events");
+
+    // This supports a separate Compass key if your Compass currently uses one.
+    const compassEvents = readNoticeEvents(
+      "awake-compass-notice-events"
+    );
+
+    const today = new Date().toDateString();
+
+    const eventsFromToday = [
+      ...awarenessEvents,
+      ...compassEvents,
+    ].filter(
+      (event) => new Date(event.date).toDateString() === today
+    );
+
+    const uniqueConnections = eventsFromToday.reduce<
+      ReflectionConnection[]
+    >((connections, event) => {
+      const alreadyExists = connections.some(
+        (connection) =>
+          connection.name === event.name &&
+          connection.type === event.type
+      );
+
+      if (!alreadyExists) {
+        connections.push({
+          name: event.name,
+          type: event.type,
+        });
+      }
+
+      return connections;
+    }, []);
+
+    setTodayConnections(uniqueConnections);
+  }, []);
+
+  function toggleConnection(connection: ReflectionConnection) {
+    setSelectedConnections((currentConnections) => {
+      const isSelected = currentConnections.some(
+        (currentConnection) =>
+          currentConnection.name === connection.name &&
+          currentConnection.type === connection.type
+      );
+
+      if (isSelected) {
+        return currentConnections.filter(
+          (currentConnection) =>
+            !(
+              currentConnection.name === connection.name &&
+              currentConnection.type === connection.type
+            )
+        );
+      }
+
+      return [...currentConnections, connection];
+    });
+  }
+
+  function getConnectionLabel(type: ConnectionType) {
+    switch (type) {
+      case "pattern":
+        return "Pattern";
+      case "investment":
+        return "Investment";
+      case "value":
+        return "Value";
+      case "boundary":
+        return "Boundary";
+    }
+  }
 
   function chooseQuestion() {
     const questions = t.reflectionQuestions;
@@ -102,6 +234,7 @@ export default function ReflectionPage() {
             date: new Date().toISOString(),
             mode: "free",
             text,
+            connections: selectedConnections,
           }
         : {
             id: crypto.randomUUID(),
@@ -112,8 +245,8 @@ export default function ReflectionPage() {
             seeking,
             action,
             learned,
-            
-          };
+            connections: selectedConnections,
+          }
 
     localStorage.setItem(
       "awake-reflections",
@@ -126,6 +259,7 @@ export default function ReflectionPage() {
     setAction("");
     setLearned("");
     setText("");
+    setSelectedConnections([]);
   }
   const activeTheme = wheelThemes[wheelTheme];
   const isDark = isDarkWheelTheme(wheelTheme);
@@ -174,6 +308,86 @@ export default function ReflectionPage() {
       >
         {t.observeChooseActLearn}
       </p>
+
+      {todayConnections.length > 0 && (
+        <section
+          className={`mb-6 rounded-3xl border px-5 py-5 ${
+            isDark
+              ? "border-white/10 bg-slate-800/60"
+              : "border-stone-100 bg-white/70"
+          }`}
+        >
+          <p
+            className={`text-xs uppercase tracking-[0.2em] ${
+              isDark ? "text-slate-400" : "text-stone-400"
+            }`}
+          >
+            Present with you
+          </p>
+
+          <p
+            className={`mt-2 text-sm ${
+              isDark ? "text-slate-300" : "text-stone-600"
+            }`}
+          >
+            Choose anything that feels connected to this reflection.
+          </p>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {todayConnections.map((connection) => {
+              const isSelected = selectedConnections.some(
+                (selectedConnection) =>
+                  selectedConnection.name === connection.name &&
+                  selectedConnection.type === connection.type
+              );
+
+              return (
+                <button
+                  key={`${connection.type}-${connection.name}`}
+                  type="button"
+                  onClick={() => toggleConnection(connection)}
+                  aria-pressed={isSelected}
+                  className={`rounded-full border px-3 py-2 text-left text-sm transition ${
+                    isSelected
+                      ? isDark
+                        ? "border-slate-400 bg-slate-600 text-white"
+                        : "border-stone-800 bg-stone-800 text-white"
+                      : isDark
+                        ? "border-white/15 bg-slate-900/40 text-slate-300 hover:border-slate-500"
+                        : "border-stone-200 bg-white text-stone-600 hover:border-stone-400"
+                  }`}
+                >
+                  <span className="block">{connection.name}</span>
+
+                  <span
+                    className={`block text-[10px] uppercase tracking-wider ${
+                      isSelected
+                        ? "text-white/70"
+                        : isDark
+                          ? "text-slate-500"
+                          : "text-stone-400"
+                    }`}
+                  >
+                    {getConnectionLabel(connection.type)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {selectedConnections.length > 0 && (
+            <p
+              className={`mt-4 text-xs ${
+                isDark ? "text-slate-400" : "text-stone-400"
+              }`}
+            >
+              {selectedConnections.length === 1
+                ? "1 connection will be kept with this reflection."
+                : `${selectedConnections.length} connections will be kept with this reflection.`}
+            </p>
+          )}
+        </section>
+      )}
 
       {question && (
         <section

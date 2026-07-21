@@ -62,13 +62,6 @@ export default function ReflectionPage() {
   const [question, setQuestion] = useState("");
   const [wheelTheme, setWheelTheme] =
     useState<WheelTheme>("roseSage");
-  const [todayConnections, setTodayConnections] = useState<
-    ReflectionConnection[]
-  >([]);
-
-  const [selectedConnections, setSelectedConnections] = useState<
-    ReflectionConnection[]
-  >([]);
   
 
   const [happened, setHappened] = useState("");
@@ -94,75 +87,6 @@ export default function ReflectionPage() {
     }
   }, []);
 
-  useEffect(() => {
-    function readNoticeEvents(storageKey: string): NoticeEvent[] {
-      try {
-        const saved = localStorage.getItem(storageKey);
-
-        if (!saved) return [];
-
-        const parsed: unknown = JSON.parse(saved);
-
-        if (!Array.isArray(parsed)) return [];
-
-        return parsed.filter((item): item is NoticeEvent => {
-          if (!item || typeof item !== "object") return false;
-
-          const event = item as Partial<NoticeEvent>;
-
-          return (
-            typeof event.id === "string" &&
-            typeof event.name === "string" &&
-            typeof event.date === "string" &&
-            (event.type === "pattern" ||
-              event.type === "investment" ||
-              event.type === "value" ||
-              event.type === "boundary")
-          );
-        });
-      } catch {
-        return [];
-      }
-    }
-
-    const awarenessEvents = readNoticeEvents("awake-notice-events");
-
-    // This supports a separate Compass key if your Compass currently uses one.
-    const compassEvents = readNoticeEvents(
-      "awake-compass-notice-events"
-    );
-
-    const today = new Date().toDateString();
-
-    const eventsFromToday = [
-      ...awarenessEvents,
-      ...compassEvents,
-    ].filter(
-      (event) => new Date(event.date).toDateString() === today
-    );
-
-    const uniqueConnections = eventsFromToday.reduce<
-      ReflectionConnection[]
-    >((connections, event) => {
-      const alreadyExists = connections.some(
-        (connection) =>
-          connection.name === event.name &&
-          connection.type === event.type
-      );
-
-      if (!alreadyExists) {
-        connections.push({
-          name: event.name,
-          type: event.type,
-        });
-      }
-
-      return connections;
-    }, []);
-
-    setTodayConnections(uniqueConnections);
-    setSelectedConnections(uniqueConnections);  
-  }, []);
 
   function toggleConnection(connection: ReflectionConnection) {
     setSelectedConnections((currentConnections) => {
@@ -225,6 +149,42 @@ export default function ReflectionPage() {
     chooseQuestion();
   }, [language]);
 
+  function getTodayConnections(): ReflectionConnection[] {
+    try {
+      const saved = localStorage.getItem("awake-notice-events");
+
+      if (!saved) return [];
+
+      const events: NoticeEvent[] = JSON.parse(saved);
+
+      const today = new Date().toDateString();
+
+      return events
+        .filter(
+          (event) =>
+            new Date(event.date).toDateString() === today
+        )
+        .reduce<ReflectionConnection[]>((connections, event) => {
+          const exists = connections.some(
+            (connection) =>
+              connection.name === event.name &&
+              connection.type === event.type
+          );
+
+          if (!exists) {
+            connections.push({
+              name: event.name,
+              type: event.type,
+            });
+          }
+
+          return connections;
+        }, []);
+    } catch {
+      return [];
+    }
+  }
+
   function saveReflection() {
   const hasContent =
     mode === "free"
@@ -234,6 +194,8 @@ export default function ReflectionPage() {
         );
 
   if (!hasContent) return;
+
+  const selectedConnections = getTodayConnections();
 
   const saved = localStorage.getItem("awake-reflections");
     const existingReflections: Reflection[] = saved ? JSON.parse(saved) : [];

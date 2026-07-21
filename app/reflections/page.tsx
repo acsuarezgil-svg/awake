@@ -9,6 +9,13 @@ import {
   type WheelTheme,
 } from "../theme";
 
+type ReflectionSignature = {
+  patterns: number;
+  investments: number;
+  values: number;
+  boundaries: number;
+};
+
 type Reflection = {
   id: string;
   date: string;
@@ -21,6 +28,7 @@ type Reflection = {
   learned?: string;
   updatedAt?: string;
   favorite?: boolean;
+  signature?: ReflectionSignature;
 };
 
 export default function ReflectionsPage() {
@@ -124,7 +132,34 @@ function toggleFavorite(id: string) {
     )
   );
 }
+
+function getReflectionSignature(reflection: Reflection) {
+  if (!reflection.signature) return null;
+
+  return (
+    <>
+      {reflection.signature.patterns > 0 && (
+        <span>•{reflection.signature.patterns}</span>
+      )}
+
+      {reflection.signature.investments > 0 && (
+        <span> +{reflection.signature.investments}</span>
+      )}
+
+      {reflection.signature.values > 0 && (
+        <span> ★{reflection.signature.values}</span>
+      )}
+
+      {reflection.signature.boundaries > 0 && (
+        <span> ▢{reflection.signature.boundaries}</span>
+      )}
+    </>
+  );
+}
+
 let filteredReflections = [...reflections];
+
+
 
 const now = new Date();
 
@@ -328,11 +363,11 @@ const displayedReflections = showFavoritesOnly
                   {reflection.mode === "free" ? (
                     <>
                       <p
-                        className={`text-lg font-semibold ${
+                        className={`text-lg font-semibold tracking-wide ${
                           isDark ? "text-stone-100" : "text-stone-800"
                         }`}
                       >
-                        📖 Reflection
+                        {getReflectionSignature(reflection)}
                       </p>
 
                       <p

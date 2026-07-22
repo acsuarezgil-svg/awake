@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { translations, type Language } from "../translations";
+import {
+  createAwakeSystem,
+  defaultSystemTitles,
+  type AwakeSystem,
+} from "../systems";
+import {
+  loadAwakeSystems,
+  saveAwakeSystems,
+} from "../systemStorage";
 import {
   isDarkWheelTheme,
   isWheelTheme,
@@ -9,418 +17,335 @@ import {
   type WheelTheme,
 } from "../theme";
 
-type ConnectionType =
-  | "pattern"
-  | "investment"
-  | "value"
-  | "boundary";
+export default function SystemsPage() {
+  const [systems, setSystems] = useState<AwakeSystem[]>([]);
+  const [customTitle, setCustomTitle] = useState("");
+  const [loaded, setLoaded] = useState(false);
 
-type ReflectionConnection = {
-  name: string;
-  type: ConnectionType;
-};
-
-type NoticeEvent = {
-  id: string;
-  name: string;
-  type: ConnectionType;
-  date: string;
-};
-
-type ReflectionSignature = {
-  patterns: number;
-  investments: number;
-  values: number;
-  boundaries: number;
-};
-
-type Reflection = {
-  id: string;
-  date: string;
-  mode?: "guided" | "free";
-  text?: string;
-  happened?: string;
-  feeling?: string;
-  seeking?: string;
-  action?: string;
-  learned?: string;
-  updatedAt?: string;
-  favorite?: boolean;
-  
-
-  // Links this reflection to both wheels.
-  connections?: ReflectionConnection[];
-
-  signature?: ReflectionSignature;
-};
-
-export default function ReflectionPage() {
-  const [language, setLanguage] = useState<Language>("en");
-  const t = translations[language];
-  const [mode, setMode] = useState<"free" | "guided">("free");
-  const [text, setText] = useState("");
-  const [question, setQuestion] = useState("");
   const [wheelTheme, setWheelTheme] =
     useState<WheelTheme>("roseSage");
-  
-
-  const [happened, setHappened] = useState("");
-  const [feeling, setFeeling] = useState("");
-  const [seeking, setSeeking] = useState("");
-  const [action, setAction] = useState("");
-  const [learned, setLearned] = useState("");
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem(
-      "awake-language"
-    ) as Language | null;
-
-    if (savedLanguage) {
-      setLanguage(savedLanguage);
-    }
+    const savedSystems = loadAwakeSystems();
     const savedWheelTheme = localStorage.getItem(
       "awake-wheel-theme"
     );
 
-    if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
+    setSystems(savedSystems);
+
+    if (
+      savedWheelTheme &&
+      isWheelTheme(savedWheelTheme)
+    ) {
       setWheelTheme(savedWheelTheme);
     }
+
+    setLoaded(true);
   }, []);
 
- 
-  function chooseQuestion() {
-    const questions = t.reflectionQuestions;
-
-    if (!questions || questions.length === 0) {
-      setQuestion("");
-      return;
-    }
-
-    setQuestion((currentQuestion) => {
-      const otherQuestions = questions.filter(
-        (item) => item !== currentQuestion
-      );
-
-      const availableQuestions =
-        otherQuestions.length > 0 ? otherQuestions : questions;
-
-      return availableQuestions[
-        Math.floor(Math.random() * availableQuestions.length)
-      ];
-    });
-  }
-
   useEffect(() => {
-    chooseQuestion();
-  }, [language]);
+    if (!loaded) return;
 
-  function getTodayConnections(): ReflectionConnection[] {
-    try {
-      const saved = localStorage.getItem("awake-notice-events");
+    saveAwakeSystems(systems);
+  }, [systems, loaded]);
 
-      if (!saved) return [];
-
-      const events: NoticeEvent[] = JSON.parse(saved);
-
-      const today = new Date().toDateString();
-
-      return events
-        .filter(
-          (event) =>
-            new Date(event.date).toDateString() === today
-        )
-        .reduce<ReflectionConnection[]>((connections, event) => {
-          const exists = connections.some(
-            (connection) =>
-              connection.name === event.name &&
-              connection.type === event.type
-          );
-
-          if (!exists) {
-            connections.push({
-              name: event.name,
-              type: event.type,
-            });
-          }
-
-          return connections;
-        }, []);
-    } catch {
-      return [];
-    }
-  }
-
-  function saveReflection() {
-  const hasContent =
-    mode === "free"
-      ? text.trim().length > 0
-      : [happened, feeling, seeking, action, learned].some(
-          (value) => value.trim().length > 0
-        );
-
-  if (!hasContent) return;
-
-  const selectedConnections = getTodayConnections();
-
-  const saved = localStorage.getItem("awake-reflections");
-    const existingReflections: Reflection[] = saved ? JSON.parse(saved) : [];
-
-    const signature: ReflectionSignature = {
-      patterns: selectedConnections.filter(
-        (c) => c.type === "pattern"
-      ).length,
-
-      investments: selectedConnections.filter(
-        (c) => c.type === "investment"
-      ).length,
-
-      values: selectedConnections.filter(
-        (c) => c.type === "value"
-      ).length,
-
-      boundaries: selectedConnections.filter(
-        (c) => c.type === "boundary"
-      ).length,
-    };
-
-    const newReflection: Reflection =
-      mode === "free"
-        ? {
-            id: crypto.randomUUID(),
-            date: new Date().toISOString(),
-            mode: "free",
-            text,
-            connections: selectedConnections,
-            signature,
-          }
-        : {
-            id: crypto.randomUUID(),
-            date: new Date().toISOString(),
-            mode: "guided",
-            happened,
-            feeling,
-            seeking,
-            action,
-            learned,
-            connections: selectedConnections,
-            signature,
-          }
-
-    localStorage.setItem(
-      "awake-reflections",
-      JSON.stringify([newReflection, ...existingReflections])
-    );
-
-    setHappened("");
-    setFeeling("");
-    setSeeking("");
-    setAction("");
-    setLearned("");
-    setText("");
-  
-  }
   const activeTheme = wheelThemes[wheelTheme];
   const isDark = isDarkWheelTheme(wheelTheme);
 
-  const fieldClass = `w-full border p-3 transition-colors ${
-    isDark
-      ? "border-slate-600 bg-slate-800/80 text-stone-100 placeholder:text-slate-400 focus:border-slate-400"
-      : "border-stone-200 bg-white text-stone-800 placeholder:text-stone-400"
-  }`;
+  function addSystem(title: string) {
+    const cleanTitle = title.trim();
 
-  const sectionHeadingClass = isDark
-    ? "text-stone-100"
-    : "text-stone-800";
+    if (!cleanTitle) return;
+
+    const alreadyExists = systems.some(
+      (system) =>
+        system.title.toLowerCase() ===
+        cleanTitle.toLowerCase()
+    );
+
+    if (alreadyExists) return;
+
+    const newSystem = createAwakeSystem(cleanTitle);
+
+    setSystems((current) => [
+      ...current,
+      newSystem,
+    ]);
+
+    setCustomTitle("");
+  }
+
+  const availableDefaults = defaultSystemTitles.filter(
+    (title) =>
+      !systems.some(
+        (system) =>
+          system.title.toLowerCase() ===
+          title.toLowerCase()
+      )
+  );
 
   return (
     <main
       className={`min-h-screen w-full px-5 py-8 transition-[background] duration-500 ${
-        isDark ? "text-stone-100" : "text-stone-800"
+        isDark
+          ? "text-stone-100"
+          : "text-stone-800"
       }`}
-      style={{ background: activeTheme.pageBackground }}
+      style={{
+        background: activeTheme.pageBackground,
+      }}
     >
       <section className="mx-auto w-full max-w-md">
-      <a
-        href="/"
-        className={`text-sm transition ${
-          isDark
-            ? "text-slate-400 hover:text-stone-100"
-            : "text-gray-500 hover:text-stone-800"
-        }`}
-      >
-        {t.back}
-      </a>
-
-      <h1
-        className={`mb-2 mt-4 text-3xl font-bold ${
-          isDark ? "text-stone-100" : "text-stone-900"
-        }`}
-      >
-        {t.newReflection}
-      </h1>
-
-      <p
-        className={`mb-6 ${
-          isDark ? "text-slate-300" : "text-gray-600"
-        }`}
-      >
-        {t.observeChooseActLearn}
-      </p>
-
-      {question && (
-        <section
-          className={`mb-6 rounded-3xl border px-5 py-5 transition-colors ${
+        <a
+          href="/"
+          className={`text-sm transition ${
             isDark
-              ? "border-white/10 bg-slate-800/70"
-              : "border-stone-100 bg-stone-50"
+              ? "text-slate-400 hover:text-stone-100"
+              : "text-stone-500 hover:text-stone-800"
           }`}
         >
-          <p className="text-xs uppercase tracking-[0.2em] text-stone-400">
-            A question for this moment
+          ← Back
+        </a>
+
+        <div className="mb-8 mt-5">
+          <p
+            className={`mb-2 text-xs uppercase tracking-[0.22em] ${
+              isDark
+                ? "text-slate-400"
+                : "text-stone-400"
+            }`}
+          >
+            Understand what supports your life
           </p>
+
+          <h1
+            className={`text-4xl font-semibold tracking-tight ${
+              isDark
+                ? "text-stone-100"
+                : "text-stone-900"
+            }`}
+          >
+            Systems
+          </h1>
 
           <p
-            className={`mt-3 text-lg font-light leading-7 ${
-              isDark ? "text-stone-100" : "text-stone-700"
-            }`}
-          >
-            “{question}”
-          </p>
-
-          <button
-            type="button"
-            onClick={chooseQuestion}
-            className={`mt-4 text-sm transition ${
+            className={`mt-3 leading-7 ${
               isDark
-                ? "text-slate-400 hover:text-stone-100"
-                : "text-stone-400 hover:text-stone-700"
+                ? "text-slate-300"
+                : "text-stone-600"
             }`}
           >
-            Another question
-          </button>
-        </section>
-      )}
+            Build a living understanding of what
+            helps, what gets in the way, and what
+            you are learning.
+          </p>
+        </div>
 
-      <div className="mb-6 flex gap-2">
-        <button
-          type="button"
-          onClick={() => setMode("free")}
-          className={`rounded-full border px-4 py-2 text-sm transition ${
-            mode === "free"
-              ? isDark
-                ? "border-slate-500 bg-slate-600 text-white"
-                : "border-black bg-black text-white"
-              : isDark
-                ? "border-white/15 bg-slate-900/50 text-slate-300"
-                : "border-stone-200 bg-white text-gray-600"
-          }`}
-        >
-          Free Write
-        </button>
+        {systems.length > 0 && (
+          <section className="mb-9">
+            <div className="mb-4 flex items-end justify-between">
+              <div>
+                <p
+                  className={`text-xs uppercase tracking-[0.2em] ${
+                    isDark
+                      ? "text-slate-400"
+                      : "text-stone-400"
+                  }`}
+                >
+                  Your systems
+                </p>
 
-        <button
-          type="button"
-          onClick={() => setMode("guided")}
-          className={`rounded-full border px-4 py-2 text-sm transition ${
-            mode === "guided"
-              ? isDark
-                ? "border-slate-500 bg-slate-600 text-white"
-                : "border-black bg-black text-white"
-              : isDark
-                ? "border-white/15 bg-slate-900/50 text-slate-300"
-                : "border-stone-200 bg-white text-gray-600"
-          }`}
-        >
-          Guided
-        </button>
-      </div>
+                <p
+                  className={`mt-1 text-sm ${
+                    isDark
+                      ? "text-slate-300"
+                      : "text-stone-500"
+                  }`}
+                >
+                  {systems.length}{" "}
+                  {systems.length === 1
+                    ? "system"
+                    : "systems"}
+                </p>
+              </div>
+            </div>
 
-      {mode === "free" && (
-          <section className="mb-8">
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Write whatever stayed with you..."
-              className={`${fieldClass} min-h-64 rounded-2xl p-4`}
-            />
+            <div className="space-y-3">
+              {systems.map((system) => {
+                const entryCount =
+                  system.observations.length +
+                  system.experiments.length +
+                  system.lessons.length +
+                  system.gratitude.length;
+
+                return (
+                  <button
+                    key={system.id}
+                    type="button"
+                    className={`flex w-full items-center justify-between rounded-3xl border p-5 text-left transition ${
+                      isDark
+                        ? "border-white/10 bg-slate-800/75 hover:border-white/20 hover:bg-slate-800"
+                        : "border-stone-200 bg-white/80 hover:border-stone-300 hover:shadow-sm"
+                    }`}
+                  >
+                    <div>
+                      <h2
+                        className={`text-lg font-semibold ${
+                          isDark
+                            ? "text-stone-100"
+                            : "text-stone-800"
+                        }`}
+                      >
+                        {system.title}
+                      </h2>
+
+                      <p
+                        className={`mt-1 text-sm ${
+                          isDark
+                            ? "text-slate-400"
+                            : "text-stone-500"
+                        }`}
+                      >
+                        {entryCount === 0
+                          ? "Ready to understand"
+                          : `${entryCount} ${
+                              entryCount === 1
+                                ? "entry"
+                                : "entries"
+                            }`}
+                      </p>
+                    </div>
+
+                    <span
+                      className={`text-xl ${
+                        isDark
+                          ? "text-slate-400"
+                          : "text-stone-400"
+                      }`}
+                    >
+                      →
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </section>
         )}
 
-        {mode === "guided" && (
-          <>
+        <section
+          className={`rounded-[2rem] border p-5 ${
+            isDark
+              ? "border-white/10 bg-slate-900/35"
+              : "border-stone-200 bg-white/55"
+          }`}
+        >
+          <p
+            className={`text-xs uppercase tracking-[0.2em] ${
+              isDark
+                ? "text-slate-400"
+                : "text-stone-400"
+            }`}
+          >
+            {systems.length === 0
+              ? "Choose where to begin"
+              : "Add another system"}
+          </p>
 
-      <section className="mb-6">
-        <h2 className={`mb-3 text-xl font-semibold ${sectionHeadingClass}`}>
-          {t.observe}
-        </h2>
+          <h2
+            className={`mt-2 text-xl font-semibold ${
+              isDark
+                ? "text-stone-100"
+                : "text-stone-800"
+            }`}
+          >
+            What part of life would you like to
+            understand?
+          </h2>
 
-        <textarea
-          value={happened}
-          onChange={(e) => setHappened(e.target.value)}
-          placeholder={t.whatHappened}
-          className={`${fieldClass} mb-4 min-h-24 rounded-xl`}
-        />
+          {availableDefaults.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {availableDefaults.map((title) => (
+                <button
+                  key={title}
+                  type="button"
+                  onClick={() => addSystem(title)}
+                  className={`rounded-full border px-4 py-2 text-sm transition ${
+                    isDark
+                      ? "border-white/15 bg-slate-800/70 text-slate-200 hover:border-white/25"
+                      : "border-stone-200 bg-white text-stone-600 hover:border-stone-400"
+                  }`}
+                >
+                  + {title}
+                </button>
+              ))}
+            </div>
+          )}
 
-        <textarea
-          value={feeling}
-          onChange={(e) => setFeeling(e.target.value)}
-          placeholder={t.whatFeeling}
-          className={`${fieldClass} min-h-24 rounded-xl`}
-        />
+          <div
+            className={`my-6 border-t ${
+              isDark
+                ? "border-white/10"
+                : "border-stone-200"
+            }`}
+          />
+
+          <label
+            htmlFor="custom-system"
+            className={`text-sm font-medium ${
+              isDark
+                ? "text-slate-200"
+                : "text-stone-700"
+            }`}
+          >
+            Create your own
+          </label>
+
+          <div className="mt-3 flex gap-2">
+            <input
+              id="custom-system"
+              value={customTitle}
+              onChange={(event) =>
+                setCustomTitle(event.target.value)
+              }
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  addSystem(customTitle);
+                }
+              }}
+              placeholder="Name your system"
+              className={`min-w-0 flex-1 rounded-2xl border px-4 py-3 outline-none transition ${
+                isDark
+                  ? "border-slate-600 bg-slate-800/80 text-stone-100 placeholder:text-slate-500 focus:border-slate-400"
+                  : "border-stone-200 bg-white text-stone-800 placeholder:text-stone-400 focus:border-stone-400"
+              }`}
+            />
+
+            <button
+              type="button"
+              onClick={() => addSystem(customTitle)}
+              disabled={!customTitle.trim()}
+              className={`rounded-2xl px-5 py-3 font-medium transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                isDark
+                  ? "bg-slate-600 text-white hover:bg-slate-500"
+                  : "bg-stone-900 text-white hover:bg-stone-700"
+              }`}
+            >
+              Add
+            </button>
+          </div>
+        </section>
+
+        <p
+          className={`mt-6 text-center text-xs leading-5 ${
+            isDark
+              ? "text-slate-500"
+              : "text-stone-400"
+          }`}
+        >
+          A system is not a rule. It is something
+          you can observe, test, and reshape.
+        </p>
       </section>
-
-      <section className="mb-6">
-        <h2 className={`mb-3 text-xl font-semibold ${sectionHeadingClass}`}>
-          {t.choose}
-        </h2>
-
-        <input
-          value={seeking}
-          onChange={(e) => setSeeking(e.target.value)}
-          placeholder={t.whatSeeking}
-          className={`${fieldClass} rounded-xl`}
-        />
-      </section>
-
-      <section className="mb-6">
-        <h2 className={`mb-3 text-xl font-semibold ${sectionHeadingClass}`}>
-          {t.act}
-        </h2>
-
-        <textarea
-          value={action}
-          onChange={(e) => setAction(e.target.value)}
-          placeholder={t.whatDidIDo}
-          className={`${fieldClass} min-h-24 rounded-xl`}
-        />
-      </section>
-
-      <section className="mb-8">
-        <h2 className={`mb-3 text-xl font-semibold ${sectionHeadingClass}`}>
-          {t.learn}
-        </h2>
-
-        <textarea
-          value={learned}
-          onChange={(e) => setLearned(e.target.value)}
-          placeholder={t.whatLearned}
-          className={`${fieldClass} min-h-24 rounded-xl`}
-        />
-      </section>
-      </>
-      )}
-
-      <button
-        onClick={saveReflection}
-        className={`w-full rounded-2xl p-4 font-semibold transition ${
-          isDark
-            ? "border border-white/10 bg-slate-700 text-stone-100 hover:bg-slate-600"
-            : "bg-black text-white hover:bg-stone-800"
-        }`}
-      >
-        {t.saveReflection}
-      </button>
-      </section>
-</main>
+    </main>
   );
 }

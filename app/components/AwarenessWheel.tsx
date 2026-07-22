@@ -1376,7 +1376,7 @@ function removeSliceFromCard() {
                   />
 
                   <AwakeMenuLink
-                    href="/reflection"
+                    href="/systems"
                     symbol="✍︎"
                     title="Systems"
                     isDark={isDark}

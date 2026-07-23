@@ -17,29 +17,38 @@ import {
   type WheelTheme,
 } from "../theme";
 
-const systemGroups = [
-  {
-    title: "Self",
-    systems: ["Self Trust", "Energy", "Health"],
-  },
-  {
-    title: "Life",
-    systems: [
-      "Relationships",
-      "Home",
-      "Financial",
-      "Boundaries",
-    ],
-  },
-  {
-    title: "Growth",
-    systems: [
-      "Learning",
-      "Work",
-      "Communication",
-    ],
-  },
+const defaultSystems = [
+  "Health",
+  "Home",
+  "Finances",
+  "Relationships",
+  "Learning",
+  "Work",
+  "Creativity",
+  "Personal Growth",
 ];
+
+const systemIcons: Record<string, string> = {
+  Health: "❤️",
+  Home: "🏡",
+  Finances: "💰",
+  Relationships: "🤝",
+  Learning: "📚",
+  Work: "💼",
+  Creativity: "🎨",
+  "Personal Growth": "🌿",
+};
+
+const systemDescriptions: Record<string, string> = {
+  Health: "Care for the body that carries you.",
+  Home: "Create a place that gives you peace.",
+  Finances: "Build freedom one choice at a time.",
+  Relationships: "Invest in the people who matter.",
+  Learning: "Stay curious and keep growing.",
+  Work: "Build with purpose, not pressure.",
+  Creativity: "Make room to create.",
+  "Personal Growth": "Become who you're becoming.",
+};
 
 export default function SystemsPage() {
   const router = useRouter();
@@ -78,14 +87,9 @@ export default function SystemsPage() {
   const isDark = isDarkWheelTheme(wheelTheme);
 
   const defaultTitles = useMemo(
-    () =>
-      new Set(
-        systemGroups.flatMap(
-          (group) => group.systems
-        )
-      ),
+    () => new Set(defaultSystems),
     []
-  );
+);
 
   const customSystems = systems.filter(
     (system) => !defaultTitles.has(system.title)
@@ -144,7 +148,10 @@ export default function SystemsPage() {
       system.gratitude.length;
 
     if (entryCount === 0) {
-      return "Ready to explore";
+      return (
+        systemDescriptions[title] ??
+        "A system personal to your life."
+    );
     }
 
     return `${entryCount} ${
@@ -172,6 +179,12 @@ export default function SystemsPage() {
                 : "text-stone-800"
             }`}
           >
+            {systemIcons[title] && (
+                <span className="mr-2" aria-hidden="true">
+                    {systemIcons[title]}
+                </span>
+            )}
+
             {title}
           </h2>
 
@@ -256,25 +269,21 @@ export default function SystemsPage() {
         </header>
 
         <div className="space-y-9">
-          {systemGroups.map((group) => (
-            <section key={group.title}>
-              <p
+          <section>
+            <p
                 className={`mb-3 px-1 text-xs uppercase tracking-[0.2em] ${
-                  isDark
+                isDark
                     ? "text-slate-400"
                     : "text-stone-400"
                 }`}
-              >
-                {group.title}
-              </p>
+            >
+                Your systems
+            </p>
 
-              <div className="space-y-3">
-                {group.systems.map(
-                  renderSystemCard
-                )}
-              </div>
+            <div className="space-y-3">
+                {defaultSystems.map(renderSystemCard)}
+            </div>
             </section>
-          ))}
 
           {customSystems.length > 0 && (
             <section>

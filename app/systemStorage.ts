@@ -14,9 +14,16 @@ export function loadAwakeSystems(): AwakeSystem[] {
       return [];
     }
 
-    const parsed = JSON.parse(saved);
+    const parsed: unknown = JSON.parse(saved);
 
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.map((system) => ({
+      ...system,
+      focusAreas: system.focusAreas ?? [],
+    })) as AwakeSystem[];
   } catch {
     return [];
   }

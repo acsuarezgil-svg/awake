@@ -5,17 +5,17 @@ import { useParams } from "next/navigation";
 import type {
   AwakeSystem,
   SystemUnderstanding,
-} from "../../systems";
+} from "../../../systems";
 import {
   loadAwakeSystems,
   saveAwakeSystems,
-} from "../../systemStorage";
+} from "../../../systemStorage";
 import {
   isDarkWheelTheme,
   isWheelTheme,
   wheelThemes,
   type WheelTheme,
-} from "../../theme";
+} from "../../../theme";
 
 type UnderstandingField = keyof SystemUnderstanding;
 

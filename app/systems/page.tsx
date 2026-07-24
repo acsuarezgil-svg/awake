@@ -16,39 +16,12 @@ import {
   wheelThemes,
   type WheelTheme,
 } from "../theme";
+import {
+  defaultSystems,
+  getSystemPreset,
+} from "../systemPresets";
 
-const defaultSystems = [
-  "Health",
-  "Home",
-  "Finances",
-  "Relationships",
-  "Learning",
-  "Work",
-  "Creativity",
-  "Personal Growth",
-];
 
-const systemIcons: Record<string, string> = {
-  Health: "❤️",
-  Home: "🏡",
-  Finances: "💰",
-  Relationships: "🤝",
-  Learning: "📚",
-  Work: "💼",
-  Creativity: "🎨",
-  "Personal Growth": "🌿",
-};
-
-const systemDescriptions: Record<string, string> = {
-  Health: "Care for the body that carries you.",
-  Home: "Create a place that gives you peace.",
-  Finances: "Build freedom one choice at a time.",
-  Relationships: "Invest in the people who matter.",
-  Learning: "Stay curious and keep growing.",
-  Work: "Build with purpose, not pressure.",
-  Creativity: "Make room to create.",
-  "Personal Growth": "Become who you're becoming.",
-};
 
 export default function SystemsPage() {
   const router = useRouter();
@@ -138,7 +111,10 @@ export default function SystemsPage() {
     const system = findSystem(title);
 
     if (!system) {
-      return "Ready to explore";
+      return (
+        getSystemPreset(title)?.description ??
+        "A system personal to your life."
+        );
     }
 
     const entryCount =
@@ -149,7 +125,7 @@ export default function SystemsPage() {
 
     if (entryCount === 0) {
       return (
-        systemDescriptions[title] ??
+        getSystemPreset(title)?.description ??
         "A system personal to your life."
     );
     }
@@ -160,6 +136,7 @@ export default function SystemsPage() {
   }
 
   function renderSystemCard(title: string) {
+    const preset = getSystemPreset(title);
     return (
       <button
         key={title}
@@ -173,15 +150,15 @@ export default function SystemsPage() {
       >
         <div>
           <h2
-            className={`text-lg font-semibold ${
-              isDark
-                ? "text-stone-100"
-                : "text-stone-800"
-            }`}
+            className={`flex items-center text-lg font-semibold ${
+                isDark
+                    ? "text-stone-100"
+                    : "text-stone-800"
+                }`}
           >
-            {systemIcons[title] && (
+            {preset?.icon && (
                 <span className="mr-2" aria-hidden="true">
-                    {systemIcons[title]}
+                    {preset.icon}
                 </span>
             )}
 

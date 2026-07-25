@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { createAwakeFocusArea } from "../../../systems";
+import { getSystemTemplates } from "../../../systemTemplates";
 import type {
-  AwakeSystem,
-  SystemUnderstanding,
+    AwakeFocusArea,
+    AwakeSystem,
+    SystemUnderstanding,
 } from "../../../systems";
 import {
   loadAwakeSystems,
@@ -16,6 +19,7 @@ import {
   wheelThemes,
   type WheelTheme,
 } from "../../../theme";
+import Link from "next/link";
 
 type UnderstandingField = keyof SystemUnderstanding;
 
@@ -65,12 +69,21 @@ const understandingPrompts: Array<{
 ];
 
 export default function SystemDetailPage() {
-  const params = useParams();
-  const systemId = params.id as string;
+  const params = useParams<{
+    id: string;
+    focusAreaId: string;
+    }>();
+
+    const systemId = params.id;
+    const focusAreaId = params.focusAreaId;
 
   const [systems, setSystems] = useState<AwakeSystem[]>([]);
   const [system, setSystem] =
     useState<AwakeSystem | null>(null);
+    const [focusArea, setFocusArea] =
+     useState<AwakeFocusArea | null>(null);
+
+
 
   const [understanding, setUnderstanding] =
     useState<SystemUnderstanding>({
@@ -94,26 +107,67 @@ export default function SystemDetailPage() {
         (item) => item.id === systemId
       ) ?? null;
 
-    const savedTheme = localStorage.getItem(
-      "awake-wheel-theme"
-    );
+    let workingSystems = storedSystems;
+    let workingSystem = selectedSystem;
 
-    setSystems(storedSystems);
-    setSystem(selectedSystem);
+    if (
+        workingSystem &&
+        !workingSystem.focusAreasInitialized
+        ) {
+        const templates = getSystemTemplates(
+            workingSystem.title
+        );
 
-    if (selectedSystem) {
-      setUnderstanding(
-        selectedSystem.understanding
-      );
-    }
+        workingSystem = {
+            ...workingSystem,
+            focusAreas: templates.map((title) =>
+            createAwakeFocusArea(title)
+            ),
+            focusAreasInitialized: true,
+        };
+
+        workingSystems = storedSystems.map((item) =>
+            item.id === workingSystem!.id
+            ? workingSystem!
+            : item
+        );
+
+        saveAwakeSystems(workingSystems);
+        }
+
+        const selectedFocusArea =
+        workingSystem?.focusAreas.find(
+            (item) => item.id === focusAreaId
+        ) ?? null;
+
+        const savedTheme = localStorage.getItem(
+        "awake-wheel-theme"
+        );
+
+        setSystems(workingSystems);
+        setSystem(workingSystem);
+        setFocusArea(selectedFocusArea);
+
+    if (selectedFocusArea) {
+        setUnderstanding(
+            selectedFocusArea.understanding
+        );
+        } else {
+        setUnderstanding({
+            currentApproach: "",
+            helps: "",
+            obstacles: "",
+            purpose: "",
+            meetsNeed: "",
+        });
+        }
 
     if (savedTheme && isWheelTheme(savedTheme)) {
-      setWheelTheme(savedTheme);
+    setWheelTheme(savedTheme);
     }
 
     setLoaded(true);
-  }, [systemId]);
-
+}, [systemId, focusAreaId]);
   const activeTheme = wheelThemes[wheelTheme];
   const isDark = isDarkWheelTheme(wheelTheme);
 
@@ -130,93 +184,105 @@ export default function SystemDetailPage() {
   }
 
   function saveUnderstanding() {
-    if (!system) return;
+    if (!system || !focusArea) return;
 
     const now = new Date().toISOString();
 
+    const updatedFocusArea: AwakeFocusArea = {
+        ...focusArea,
+        understanding,
+        updatedAt: now,
+    };
+
     const updatedSystem: AwakeSystem = {
-      ...system,
-      understanding,
-      updatedAt: now,
+        ...system,
+        focusAreas: system.focusAreas.map((item) =>
+        item.id === focusArea.id
+            ? updatedFocusArea
+            : item
+        ),
+        updatedAt: now,
     };
 
     const updatedSystems = systems.map((item) =>
-      item.id === system.id ? updatedSystem : item
+        item.id === system.id
+        ? updatedSystem
+        : item
     );
 
     saveAwakeSystems(updatedSystems);
 
     setSystems(updatedSystems);
     setSystem(updatedSystem);
+    setFocusArea(updatedFocusArea);
     setSaved(true);
 
     window.setTimeout(() => {
-      setSaved(false);
+        setSaved(false);
     }, 2200);
-  }
+    }
 
-  if (!loaded) {
+    if (!loaded) {
     return null;
-  }
+    }
 
-  if (!system) {
+    if (!system || !focusArea) {
     return (
-      <main
+        <main
         className={`min-h-screen px-5 py-8 ${
-          isDark
+            isDark
             ? "text-stone-100"
             : "text-stone-800"
         }`}
         style={{
-          background: activeTheme.pageBackground,
+            background: activeTheme.pageBackground,
         }}
-      >
+        >
         <section className="mx-auto w-full max-w-md">
-          <a
+            <Link
             href="/systems"
             className={`text-sm ${
-              isDark
+                isDark
                 ? "text-slate-400"
                 : "text-stone-500"
             }`}
-          >
+            >
             ← Systems
-          </a>
+            </Link>
 
-          <h1 className="mt-8 text-3xl font-semibold">
-            System not found
-          </h1>
+            <h1 className="mt-8 text-3xl font-semibold">
+            Focus area not found
+            </h1>
         </section>
-      </main>
+        </main>
     );
-  }
-
+    }
   const activitySections = [
     {
-      title: "Observations",
-      count: system.observations.length,
-      description:
-        "Moments, patterns, and connections you notice.",
+        title: "Observations",
+        count: system.observations.length,
+        description:
+        "Moments, patterns, and connections you notice across this system.",
     },
     {
-      title: "Experiments",
-      count: system.experiments.length,
-      description:
-        "Small changes you are testing in real life.",
+        title: "Experiments",
+        count: focusArea.experiments.length,
+        description:
+        "Small changes you are testing in this focus area.",
     },
     {
-      title: "Lessons",
-      count: system.lessons.length,
-      description:
+        title: "Lessons",
+        count: focusArea.lessons.length,
+        description:
         "Understanding you want to carry forward.",
     },
     {
-      title: "Gratitude",
-      count: system.gratitude.length,
-      description:
-        "What has supported you in this part of life.",
+        title: "Gratitude",
+        count: focusArea.gratitude.length,
+        description:
+        "What has supported you in this focus area.",
     },
-  ];
+    ];
 
   return (
     <main
@@ -230,16 +296,16 @@ export default function SystemDetailPage() {
       }}
     >
       <section className="mx-auto w-full max-w-md">
-        <a
-          href="/systems"
-          className={`text-sm transition ${
-            isDark
-              ? "text-slate-400 hover:text-stone-100"
-              : "text-stone-500 hover:text-stone-800"
-          }`}
-        >
-          ← Systems
-        </a>
+        <Link
+            href={`/systems/${system.id}`}
+            className={`text-sm ${
+                isDark
+                ? "text-slate-400"
+                : "text-stone-500"
+            }`}
+            >
+            ← {system.title}
+            </Link>
 
         <header className="mb-9 mt-7">
           <p
@@ -249,7 +315,7 @@ export default function SystemDetailPage() {
                 : "text-stone-400"
             }`}
           >
-            Understanding
+            Focus Area
           </p>
 
           <h1
@@ -259,7 +325,7 @@ export default function SystemDetailPage() {
                 : "text-stone-900"
             }`}
           >
-            {system.title}
+            {focusArea.title}
           </h1>
 
           <p

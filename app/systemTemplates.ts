@@ -9,16 +9,14 @@ export const systemTemplates: Record<string, string[]> = {
 
   Home: [
     "Cleaning",
-    "Organization",
     "Maintenance",
-    "Garden",
-    "Comfort",
+    "Organization",
+    "Projects",
   ],
 
   Finances: [
     "Budget",
-    "Emergency Fund",
-    "Bills",
+    "Savings",
     "Investing",
     "Giving",
   ],
@@ -28,39 +26,34 @@ export const systemTemplates: Record<string, string[]> = {
     "Friends",
     "Partner",
     "Communication",
-    "Boundaries",
   ],
 
   Learning: [
     "Reading",
     "Courses",
-    "Skills",
     "Practice",
-    "Curiosity",
+    "Projects",
   ],
 
   Work: [
     "Planning",
-    "Focus",
     "Projects",
-    "Communication",
-    "Career",
+    "Meetings",
+    "Growth",
   ],
 
   Creativity: [
     "Ideas",
     "Writing",
-    "Art",
     "Music",
-    "Building",
+    "Art",
   ],
 
   "Personal Growth": [
-    "Reflection",
-    "Confidence",
     "Mindset",
-    "Values",
-    "Habits",
+    "Confidence",
+    "Reflection",
+    "Purpose",
   ],
 };
 

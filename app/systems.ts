@@ -51,6 +51,18 @@ export type SystemUnderstanding = {
   meetsNeed: string;
 };
 
+export type AwakeFocusArea = {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+
+  understanding: SystemUnderstanding;
+  experiments: SystemExperiment[];
+  lessons: SystemLesson[];
+  gratitude: SystemGratitude[];
+};
+
 export type AwakeSystem = {
   id: string;
   title: string;
@@ -64,6 +76,9 @@ export type AwakeSystem = {
   experiments: SystemExperiment[];
   lessons: SystemLesson[];
   gratitude: SystemGratitude[];
+
+  focusAreas: AwakeFocusArea[];
+  focusAreasInitialized: boolean;
 };
 
 export const defaultSystemTitles = [
@@ -98,6 +113,34 @@ export function createAwakeSystem(title: string): AwakeSystem {
     },
 
     observations: [],
+    experiments: [],
+    lessons: [],
+    gratitude: [],
+
+    focusAreas: [],
+    focusAreasInitialized: false,
+  };
+}
+
+export function createAwakeFocusArea(
+  title: string
+): AwakeFocusArea {
+  const now = new Date().toISOString();
+
+  return {
+    id: crypto.randomUUID(),
+    title: title.trim(),
+    createdAt: now,
+    updatedAt: now,
+
+    understanding: {
+      currentApproach: "",
+      helps: "",
+      obstacles: "",
+      purpose: "",
+      meetsNeed: "",
+    },
+
     experiments: [],
     lessons: [],
     gratitude: [],

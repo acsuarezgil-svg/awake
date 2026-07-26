@@ -11,6 +11,7 @@ import {
   generateSystemOrbPalette,
   type AwakeAppearance,
   type AwakeHarmony,
+  type AwakeOrbMaterial,
 } from "../colorPalette";
 
 type AwakeColorPickerProps = {
@@ -22,6 +23,8 @@ type AwakeColorPickerProps = {
   onAppearanceChange?: (
     appearance: AwakeAppearance,
   ) => void;
+  orbMaterial?: AwakeOrbMaterial;
+  onOrbMaterialChange?: (material: AwakeOrbMaterial) => void;
   showPreview?: boolean;
 };
 
@@ -41,6 +44,8 @@ export default function AwakeColorPicker({
   onHueChange,
   onHarmonyChange,
   onAppearanceChange,
+  orbMaterial = "glass",
+  onOrbMaterialChange,
   showPreview = true,
 }: AwakeColorPickerProps) {
   const wheelRef = useRef<HTMLDivElement | null>(null);
@@ -198,6 +203,54 @@ export default function AwakeColorPicker({
         </div>
       )}
 
+      {onOrbMaterialChange && (
+        <div className="mt-5">
+          <p
+            className="text-xs font-medium uppercase tracking-[0.16em]"
+            style={{ color: palette.secondaryText }}
+          >
+            Orb material
+          </p>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {(
+              [
+                "glass",
+                "pearl",
+                "mist",
+                "frost",
+                "glow",
+                "aurora",
+                "matte",
+              ] as const
+            ).map((material) => (
+              <button
+                key={material}
+                type="button"
+                onClick={() => onOrbMaterialChange(material)}
+                className="min-h-11 rounded-2xl border px-2 text-xs capitalize"
+                style={{
+                  borderColor:
+                    orbMaterial === material
+                      ? palette.primaryAccent
+                      : palette.border,
+                  background:
+                    orbMaterial === material
+                      ? palette.primaryAccent
+                      : palette.mutedSurface,
+                  color:
+                    orbMaterial === material
+                      ? palette.buttonText
+                      : palette.secondaryText,
+                }}
+                aria-pressed={orbMaterial === material}
+              >
+                {material}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {showPreview && (
         <section
           className="mt-5 overflow-hidden rounded-3xl border p-5"
@@ -230,7 +283,7 @@ export default function AwakeColorPicker({
 
           <div className="mt-6 flex items-end justify-center gap-8">
             <span
-              className="h-20 w-20 rounded-full"
+              className="awake-orb h-20 w-20 rounded-full"
               style={{
                 background: `radial-gradient(circle at 30% 24%, ${orb.highlight}, transparent 32%), linear-gradient(145deg, ${orb.highlight}, ${orb.main} 58%, ${orb.quiet})`,
                 boxShadow: `0 0 30px ${orb.glow}`,
@@ -238,7 +291,7 @@ export default function AwakeColorPicker({
               aria-label="Active system orb preview"
             />
             <span
-              className="h-14 w-14 rounded-full opacity-65"
+              className="awake-orb h-14 w-14 rounded-full opacity-65"
               style={{
                 background: `radial-gradient(circle at 30% 24%, ${orb.highlight}, transparent 34%), linear-gradient(145deg, ${orb.inactiveAmber}, ${orb.quiet})`,
               }}

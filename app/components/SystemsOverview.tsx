@@ -148,6 +148,18 @@ export default function SystemsOverview() {
 
   if (!loaded) return null;
 
+  if (practiceOpen) {
+    return (
+      <PracticeSpace
+        primaryColor={palette.primaryAccent}
+        secondaryColor={palette.companion}
+        pageBackground={palette.pageBackground}
+        isDark={colorPreferences.appearance === "dark"}
+        onFinish={() => setPracticeOpen(false)}
+      />
+    );
+  }
+
   return (
     <main
       className="awake-page min-h-screen px-4 pb-28 pt-8 transition-colors sm:px-6"
@@ -235,6 +247,13 @@ export default function SystemsOverview() {
               }
               onAppearanceChange={(appearance) =>
                 updateColorPreferences({ ...colorPreferences, appearance })
+              }
+              orbMaterial={colorPreferences.orbMaterial}
+              onOrbMaterialChange={(orbMaterial) =>
+                updateColorPreferences({
+                  ...colorPreferences,
+                  orbMaterial,
+                })
               }
             />
           </section>
@@ -465,16 +484,6 @@ export default function SystemsOverview() {
           </Link>
         </div>
       </nav>
-
-      {practiceOpen && (
-        <PracticeSpace
-          primaryColor={palette.primaryAccent}
-          secondaryColor={palette.companion}
-          pageBackground={palette.pageBackground}
-          isDark={colorPreferences.appearance === "dark"}
-          onFinish={() => setPracticeOpen(false)}
-        />
-      )}
 
       <style jsx>{`
         .system-orb {

@@ -124,6 +124,12 @@ Orbs represent living systems, not completion.
 Every interactive orb is a real link or button with a complete accessible
 name and a visible text label.
 
+Orb material is an atmosphere-tinted rendering choice, never a separate
+palette. Glass is the calm default. Pearl softens reflection, Mist reduces
+contrast, Frost adds a pale edge, Glow strengthens aura, Aurora introduces a
+subtle companion reflection, and Matte removes most shine. Materials must not
+change lifecycle meaning.
+
 ## Surfaces and components
 
 - Pages use `awake-page`.

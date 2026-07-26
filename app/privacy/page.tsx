@@ -59,20 +59,14 @@ export default function PrivacyPage() {
   const activeTheme = wheelThemes[wheelTheme];
   const isDark = isDarkWheelTheme(wheelTheme);
 
-  const cardClass = `rounded-3xl border px-5 py-6 transition-colors ${
-    isDark
-      ? "border-white/10 bg-slate-800/70"
-      : "border-stone-200 bg-white/80"
-  }`;
+  const cardClass = "awake-card";
 
-  const bodyTextClass = isDark
-    ? "text-slate-300"
-    : "text-stone-500";
+  const bodyTextClass = "awake-supporting";
 
   if (journeyCleared) {
     return (
       <main
-        className={`min-h-screen px-5 py-8 transition-[background] duration-500 ${
+        className={`awake-page min-h-screen px-5 py-8 transition-[background] duration-500 ${
           isDark ? "text-stone-100" : "text-stone-800"
         }`}
         style={{ background: activeTheme.pageBackground }}
@@ -127,7 +121,7 @@ export default function PrivacyPage() {
 
   return (
     <main
-      className={`min-h-screen px-5 py-8 transition-[background] duration-500 ${
+      className={`awake-page min-h-screen px-5 py-8 transition-[background] duration-500 ${
         isDark ? "text-stone-100" : "text-stone-800"
       }`}
       style={{ background: activeTheme.pageBackground }}

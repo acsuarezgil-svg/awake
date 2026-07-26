@@ -184,6 +184,18 @@ export default function FoundationPage() {
       ),
   );
 
+  if (practiceOpen) {
+    return (
+      <PracticeSpace
+        primaryColor={centerOrb.main}
+        secondaryColor={centerOrb.glow}
+        pageBackground={palette.pageBackground}
+        isDark={preferences.appearance === "dark"}
+        onFinish={() => setPracticeOpen(false)}
+      />
+    );
+  }
+
   return (
     <main
       className="awake-page min-h-screen px-5 py-8 transition-colors"
@@ -512,16 +524,6 @@ export default function FoundationPage() {
           )}
         </section>
       </div>
-
-      {practiceOpen && (
-        <PracticeSpace
-          primaryColor={centerOrb.main}
-          secondaryColor={centerOrb.glow}
-          pageBackground={palette.pageBackground}
-          isDark={preferences.appearance === "dark"}
-          onFinish={() => setPracticeOpen(false)}
-        />
-      )}
 
       <style jsx>{`
         .foundation-center-orb {

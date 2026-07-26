@@ -547,7 +547,7 @@ export default function FocusAreaActions({
         <div className="mt-7">
           <div className="space-y-9">
             <EditableActionGroup
-              title="Maintenance"
+              title="Plan"
               description="Small actions that help keep this system supported."
               type="maintenance"
               actions={draftActions.filter(
@@ -619,7 +619,7 @@ export default function FocusAreaActions({
       ) : (
         <div className="mt-7 space-y-9">
           <ActionGroup
-            title="Maintenance"
+            title="Plan"
             description="Small actions that help keep this system supported."
             actions={maintenanceActions}
             events={events}

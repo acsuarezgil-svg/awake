@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BreathPractice from "./BreathPractice";
 import RhythmPractice from "./RhythmPractice";
 
@@ -22,6 +22,17 @@ export default function PracticeSpace({
   isDark,
 }: PracticeSpaceProps) {
   const [mode, setMode] = useState<PracticeMode>("menu");
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setVisible(true));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  function leavePractice() {
+    setVisible(false);
+    window.setTimeout(onFinish, 650);
+  }
 
   if (mode === "breath") {
     return (
@@ -30,7 +41,7 @@ export default function PracticeSpace({
         secondaryColor={secondaryColor}
         pageBackground={pageBackground}
         onBack={() => setMode("menu")}
-        onFinish={onFinish}
+        onFinish={leavePractice}
       />
     );
   }
@@ -51,7 +62,9 @@ export default function PracticeSpace({
 
   return (
     <div
-      className="fixed inset-0 z-[200] min-h-screen overflow-y-auto"
+      className={`fixed inset-0 z-[200] min-h-screen overflow-y-auto transition-opacity duration-700 ${
+        visible ? "opacity-100" : "opacity-0"
+      }`}
       style={{
         background: `
           radial-gradient(
@@ -161,7 +174,7 @@ export default function PracticeSpace({
 
         <button
           type="button"
-          onClick={onFinish}
+          onClick={leavePractice}
           className={`mx-auto mt-auto rounded-full border px-7 py-3 text-sm backdrop-blur-sm transition ${
             isDark
               ? "border-white/25 bg-white/10 text-white/80 hover:bg-white/15"

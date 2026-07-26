@@ -1,268 +1,97 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import {
-  isDarkWheelTheme,
-  isWheelTheme,
-  wheelThemes,
-  type WheelTheme,
-} from "../theme";
 
-import { translations, type Language } from "../translations";
-
+const philosophy = [
+  {
+    title: "Observe",
+    text: "Notice what is supporting you and what is asking to change.",
+  },
+  {
+    title: "Build",
+    text: "Shape a simple system around the life you are actually living.",
+  },
+  {
+    title: "Experiment",
+    text: "Try it gently. A system is a working theory, not a permanent rule.",
+  },
+  {
+    title: "Review",
+    text: "Ask whether it supported your life, then keep, change, or pause it.",
+  },
+];
 
 export default function AboutPage() {
-  const [wheelTheme, setWheelTheme] =
-    useState<WheelTheme>("roseSage");
-
-  const [language, setLanguage] = useState<Language>("en");
-  const t = translations[language];
-
-  useEffect(() => {
-    const savedWheelTheme = localStorage.getItem(
-      "awake-wheel-theme"
-    );
-    
-    if (savedWheelTheme && isWheelTheme(savedWheelTheme)) {
-      setWheelTheme(savedWheelTheme);
-    }
-
-    const savedLanguage = localStorage.getItem(
-      "awake-language"
-    ) as Language | null;
-
-    if (savedLanguage) {
-      setLanguage(savedLanguage);
-  }
-  }, []);
-
-  const activeTheme = wheelThemes[wheelTheme];
-  const isDark = isDarkWheelTheme(wheelTheme);
-  
-
-  const cardClass = `rounded-3xl border px-6 py-7 transition-colors ${
-    isDark
-      ? "border-white/10 bg-slate-800/70"
-      : "border-stone-200 bg-white/80"
-  }`;
-
-  const bodyTextClass = isDark
-    ? "text-slate-300"
-    : "text-stone-500";
-
   return (
-    <main
-      className={`min-h-screen px-5 py-8 transition-[background] duration-500 ${
-        isDark ? "text-stone-100" : "text-stone-800"
-      }`}
-      style={{ background: activeTheme.pageBackground }}
-    >
+    <main className="awake-page min-h-screen px-5 py-8">
       <article className="mx-auto max-w-2xl">
         <Link
           href="/"
-          className={`text-sm transition ${
-            isDark
-              ? "text-slate-400 hover:text-stone-100"
-              : "text-stone-400 hover:text-stone-700"
-          }`}
+          className="awake-button awake-button-quiet -ml-4"
         >
-          ← Awake
+          ← Return to Foundations
         </Link>
 
-        <header className="mt-12 text-center">
-          <p
-            className={`text-xs lowercase tracking-[0.4em] ${
-              isDark ? "text-slate-400" : "text-stone-400"
-            }`}
-          >
-            {t.aboutLabel}
-          </p>
-
-          <h1
-            className={`mt-4 text-3xl font-light ${
-              isDark ? "text-stone-100" : "text-stone-800"
-            }`}
-          >
-            {t.aboutTitle}
-          </h1>
-
-          <p
-            className={`mx-auto mt-5 max-w-lg text-sm leading-7 ${bodyTextClass}`}
-          >
-            {t.aboutIntro}
+        <header className="mx-auto mt-10 max-w-xl text-center">
+          <p className="awake-eyebrow">About Awake</p>
+          <h1 className="mt-4">Systems that can change with you</h1>
+          <p className="awake-supporting mt-5 text-base">
+            Awake is a calm place to build systems that support your life.
+            It helps you observe, experiment, review, and keep what works.
           </p>
         </header>
 
-        <section className="mt-12 grid gap-4 sm:grid-cols-3">
-          <div className={cardClass}>
-            <p className="text-xl" aria-hidden="true">
-              ◉
+        <section className="mt-12 grid gap-4 sm:grid-cols-2">
+          {philosophy.map((item) => (
+            <div key={item.title} className="awake-card">
+              <h2 className="text-lg">{item.title}</h2>
+              <p className="awake-supporting mt-3">{item.text}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="awake-surface mt-8">
+          <p className="awake-eyebrow">The philosophy of Awake</p>
+          <div className="mt-5 space-y-3 text-sm">
+            <p>Keep what works. Change what doesn’t.</p>
+            <p>Life changes. Your systems can too.</p>
+            <p>
+              There are no streaks, scores, or perfect routines to protect.
+              Reflection matters more than performance.
             </p>
-
-            <h2
-              className={`mt-3 text-lg font-light ${
-                isDark ? "text-stone-100" : "text-stone-700"
-              }`}
-            >
-              {t.aboutObserveTitle}
-            </h2>
-
-            <p
-              className={`mt-3 text-sm leading-6 ${bodyTextClass}`}
-            >
-              {t.aboutObserveText}
-            </p>
-          </div>
-
-          <div className={cardClass}>
-            <p className="text-xl" aria-hidden="true">
-              ◇
-            </p>
-
-            <h2
-              className={`mt-3 text-lg font-light ${
-                isDark ? "text-stone-100" : "text-stone-700"
-              }`}
-            >
-              {t.aboutChooseTitle}
-            </h2>
-
-            <p
-              className={`mt-3 text-sm leading-6 ${bodyTextClass}`}
-            >
-              {t.aboutChooseText}
-            </p>
-          </div>
-
-          <div className={cardClass}>
-            <p className="text-xl" aria-hidden="true">
-              ✦
-            </p>
-
-            <h2
-              className={`mt-3 text-lg font-light ${
-                isDark ? "text-stone-100" : "text-stone-700"
-              }`}
-            >
-              {t.aboutGrowTitle}
-            </h2>
-
-            <p
-              className={`mt-3 text-sm leading-6 ${bodyTextClass}`}
-            >
-              {t.aboutGrowText}
+            <p>
+              A paused or unfinished system has not failed. It has given you
+              something to notice.
             </p>
           </div>
         </section>
 
-        <section className={`mt-8 ${cardClass}`}>
-          <h2
-            className={`text-xl font-light ${
-              isDark ? "text-stone-100" : "text-stone-700"
-            }`}
-          >
-            {t.whatAwakeIs}
-          </h2>
-
-          <div
-            className={`mt-5 space-y-3 text-sm leading-6 ${bodyTextClass}`}
-          >
-            <p>{t.awakeIsMirror}</p>
-            <p>{t.awakeIsCompass}</p>
-            <p>{t.awakeIsReflection}</p>
-            <p>{t.awakeIsChoice}</p>
-          </div>
-        </section>
-
-        <section className={`mt-4 ${cardClass}`}>
-          <h2
-            className={`text-xl font-light ${
-              isDark ? "text-stone-100" : "text-stone-700"
-            }`}
-          >
-            {t.whatAwakeIsNot}
-          </h2>
-
-          <div
-            className={`mt-5 space-y-3 text-sm leading-6 ${bodyTextClass}`}
-          >
-            <p>{t.noStreaks}</p>
-            <p>{t.noShame}</p>
-            <p>{t.noPressure}</p>
-            <p>{t.noJudgment}</p>
-          </div>
-        </section>
-
-        <section
-          className={`mt-8 rounded-3xl border px-6 py-7 ${
-            isDark
-              ? "border-white/10 bg-slate-800/70"
-              : "border-stone-200 bg-stone-50/70"
-          }`}
-        >
-          <h2
-            className={`text-xl font-light ${
-              isDark ? "text-stone-100" : "text-stone-700"
-            }`}
-          >
-            {t.thoughtsBelongToYou}
-          </h2>
-
-          <p
-            className={`mt-4 text-sm leading-7 ${bodyTextClass}`}
-          >
-            {t.aboutPrivacyText}
+        <section className="awake-card mt-6">
+          <h2>Your thoughts belong to you.</h2>
+          <p className="awake-supporting mt-4">
+            Awake keeps its core experience local to your device. You remain
+            in control of what you save and when you remove it.
           </p>
-
           <Link
             href="/privacy"
-            className={`mt-5 inline-flex rounded-full border px-4 py-2 text-sm transition ${
-              isDark
-                ? "border-white/15 text-slate-300 hover:bg-white/5 hover:text-white"
-                : "border-stone-200 text-stone-500 hover:border-stone-300 hover:text-stone-700"
-            }`}
+            className="awake-button awake-button-secondary mt-5"
           >
-            {t.privacyPromise}
+            Read the privacy promise
           </Link>
         </section>
 
-        <blockquote
-          className={`mx-auto mt-12 max-w-lg border-l-2 pl-5 text-lg font-light leading-8 ${
-            isDark
-              ? "border-slate-600 text-slate-200"
-              : "border-stone-200 text-stone-600"
-          }`}
-        >
-          {t.aboutQuote}
+        <blockquote className="mx-auto mt-10 max-w-lg border-l-2 pl-5 text-lg leading-8">
+          Observe. Build. Experiment. Review. Keep what works. Change what
+          doesn’t.
         </blockquote>
 
-        <footer className="mt-14 text-center">
-          <p
-            className={`text-xs uppercase tracking-[0.24em] ${
-              isDark ? "text-slate-400" : "text-stone-400"
-            }`}
-          >
-            {t.awakeVersion}
+        <footer className="mt-12 text-center">
+          <p className="awake-supporting">
+            Life changes. Your systems can too.
           </p>
-
-          <p
-            className={`mt-3 text-xs ${
-              isDark ? "text-slate-500" : "text-stone-300"
-            }`}
-          >
-            {t.madeWithCuriosity}
-          </p>
-
           <Link
             href="/"
-            className={`mt-8 inline-flex rounded-full border px-5 py-2.5 text-sm transition ${
-              isDark
-                ? "border-white/15 text-slate-300 hover:bg-white/5 hover:text-white"
-                : "border-stone-200 text-stone-500 hover:border-stone-300 hover:text-stone-700"
-            }`}
+            className="awake-button awake-button-primary mt-6"
           >
-            {t.returnToWheel}
+            Return to Foundations
           </Link>
         </footer>
       </article>

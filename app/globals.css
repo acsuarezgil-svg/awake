@@ -295,6 +295,110 @@ select {
     var(--awake-ease-breathe) infinite;
 }
 
+:where(
+  .awake-orb,
+  .system-orb,
+  .foundation-system-orb,
+  .awake-center-orb,
+  .foundation-center-orb
+) {
+  transition:
+    filter var(--awake-motion-flow) var(--awake-ease-settle),
+    opacity var(--awake-motion-flow) var(--awake-ease-settle),
+    box-shadow var(--awake-motion-flow) var(--awake-ease-settle);
+}
+
+[data-awake-orb-material="pearl"]
+  :where(
+    .awake-orb,
+    .system-orb,
+    .foundation-system-orb,
+    .awake-center-orb,
+    .foundation-center-orb
+  ) {
+  filter: saturate(0.78) brightness(1.08);
+  box-shadow:
+    inset -8px -10px 20px
+      color-mix(in srgb, var(--awake-companion) 20%, transparent),
+    inset 8px 9px 18px rgb(255 255 255 / 62%),
+    0 12px 30px color-mix(in srgb, var(--awake-orb-glow) 12%, transparent);
+}
+
+[data-awake-orb-material="mist"]
+  :where(
+    .awake-orb,
+    .system-orb,
+    .foundation-system-orb,
+    .awake-center-orb,
+    .foundation-center-orb
+  ) {
+  filter: saturate(0.64) contrast(0.92);
+  opacity: 0.78;
+}
+
+[data-awake-orb-material="frost"]
+  :where(
+    .awake-orb,
+    .system-orb,
+    .foundation-system-orb,
+    .awake-center-orb,
+    .foundation-center-orb
+  ) {
+  filter: saturate(0.72) brightness(1.12);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 68%),
+    inset -10px -12px 20px
+      color-mix(in srgb, var(--awake-accent) 16%, transparent),
+    0 0 28px color-mix(in srgb, var(--awake-orb-glow) 16%, transparent);
+}
+
+[data-awake-orb-material="glow"]
+  :where(
+    .awake-orb,
+    .system-orb,
+    .foundation-system-orb,
+    .awake-center-orb,
+    .foundation-center-orb
+  ) {
+  filter: saturate(1.02) brightness(1.06);
+  box-shadow:
+    inset 0 0 22px rgb(255 255 255 / 28%),
+    0 0 22px color-mix(in srgb, var(--awake-accent) 28%, transparent),
+    0 0 52px color-mix(in srgb, var(--awake-orb-glow) 32%, transparent);
+}
+
+[data-awake-orb-material="aurora"]
+  :where(
+    .awake-orb,
+    .system-orb,
+    .foundation-system-orb,
+    .awake-center-orb,
+    .foundation-center-orb
+  ) {
+  filter: saturate(1.08);
+  box-shadow:
+    inset -10px -12px 22px
+      color-mix(in srgb, var(--awake-companion) 28%, transparent),
+    inset 8px 8px 18px
+      color-mix(in srgb, var(--awake-orb-highlight) 58%, transparent),
+    0 0 42px color-mix(in srgb, var(--awake-orb-glow) 28%, transparent);
+}
+
+[data-awake-orb-material="matte"]
+  :where(
+    .awake-orb,
+    .system-orb,
+    .foundation-system-orb,
+    .awake-center-orb,
+    .foundation-center-orb
+  ) {
+  filter: saturate(0.72) contrast(0.96);
+  box-shadow:
+    inset -5px -7px 14px
+      color-mix(in srgb, var(--awake-text) 10%, transparent),
+    0 8px 18px rgb(20 28 23 / 8%);
+}
+
 @keyframes awake-breathe {
   0%,
   100% {

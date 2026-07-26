@@ -4,11 +4,20 @@ export type AwakeHarmony =
   | "closeHarmony";
 
 export type AwakeAppearance = "light" | "dark";
+export type AwakeOrbMaterial =
+  | "glass"
+  | "pearl"
+  | "mist"
+  | "frost"
+  | "glow"
+  | "aurora"
+  | "matte";
 
 export type AwakeColorPreferences = {
   anchorHue: number;
   harmony: AwakeHarmony;
   appearance: AwakeAppearance;
+  orbMaterial: AwakeOrbMaterial;
 };
 
 export type AwakePalette = {
@@ -45,6 +54,7 @@ export const defaultColorPreferences: AwakeColorPreferences = {
   anchorHue: 154,
   harmony: "softContrast",
   appearance: "light",
+  orbMaterial: "glass",
 };
 
 const legacyThemePreferences: Record<
@@ -254,6 +264,15 @@ export function loadColorPreferences(): AwakeColorPreferences {
             : defaultColorPreferences.harmony,
         appearance:
           parsed.appearance === "dark" ? "dark" : "light",
+        orbMaterial:
+          parsed.orbMaterial === "pearl" ||
+          parsed.orbMaterial === "mist" ||
+          parsed.orbMaterial === "frost" ||
+          parsed.orbMaterial === "glow" ||
+          parsed.orbMaterial === "aurora" ||
+          parsed.orbMaterial === "matte"
+            ? parsed.orbMaterial
+            : "glass",
       };
     }
 

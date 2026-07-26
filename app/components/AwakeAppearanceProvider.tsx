@@ -20,6 +20,7 @@ function applyAppearance() {
   const root = document.documentElement;
 
   root.dataset.awakeAppearance = preferences.appearance;
+  root.dataset.awakeOrbMaterial = preferences.orbMaterial;
   root.style.colorScheme = preferences.appearance;
   root.style.setProperty(
     "--awake-page-background",

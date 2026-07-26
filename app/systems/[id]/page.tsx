@@ -149,7 +149,7 @@ export default function FoundationPage() {
 
   if (!foundation) {
     return (
-      <main className="min-h-screen px-5 py-8">
+      <main className="awake-page min-h-screen px-5 py-8">
         <div className="mx-auto max-w-xl">
           <Link href="/" className="text-sm text-stone-500">
             ← Foundations
@@ -186,7 +186,7 @@ export default function FoundationPage() {
 
   return (
     <main
-      className="min-h-screen px-5 py-8 transition-colors"
+      className="awake-page min-h-screen px-5 py-8 transition-colors"
       style={{
         color: palette.text,
         background: `radial-gradient(circle at 50% 12%, ${palette.pageTint}, transparent 54%), ${palette.pageBackground}`,
@@ -232,7 +232,7 @@ export default function FoundationPage() {
               key={option}
               type="button"
               onClick={() => selectView(option)}
-              className="min-h-9 rounded-full px-4 text-sm capitalize"
+              className="awake-chip min-h-9 rounded-full px-4 text-sm capitalize"
               style={{
                 background:
                   view === option
@@ -287,7 +287,7 @@ export default function FoundationPage() {
 
         {foundation.focusAreas.length === 0 ? (
           <p
-            className="mx-auto max-w-sm rounded-3xl border border-dashed p-6 text-center text-sm"
+            className="awake-empty-state mx-auto max-w-sm rounded-3xl border border-dashed p-6 text-center text-sm"
             style={{
               borderColor: palette.border,
               background: palette.mutedSurface,
@@ -386,7 +386,7 @@ export default function FoundationPage() {
                   aria-label={`Open ${focusArea.title}. ${status.label}${
                     status.isMine ? ". This is my system" : ""
                   }`}
-                  className="flex min-h-20 items-center justify-between rounded-3xl border px-5 py-4 shadow-sm transition hover:-translate-y-0.5"
+                  className="awake-card flex min-h-20 items-center justify-between rounded-3xl border px-5 py-4 shadow-sm transition hover:-translate-y-0.5"
                   style={{
                     borderColor: palette.border,
                     background: palette.mutedSurface,

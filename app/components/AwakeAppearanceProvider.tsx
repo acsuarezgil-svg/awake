@@ -69,6 +69,18 @@ function applyAppearance() {
     "--awake-inactive",
     palette.inactiveAmber,
   );
+  root.style.setProperty(
+    "--awake-danger",
+    preferences.appearance === "dark"
+      ? "hsl(8 48% 70%)"
+      : "hsl(8 42% 42%)",
+  );
+  root.style.setProperty(
+    "--awake-danger-soft",
+    preferences.appearance === "dark"
+      ? "hsl(8 24% 20%)"
+      : "hsl(8 42% 95%)",
+  );
 }
 
 export default function AwakeAppearanceProvider({
@@ -90,5 +102,5 @@ export default function AwakeAppearanceProvider({
     };
   }, []);
 
-  return children;
+  return <div className="awake-app">{children}</div>;
 }

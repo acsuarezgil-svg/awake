@@ -150,7 +150,7 @@ export default function SystemsOverview() {
 
   return (
     <main
-      className="min-h-screen px-4 pb-28 pt-8 transition-colors sm:px-6"
+      className="awake-page min-h-screen px-4 pb-28 pt-8 transition-colors sm:px-6"
       style={{
         color: palette.text,
         background: `radial-gradient(circle at 50% 18%, ${palette.pageTint} 0%, ${palette.pageBackground} 48%, ${palette.mutedSurface} 100%)`,
@@ -246,7 +246,7 @@ export default function SystemsOverview() {
               key={option.id}
               type="button"
               onClick={() => setView(option.id)}
-              className="min-h-10 shrink-0 rounded-full px-4 text-sm transition"
+              className="awake-chip min-h-10 shrink-0 rounded-full px-4 text-sm transition"
               style={{
                 background:
                   view === option.id
@@ -426,7 +426,7 @@ export default function SystemsOverview() {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 border-t px-5 py-3 backdrop-blur"
+        className="awake-navigation fixed inset-x-0 bottom-0 border-t px-5 py-3 backdrop-blur"
         style={{
           borderColor: palette.border,
           background: palette.navigation,
@@ -600,7 +600,7 @@ function EmptyFoundation({
 }) {
   return (
     <div
-      className="mt-6 rounded-3xl border p-6 text-center"
+      className="awake-empty-state mt-6 rounded-3xl border p-6 text-center"
       style={{
         borderColor: palette.border,
         background: palette.mutedSurface,

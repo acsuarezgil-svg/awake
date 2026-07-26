@@ -293,7 +293,7 @@ export default function SystemLifecyclePage() {
 
   return (
     <main
-      className="min-h-screen px-5 py-8 transition-colors"
+      className="awake-page min-h-screen px-5 py-8 transition-colors"
       style={{
         background: palette.pageBackground,
         color: palette.text,

@@ -25,6 +25,8 @@
   --awake-orb-highlight: hsl(154 48% 91%);
   --awake-orb-glow: hsl(304 38% 55%);
   --awake-inactive: hsl(43 38% 67%);
+  --awake-danger: hsl(8 42% 42%);
+  --awake-danger-soft: hsl(8 42% 95%);
 
   --awake-space-1: 0.25rem;
   --awake-space-2: 0.5rem;
@@ -35,11 +37,24 @@
   --awake-space-8: 2rem;
   --awake-space-10: 2.5rem;
   --awake-space-12: 3rem;
+  --awake-space-16: 4rem;
   --awake-radius-control: 0.875rem;
   --awake-radius-card: 1.5rem;
   --awake-radius-dialog: 2rem;
   --awake-shadow-card: 0 8px 24px rgb(28 35 31 / 8%);
   --awake-shadow-raised: 0 18px 48px rgb(20 28 23 / 14%);
+  --awake-motion-settle: 180ms;
+  --awake-motion-flow: 320ms;
+  --awake-motion-breathe: 7.5s;
+  --awake-ease-settle: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --awake-ease-breathe: ease-in-out;
+  --awake-type-display: clamp(2.25rem, 7vw, 3.5rem);
+  --awake-type-page-title: clamp(1.875rem, 5vw, 2.5rem);
+  --awake-type-section-title: 1.375rem;
+  --awake-type-card-title: 1rem;
+  --awake-type-body: 1rem;
+  --awake-type-supporting: 0.875rem;
+  --awake-type-label: 0.75rem;
 }
 
 @theme inline {
@@ -71,9 +86,18 @@ body {
     color 300ms ease;
 }
 
+.awake-app,
 main {
+  min-height: 100vh;
+}
+
+main,
+.awake-page {
   background: var(--awake-page-background) !important;
   color: var(--awake-text) !important;
+  transition:
+    background var(--awake-motion-flow) var(--awake-ease-settle),
+    color var(--awake-motion-flow) var(--awake-ease-settle);
 }
 
 h1,
@@ -87,7 +111,16 @@ h4 {
 }
 
 h1 {
+  font-size: var(--awake-type-page-title);
   letter-spacing: -0.025em;
+}
+
+h2 {
+  font-size: var(--awake-type-section-title);
+}
+
+h3 {
+  font-size: var(--awake-type-card-title);
 }
 
 p,
@@ -102,6 +135,174 @@ input,
 textarea,
 select {
   outline-color: var(--awake-focus);
+}
+
+.awake-eyebrow {
+  color: var(--awake-text-muted);
+  font-size: var(--awake-type-label);
+  font-weight: 550;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.awake-supporting {
+  color: var(--awake-text-secondary);
+  font-size: var(--awake-type-supporting);
+  line-height: 1.6;
+}
+
+.awake-surface,
+.awake-card,
+.awake-empty-state {
+  border: 1px solid var(--awake-border);
+  background: var(--awake-surface);
+  color: var(--awake-text);
+}
+
+.awake-surface {
+  border-radius: var(--awake-radius-card);
+  padding: var(--awake-space-5);
+}
+
+.awake-card {
+  border-radius: var(--awake-radius-card);
+  padding: var(--awake-space-5);
+  box-shadow: var(--awake-shadow-card);
+}
+
+.awake-empty-state {
+  max-width: 30rem;
+  margin-inline: auto;
+  padding: var(--awake-space-8) var(--awake-space-6);
+  text-align: center;
+  border-style: dashed;
+}
+
+.awake-button {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: var(--awake-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--awake-radius-control);
+  padding: var(--awake-space-3) var(--awake-space-5);
+  font-size: var(--awake-type-supporting);
+  font-weight: 550;
+  line-height: 1.2;
+  transition:
+    background var(--awake-motion-settle) var(--awake-ease-settle),
+    border-color var(--awake-motion-settle) var(--awake-ease-settle),
+    color var(--awake-motion-settle) var(--awake-ease-settle),
+    transform var(--awake-motion-settle) var(--awake-ease-settle);
+}
+
+.awake-button:active {
+  transform: scale(0.985);
+}
+
+.awake-button-primary {
+  background: var(--awake-accent);
+  color: var(--awake-accent-contrast);
+}
+
+.awake-button-secondary {
+  border-color: var(--awake-border);
+  background: var(--awake-surface-elevated);
+  color: var(--awake-text);
+}
+
+.awake-button-quiet {
+  background: transparent;
+  color: var(--awake-text-secondary);
+}
+
+.awake-button-danger {
+  border-color: color-mix(
+    in srgb,
+    var(--awake-danger) 28%,
+    var(--awake-border)
+  );
+  background: var(--awake-danger-soft);
+  color: var(--awake-danger);
+}
+
+.awake-chip {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--awake-border);
+  border-radius: 9999px;
+  background: var(--awake-surface-elevated);
+  color: var(--awake-text-secondary);
+  padding-inline: var(--awake-space-4);
+  font-size: var(--awake-type-supporting);
+  transition:
+    background var(--awake-motion-settle) var(--awake-ease-settle),
+    color var(--awake-motion-settle) var(--awake-ease-settle);
+}
+
+.awake-chip[aria-pressed="true"],
+.awake-chip[aria-current="page"],
+.awake-chip.is-selected {
+  border-color: var(--awake-accent);
+  background: var(--awake-accent);
+  color: var(--awake-accent-contrast);
+}
+
+.awake-navigation {
+  border-color: var(--awake-border);
+  background: color-mix(
+    in srgb,
+    var(--awake-surface-elevated) 92%,
+    transparent
+  );
+  color: var(--awake-text-secondary);
+  backdrop-filter: blur(18px);
+}
+
+.awake-navigation [aria-current="page"] {
+  color: var(--awake-navigation);
+  font-weight: 600;
+}
+
+.awake-orb {
+  position: relative;
+  border-radius: 9999px;
+  background:
+    radial-gradient(
+      circle at 31% 24%,
+      rgb(255 255 255 / 88%),
+      transparent 29%
+    ),
+    linear-gradient(
+      145deg,
+      var(--awake-orb-highlight),
+      var(--awake-accent) 58%,
+      color-mix(in srgb, var(--awake-accent) 55%, var(--awake-text))
+    );
+  box-shadow:
+    inset -9px -11px 18px
+      color-mix(in srgb, var(--awake-accent) 25%, transparent),
+    inset 7px 8px 14px rgb(255 255 255 / 40%),
+    0 0 34px color-mix(in srgb, var(--awake-orb-glow) 18%, transparent);
+}
+
+.awake-orb.is-breathing {
+  animation: awake-breathe var(--awake-motion-breathe)
+    var(--awake-ease-breathe) infinite;
+}
+
+@keyframes awake-breathe {
+  0%,
+  100% {
+    transform: scale(0.98);
+  }
+  50% {
+    transform: scale(1.025);
+  }
 }
 
 :focus-visible {
@@ -317,6 +518,9 @@ dialog,
   *,
   *::before,
   *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

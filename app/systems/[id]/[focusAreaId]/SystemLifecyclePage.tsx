@@ -15,6 +15,15 @@ import {
   loadAwakeSystems,
   saveAwakeSystems,
 } from "../../../systemStorage";
+import {
+  colorToHue,
+  defaultColorPreferences,
+  generateAwakePalette,
+  generateSystemOrbPalette,
+  loadColorPreferences,
+  type AwakeColorPreferences,
+} from "../../../colorPalette";
+import AwakeColorPicker from "../../../components/AwakeColorPicker";
 import FocusAreaActions from "./FocusAreaActions";
 
 const periodOptions = [
@@ -73,6 +82,10 @@ export default function SystemLifecyclePage() {
   const [focusArea, setFocusArea] = useState<AwakeFocusArea | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showCommitment, setShowCommitment] = useState(false);
+  const [showColor, setShowColor] = useState(false);
+  const [draftColorHue, setDraftColorHue] = useState(139);
+  const [colorPreferences, setColorPreferences] =
+    useState<AwakeColorPreferences>(defaultColorPreferences);
   const [periodIndex, setPeriodIndex] = useState(2);
   const [customPeriod, setCustomPeriod] = useState("4");
   const [customUnit, setCustomUnit] =
@@ -101,8 +114,19 @@ export default function SystemLifecyclePage() {
     setSystems(stored);
     setSystem(selectedSystem);
     setFocusArea(selectedFocus);
+    setColorPreferences(loadColorPreferences());
+    setDraftColorHue(
+      selectedFocus?.colorHue ??
+        colorToHue(selectedFocus?.color),
+    );
     setLoaded(true);
   }, [params.id, params.focusAreaId]);
+
+  const palette = generateAwakePalette(
+    colorPreferences.anchorHue,
+    colorPreferences.harmony,
+    colorPreferences.appearance,
+  );
 
   const commitments = useMemo(
     () => focusArea?.commitments ?? [],
@@ -155,6 +179,19 @@ export default function SystemLifecyclePage() {
 
   function saveCareActions(actions: FocusAreaCareAction[]) {
     updateMeaningfully({ careActions: actions });
+  }
+
+  function saveSystemColor() {
+    const orb = generateSystemOrbPalette(
+      draftColorHue,
+      colorPreferences.harmony,
+      colorPreferences.appearance,
+    );
+    updateMeaningfully({
+      colorHue: draftColorHue,
+      color: orb.main,
+    });
+    setShowColor(false);
   }
 
   function createCommitmentFrom(
@@ -255,7 +292,13 @@ export default function SystemLifecyclePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f7f6f2] px-5 py-8 text-stone-800">
+    <main
+      className="min-h-screen px-5 py-8 transition-colors"
+      style={{
+        background: palette.pageBackground,
+        color: palette.text,
+      }}
+    >
       <div className="mx-auto w-full max-w-lg">
         <Link href="/" className="text-sm text-stone-500 transition hover:text-stone-800">
           ← Systems
@@ -291,12 +334,84 @@ export default function SystemLifecyclePage() {
           </div>
         </header>
 
+        <div className="mt-4 flex justify-end">
+          <button
+            type="button"
+            onClick={() => {
+              setDraftColorHue(
+                focusArea.colorHue ??
+                  colorToHue(focusArea.color),
+              );
+              setShowColor((open) => !open);
+            }}
+            className="min-h-11 rounded-full border px-4 text-sm"
+            style={{
+              borderColor: palette.border,
+              background: palette.mutedSurface,
+              color: palette.secondaryText,
+            }}
+            aria-expanded={showColor}
+          >
+            System color
+          </button>
+        </div>
+
+        {showColor && (
+          <section
+            className="mt-4 rounded-3xl border p-5 shadow-sm"
+            style={{
+              borderColor: palette.border,
+              background: palette.mutedSurface,
+            }}
+            aria-label={`Choose ${focusArea.title} color`}
+          >
+            <h2 className="text-lg font-semibold">System color</h2>
+            <p
+              className="mb-5 mt-1 text-sm"
+              style={{ color: palette.secondaryText }}
+            >
+              Give this system an identity. Awake shapes its highlight and glow.
+            </p>
+            <AwakeColorPicker
+              hue={draftColorHue}
+              harmony={colorPreferences.harmony}
+              appearance={colorPreferences.appearance}
+              onHueChange={setDraftColorHue}
+              onHarmonyChange={(harmony) =>
+                setColorPreferences({ ...colorPreferences, harmony })
+              }
+              showPreview={false}
+            />
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowColor(false)}
+                className="min-h-11 px-4 text-sm"
+                style={{ color: palette.secondaryText }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={saveSystemColor}
+                className="min-h-11 rounded-2xl px-5 text-sm font-medium"
+                style={{
+                  background: palette.primaryAccent,
+                  color: palette.buttonText,
+                }}
+              >
+                Save color
+              </button>
+            </div>
+          </section>
+        )}
+
         <FocusAreaActions
           systemId={system.id}
           focusAreaId={focusArea.id}
           focusAreaTitle={focusArea.title}
           savedActions={focusArea.careActions}
-          isDark={false}
+          isDark={colorPreferences.appearance === "dark"}
           onSaveActions={saveCareActions}
         />
 

@@ -108,6 +108,7 @@ export type AwakeFocusArea = {
   understanding: SystemUnderstanding;
   careActions?: FocusAreaCareAction[];
   color?: string;
+  colorHue?: number;
   isMySystem?: boolean;
   status?: FocusAreaSystemStatus;
   commitments?: SystemCommitment[];
@@ -199,6 +200,7 @@ export function createAwakeFocusArea(
     },
 
     color: "#7c9a82",
+    colorHue: 139,
     isMySystem: false,
     status: "evolving",
     commitments: [],

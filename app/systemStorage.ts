@@ -1,5 +1,6 @@
 import type { AwakeSystem } from "./systems";
 import { AWAKE_SYSTEMS_KEY } from "./storageKeys";
+import { colorToHue } from "./colorPalette";
 
 export { AWAKE_SYSTEMS_KEY } from "./storageKeys";
 
@@ -56,6 +57,15 @@ export function loadAwakeSystems(): AwakeSystem[] {
               (systemIndex + focusIndex) %
                 systemColors.length
             ],
+          colorHue:
+            focusArea.colorHue ??
+            colorToHue(
+              focusArea.color ??
+                systemColors[
+                  (systemIndex + focusIndex) %
+                    systemColors.length
+                ],
+            ),
           isMySystem: focusArea.isMySystem ?? false,
           status: focusArea.status ?? "evolving",
           commitments: focusArea.commitments ?? [],

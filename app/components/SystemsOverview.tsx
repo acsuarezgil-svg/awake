@@ -16,7 +16,17 @@ import {
   loadAwakeSystems,
   saveAwakeSystems,
 } from "../systemStorage";
+import {
+  colorToHue,
+  defaultColorPreferences,
+  generateAwakePalette,
+  generateSystemOrbPalette,
+  loadColorPreferences,
+  saveColorPreferences,
+  type AwakeColorPreferences,
+} from "../colorPalette";
 import { getSystemTemplates } from "../systemTemplates";
+import AwakeColorPicker from "./AwakeColorPicker";
 import PracticeSpace from "./practice/PracticeSpace";
 
 type Filter = "today" | "week" | "month" | "year";
@@ -131,6 +141,9 @@ export default function SystemsOverview() {
   const [filter, setFilter] = useState<Filter>("week");
   const [loaded, setLoaded] = useState(false);
   const [practiceOpen, setPracticeOpen] = useState(false);
+  const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const [colorPreferences, setColorPreferences] =
+    useState<AwakeColorPreferences>(defaultColorPreferences);
   const [holding, setHolding] = useState(false);
   const [lens, setLens] = useState(42);
   const [loadedAt] = useState(() => Date.now());
@@ -161,8 +174,22 @@ export default function SystemsOverview() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSystems(initialized);
     setEvents(parseEvents());
+    setColorPreferences(loadColorPreferences());
     setLoaded(true);
   }, []);
+
+  const palette = generateAwakePalette(
+    colorPreferences.anchorHue,
+    colorPreferences.harmony,
+    colorPreferences.appearance,
+  );
+
+  function updateColorPreferences(
+    next: AwakeColorPreferences,
+  ) {
+    setColorPreferences(next);
+    saveColorPreferences(next);
+  }
 
   const visibleSystems = useMemo(
     () =>
@@ -215,7 +242,13 @@ export default function SystemsOverview() {
   if (!loaded) return null;
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_50%_18%,#fffdf6_0%,#f4f3ee_44%,#eef2ed_100%)] px-4 pb-28 pt-8 text-stone-800 sm:px-6">
+    <main
+      className="min-h-screen px-4 pb-28 pt-8 transition-colors sm:px-6"
+      style={{
+        color: palette.text,
+        background: `radial-gradient(circle at 50% 18%, ${palette.pageTint} 0%, ${palette.pageBackground} 48%, ${palette.mutedSurface} 100%)`,
+      }}
+    >
       <div className="mx-auto w-full max-w-3xl">
         <header className="flex items-end justify-between gap-5">
           <div>
@@ -226,18 +259,75 @@ export default function SystemsOverview() {
               Your systems
             </h1>
           </div>
-          <Link
-            href="/systems"
-            className="rounded-full bg-stone-900 px-4 py-2.5 text-sm font-medium text-white"
-          >
-            Add system
-          </Link>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setAppearanceOpen((open) => !open)}
+              className="min-h-11 rounded-full border px-4 text-sm font-medium"
+              style={{
+                borderColor: palette.border,
+                background: palette.mutedSurface,
+                color: palette.secondaryText,
+              }}
+              aria-expanded={appearanceOpen}
+            >
+              Appearance
+            </button>
+            <Link
+              href="/systems"
+              className="flex min-h-11 items-center rounded-full px-4 text-sm font-medium"
+              style={{
+                background: palette.primaryAccent,
+                color: palette.buttonText,
+              }}
+            >
+              Add system
+            </Link>
+          </div>
         </header>
 
         <p className="mt-3 max-w-md text-sm leading-6 text-stone-500">
           Build systems that support your life. Make them yours. Let them
           change when life changes.
         </p>
+
+        {appearanceOpen && (
+          <section
+            className="mt-6 rounded-3xl border p-5 shadow-sm"
+            style={{
+              background: palette.mutedSurface,
+              borderColor: palette.border,
+            }}
+            aria-label="Awake appearance"
+          >
+            <div className="mb-5">
+              <h2 className="text-lg font-semibold">Awake appearance</h2>
+              <p
+                className="mt-1 text-sm"
+                style={{ color: palette.secondaryText }}
+              >
+                Choose one anchor color. Awake coordinates the rest.
+              </p>
+            </div>
+            <AwakeColorPicker
+              hue={colorPreferences.anchorHue}
+              harmony={colorPreferences.harmony}
+              appearance={colorPreferences.appearance}
+              onHueChange={(hue) =>
+                updateColorPreferences({
+                  ...colorPreferences,
+                  anchorHue: hue,
+                })
+              }
+              onHarmonyChange={(harmony) =>
+                updateColorPreferences({ ...colorPreferences, harmony })
+              }
+              onAppearanceChange={(appearance) =>
+                updateColorPreferences({ ...colorPreferences, appearance })
+              }
+            />
+          </section>
+        )}
 
         <div className="mt-7 flex gap-2 overflow-x-auto pb-1">
           {filters.map((item) => (
@@ -246,10 +336,18 @@ export default function SystemsOverview() {
               type="button"
               onClick={() => setFilter(item.id)}
               className={`min-h-10 shrink-0 rounded-full px-4 text-sm transition ${
-                filter === item.id
-                  ? "bg-stone-800 text-white"
-                  : "bg-white text-stone-500"
+                filter === item.id ? "font-medium" : ""
               }`}
+              style={{
+                background:
+                  filter === item.id
+                    ? palette.primaryAccent
+                    : palette.mutedSurface,
+                color:
+                  filter === item.id
+                    ? palette.buttonText
+                    : palette.secondaryText,
+              }}
             >
               {item.label}
             </button>
@@ -330,9 +428,17 @@ export default function SystemsOverview() {
                   level > 1 ||
                   (focusArea.commitments?.length ?? 0) > 0 ||
                   (focusArea.reviews?.length ?? 0) > 0;
+                const identityHue =
+                  focusArea.colorHue ??
+                  colorToHue(focusArea.color);
+                const orbPalette = generateSystemOrbPalette(
+                  identityHue,
+                  colorPreferences.harmony,
+                  colorPreferences.appearance,
+                );
                 const color = hasLifecycleData
-                  ? focusArea.color ?? "#7c9a82"
-                  : "#d8bd75";
+                  ? orbPalette.main
+                  : orbPalette.inactiveAmber;
                 const activityLens = lens / 100;
                 const lifecycleLens = 1 - activityLens;
                 const depth =
@@ -376,6 +482,10 @@ export default function SystemsOverview() {
                       style={
                         {
                           "--orb-color": color,
+                          "--orb-highlight": orbPalette.highlight,
+                          "--orb-glow-color": orbPalette.glow,
+                          "--orb-quiet": orbPalette.quiet,
+                          "--orb-paused": orbPalette.paused,
                           "--orb-size": `${72 + level * 5}px`,
                           "--orb-depth": depth,
                           "--orb-glow": activityStrength,
@@ -432,7 +542,13 @@ export default function SystemsOverview() {
         </section>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 border-t border-stone-200 bg-[#f7f6f2]/95 px-5 py-3 backdrop-blur">
+      <nav
+        className="fixed inset-x-0 bottom-0 border-t px-5 py-3 backdrop-blur"
+        style={{
+          borderColor: palette.border,
+          background: palette.navigation,
+        }}
+      >
         <div className="mx-auto flex max-w-md items-center justify-around text-sm">
           <span className="font-medium text-stone-900">Systems</span>
           <Link href="/privacy" className="min-h-11 px-3 py-3 text-stone-500">
@@ -446,10 +562,10 @@ export default function SystemsOverview() {
 
       {practiceOpen && (
         <PracticeSpace
-          primaryColor="rgb(124, 154, 130)"
-          secondaryColor="rgb(139, 134, 168)"
-          pageBackground="#f7f6f2"
-          isDark={false}
+          primaryColor={palette.primaryAccent}
+          secondaryColor={palette.companion}
+          pageBackground={palette.pageBackground}
+          isDark={colorPreferences.appearance === "dark"}
           onFinish={() => setPracticeOpen(false)}
         />
       )}
@@ -470,7 +586,7 @@ export default function SystemsOverview() {
               circle at 68% 72%,
               color-mix(
                   in srgb,
-                  var(--orb-color)
+                  var(--orb-glow-color)
                     var(--orb-lower-mix),
                   transparent
                 )
@@ -481,7 +597,7 @@ export default function SystemsOverview() {
               145deg,
               color-mix(
                   in srgb,
-                  var(--orb-color)
+                  var(--orb-highlight)
                     var(--orb-light-mix),
                   white
                 )
@@ -495,14 +611,14 @@ export default function SystemsOverview() {
                 54%,
               color-mix(
                   in srgb,
-                  var(--orb-color) 76%,
-                  #3f4a43
+                  var(--orb-quiet) 76%,
+                  var(--orb-paused)
                 )
                 100%
             );
           box-shadow:
             inset -9px -12px 18px
-              color-mix(in srgb, var(--orb-color) 38%, transparent),
+              color-mix(in srgb, var(--orb-glow-color) 38%, transparent),
             inset 7px 8px 15px rgba(255, 255, 255, 0.45),
             0 12px 25px rgba(75, 72, 61, 0.12);
           transform: translateZ(0);
@@ -542,7 +658,7 @@ export default function SystemsOverview() {
             circle,
             color-mix(
                 in srgb,
-                var(--orb-color)
+                var(--orb-glow-color)
                   var(--orb-glow-mix),
                 transparent
               )
@@ -579,20 +695,20 @@ export default function SystemsOverview() {
             ),
             radial-gradient(
               circle at 66% 72%,
-              rgba(116, 141, 126, 0.24),
+              color-mix(in srgb, ${palette.companion} 24%, transparent),
               transparent 56%
             ),
             linear-gradient(
               145deg,
               rgba(255, 255, 255, 0.82),
-              rgba(208, 221, 211, 0.74) 52%,
-              rgba(163, 183, 169, 0.72)
+              color-mix(in srgb, ${palette.orbHighlight} 74%, transparent) 52%,
+              color-mix(in srgb, ${palette.primaryAccent} 72%, transparent)
             );
           box-shadow:
             inset -12px -14px 22px rgba(96, 121, 105, 0.16),
             inset 8px 9px 17px rgba(255, 255, 255, 0.75),
             0 14px 30px rgba(80, 98, 86, 0.14),
-            0 0 0 10px rgba(164, 184, 170, 0.08);
+            0 0 0 10px color-mix(in srgb, ${palette.orbGlow} 8%, transparent);
         }
 
         .awake-hold-progress {

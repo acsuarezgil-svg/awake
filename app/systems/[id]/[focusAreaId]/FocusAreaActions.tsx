@@ -208,23 +208,42 @@ export default function FocusAreaActions({
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    setEvents(readStoredEvents());
-    setLoaded(true);
+    function loadEvents() {
+      setEvents(readStoredEvents());
+      setLoaded(true);
+    }
+
+    function handleStorage(event: StorageEvent) {
+      if (event.key === ACTION_EVENTS_STORAGE_KEY) {
+        loadEvents();
+      }
+    }
+
+    loadEvents();
+
+    window.addEventListener("pageshow", loadEvents);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("pageshow", loadEvents);
+      window.removeEventListener("storage", handleStorage);
+    };
   }, []);
 
   function saveEvents(nextEvents: FocusAreaActionEvent[]) {
-    setEvents(nextEvents);
-
     localStorage.setItem(
       ACTION_EVENTS_STORAGE_KEY,
       JSON.stringify(nextEvents),
     );
+
+    setEvents(nextEvents);
   }
 
   function toggleAction(action: FocusAreaAction) {
     const todayKey = getLocalDateKey(new Date());
+    const storedEvents = readStoredEvents();
 
-    const existingEvent = events.find(
+    const existingEvent = storedEvents.find(
       (event) =>
         event.systemId === systemId &&
         event.focusAreaId === focusAreaId &&
@@ -234,7 +253,7 @@ export default function FocusAreaActions({
 
     if (existingEvent) {
       saveEvents(
-        events.filter(
+        storedEvents.filter(
           (event) => event.id !== existingEvent.id,
         ),
       );
@@ -253,7 +272,7 @@ export default function FocusAreaActions({
       createdAt: new Date().toISOString(),
     };
 
-    saveEvents([...events, newEvent]);
+    saveEvents([...storedEvents, newEvent]);
   }
 
   if (!loaded || actions.length === 0) {

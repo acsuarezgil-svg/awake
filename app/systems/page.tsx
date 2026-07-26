@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   createAwakeSystem,
   type AwakeSystem,
@@ -41,6 +42,8 @@ export default function SystemsPage() {
       "awake-wheel-theme"
     );
 
+    // Hydrate the client-only local system store after mounting.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSystems(savedSystems);
 
     if (savedTheme && isWheelTheme(savedTheme)) {
@@ -201,7 +204,7 @@ export default function SystemsPage() {
       }}
     >
       <section className="mx-auto w-full max-w-md">
-        <a
+        <Link
           href="/"
           className={`text-sm transition ${
             isDark
@@ -210,7 +213,7 @@ export default function SystemsPage() {
           }`}
         >
           ← Back
-        </a>
+        </Link>
 
         <header className="mb-9 mt-6">
           <p
@@ -220,7 +223,7 @@ export default function SystemsPage() {
                 : "text-stone-400"
             }`}
           >
-            Your living library
+            Add system
           </p>
 
           <h1
@@ -230,7 +233,7 @@ export default function SystemsPage() {
                 : "text-stone-900"
             }`}
           >
-            Systems
+            Choose a foundation
           </h1>
 
           <p
@@ -240,8 +243,7 @@ export default function SystemsPage() {
                 : "text-stone-600"
             }`}
           >
-            Everything you understand becomes
-            easier to shape.
+            Start with the part of life this system supports.
           </p>
         </header>
 
@@ -254,7 +256,7 @@ export default function SystemsPage() {
                     : "text-stone-400"
                 }`}
             >
-                Your systems
+                Foundations
             </p>
 
             <div className="space-y-3">
@@ -303,7 +305,7 @@ export default function SystemsPage() {
               >
                 <div>
                   <p className="font-semibold">
-                    Create your own
+                    Create a custom foundation
                   </p>
 
                   <p
@@ -313,8 +315,7 @@ export default function SystemsPage() {
                         : "text-stone-500"
                     }`}
                   >
-                    Add a system that is personal
-                    to your life.
+                    Add a part of life that is personal to you.
                   </p>
                 </div>
 
@@ -330,7 +331,7 @@ export default function SystemsPage() {
                       : "text-stone-700"
                   }`}
                 >
-                  Name your system
+                  Name your foundation
                 </label>
 
                 <div className="mt-3 flex gap-2">

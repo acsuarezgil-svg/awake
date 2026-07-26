@@ -392,7 +392,7 @@ function ActionGroup({
               type="button"
               aria-pressed={recordedToday}
               onClick={() => onToggle(action)}
-              className={`flex w-full items-center gap-4 rounded-3xl border px-5 py-4 text-left transition ${
+              className={`flex w-full items-center gap-4 rounded-3xl border px-5 py-4 text-left transition-colors duration-200 ${
                 recordedToday
                   ? isDark
                     ? "border-emerald-700/60 bg-emerald-950/35"
@@ -404,7 +404,7 @@ function ActionGroup({
             >
               <span
                 aria-hidden="true"
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm ${
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-sm transition-colors duration-200 ${
                   recordedToday
                     ? isDark
                       ? "border-emerald-500 bg-emerald-700 text-white"
@@ -418,7 +418,7 @@ function ActionGroup({
               </span>
 
               <span
-                className={`text-sm leading-6 ${
+                className={`text-sm leading-6 transition-colors duration-200 ${
                   recordedToday
                     ? isDark
                       ? "font-medium text-emerald-200"
@@ -433,13 +433,13 @@ function ActionGroup({
 
               {recordedToday && (
                 <span
-                  className={`ml-auto text-xs font-medium ${
+                  className={`ml-auto text-xs font-medium transition-opacity duration-200 ${
                     isDark
                       ? "text-emerald-300"
                       : "text-emerald-700"
                   }`}
                 >
-                  Today
+                  Supported today
                 </span>
               )}
             </button>

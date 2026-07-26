@@ -248,6 +248,7 @@ export function saveColorPreferences(
     AWAKE_COLOR_PREFERENCES_KEY,
     JSON.stringify(preferences),
   );
+  window.dispatchEvent(new Event("awake-appearance-change"));
 }
 
 export function colorToHue(color?: string) {

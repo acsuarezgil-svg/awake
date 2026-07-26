@@ -61,6 +61,44 @@ export type FocusAreaCareAction = {
   type: FocusAreaActionType;
 };
 
+export type SystemCommitmentStatus =
+  | "active"
+  | "completed"
+  | "extended"
+  | "paused";
+
+export type SystemCommitment = {
+  id: string;
+  startDate: string;
+  reviewDate: string;
+  plannedPeriodValue: number;
+  plannedPeriodUnit: "days" | "weeks" | "months";
+  selectedDays?: number[];
+  flexibleSchedule?: boolean;
+  plannedDurationMinutes?: number;
+  status: SystemCommitmentStatus;
+  parentCommitmentId?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SystemReview = {
+  id: string;
+  commitmentId: string;
+  supportResult: "yes" | "somewhat" | "no";
+  completedAsPlanned: boolean;
+  completedDates?: string[];
+  completedCount?: number;
+  averageDurationMinutes?: number;
+  totalDurationMinutes?: number;
+  reviewedAt: string;
+};
+
+export type FocusAreaSystemStatus =
+  | "evolving"
+  | "testing"
+  | "paused";
+
 export type AwakeFocusArea = {
   id: string;
   title: string;
@@ -69,6 +107,14 @@ export type AwakeFocusArea = {
 
   understanding: SystemUnderstanding;
   careActions?: FocusAreaCareAction[];
+  color?: string;
+  isMySystem?: boolean;
+  status?: FocusAreaSystemStatus;
+  commitments?: SystemCommitment[];
+  reviews?: SystemReview[];
+  currentCommitmentId?: string;
+  lastUpdatedAt?: string;
+  lastReviewedAt?: string;
   experiments: SystemExperiment[];
   lessons: SystemLesson[];
   gratitude: SystemGratitude[];
@@ -151,6 +197,13 @@ export function createAwakeFocusArea(
       purpose: "",
       meetsNeed: "",
     },
+
+    color: "#7c9a82",
+    isMySystem: false,
+    status: "evolving",
+    commitments: [],
+    reviews: [],
+    lastUpdatedAt: now,
 
     experiments: [],
     lessons: [],

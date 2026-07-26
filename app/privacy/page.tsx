@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { translations, type Language } from "../translations";
+import { awakeStorageKeys } from "../storageKeys";
 
 import {
   isDarkWheelTheme,
@@ -10,23 +12,6 @@ import {
   wheelThemes,
   type WheelTheme,
 } from "../theme";
-
-const awakeStorageKeys = [
-  "awake-reflections",
-  "awake-notice-events",
-  "awake-counts",
-  "awake-patterns",
-  "awake-investments",
-  "awake-values",
-  "awake-boundaries",
-  "awake-direction",
-  "awake-directions",
-  "awake-language",
-  "awake-wheel-theme",
-  "awake-wheel-view",
-  "awake-focus-area-action-events",
-  "awake-system-action-events",
-];
 
 export default function PrivacyPage() {
     

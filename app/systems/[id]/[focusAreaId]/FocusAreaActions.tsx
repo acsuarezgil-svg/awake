@@ -494,7 +494,7 @@ export default function FocusAreaActions({
   );
 
   return (
-    <section className="mt-12">
+    <section id="care" className="mt-12">
       <div className="flex items-center justify-between gap-4">
         <p
           className={`text-xs uppercase tracking-[0.2em] ${
@@ -508,6 +508,7 @@ export default function FocusAreaActions({
 
         {!isEditing && (
           <button
+            id="care-edit"
             type="button"
             onClick={beginEditing}
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
@@ -865,7 +866,8 @@ function EditableActionGroup({
                     : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                 }`}
               >
-                Move up
+                <span aria-hidden="true">↑</span>
+                <span className="sr-only">Move up</span>
               </button>
 
               <button
@@ -880,7 +882,8 @@ function EditableActionGroup({
                     : "bg-stone-100 text-stone-600 hover:bg-stone-200"
                 }`}
               >
-                Move down
+                <span aria-hidden="true">↓</span>
+                <span className="sr-only">Move down</span>
               </button>
 
               <button
@@ -892,7 +895,8 @@ function EditableActionGroup({
                     : "text-rose-700 hover:bg-rose-50"
                 }`}
               >
-                Delete
+                <span aria-hidden="true">×</span>
+                <span className="sr-only">Delete action</span>
               </button>
             </div>
           </div>

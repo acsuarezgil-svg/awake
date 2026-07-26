@@ -1,11 +1,5 @@
-"use client";
-
-import AwarenessWheel from "./components/AwarenessWheel";
+import SystemsOverview from "./components/SystemsOverview";
 
 export default function HomePage() {
-  return (
-    <main className="min-h-screen w-full bg-white">
-      <AwarenessWheel />
-    </main>
-  );
+  return <SystemsOverview />;
 }

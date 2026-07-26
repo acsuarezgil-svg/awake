@@ -168,7 +168,7 @@ export default function PracticeSpace({
               : "border-white/65 bg-white/25 text-stone-700 hover:bg-white/40"
           }`}
         >
-          Return to wheel
+          Return to systems
         </button>
       </div>
 

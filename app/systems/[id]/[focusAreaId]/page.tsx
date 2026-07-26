@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import { useParams } from "next/navigation";
 import { createAwakeFocusArea } from "../../../systems";
 import { getSystemTemplates } from "../../../systemTemplates";
 import FocusAreaActions from "./FocusAreaActions";
+import SystemLifecyclePage from "./SystemLifecyclePage";
 import type {
     AwakeFocusArea,
     AwakeSystem,
@@ -24,6 +26,10 @@ import {
 import Link from "next/link";
 
 type UnderstandingField = keyof SystemUnderstanding;
+
+export default function SystemDetailPage() {
+  return <SystemLifecyclePage />;
+}
 
 const understandingPrompts: Array<{
   field: UnderstandingField;
@@ -91,7 +97,7 @@ function formatUpdatedDate(value: string): string | null {
   }).format(date);
 }
 
-export default function SystemDetailPage() {
+export function LegacySystemDetailPage() {
   const params = useParams<{
     id: string;
     focusAreaId: string;

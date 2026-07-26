@@ -250,7 +250,7 @@ export default function FoundationPage() {
           ))}
         </div>
 
-        <div className="flex justify-center py-9">
+        <div className="flex flex-col items-center justify-center py-9">
           <button
             type="button"
             onPointerDown={beginHold}
@@ -272,17 +272,20 @@ export default function FoundationPage() {
             aria-label="Hold for breathing and rhythm"
           >
             <span
-              className="relative z-10 text-xs font-medium"
-              style={{ color: palette.text }}
-            >
-              Hold to breathe
-            </span>
-            <span
               className={`hold-progress absolute inset-[-9px] rounded-full ${
                 holding ? "is-holding" : ""
               }`}
             />
           </button>
+          <span
+            className="mt-3 rounded-full px-3 py-1 text-xs font-medium"
+            style={{
+              color: palette.secondaryText,
+              background: `color-mix(in srgb, ${palette.mutedSurface} 72%, transparent)`,
+            }}
+          >
+            Hold to breathe
+          </span>
         </div>
 
         {foundation.focusAreas.length === 0 ? (
@@ -540,6 +543,28 @@ export default function FoundationPage() {
             inset 8px 9px 17px rgba(255, 255, 255, 0.55),
             0 14px 30px
               color-mix(in srgb, var(--center-glow) 18%, transparent);
+        }
+
+        .foundation-center-orb::after {
+          position: absolute;
+          inset: -38%;
+          z-index: -1;
+          content: "";
+          border-radius: inherit;
+          background: radial-gradient(
+            circle,
+            color-mix(in srgb, var(--center-glow) 24%, transparent),
+            transparent 68%
+          );
+          opacity: 0.16;
+          transition:
+            opacity 650ms ease,
+            transform 650ms ease;
+        }
+
+        .foundation-center-orb:active::after {
+          opacity: 0.42;
+          transform: scale(1.08);
         }
 
         .hold-progress {

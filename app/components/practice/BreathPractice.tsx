@@ -33,60 +33,70 @@ export default function BreathPractice({
 }: BreathPracticeProps) {
   const [phase, setPhase] = useState<BreathPhase>("inhale");
   const [isVisible, setIsVisible] = useState(false);
+  const [environmentReady, setEnvironmentReady] = useState(false);
+  const [animationStarted, setAnimationStarted] = useState(false);
   const [displayWord, setDisplayWord] = useState("Awake");
   const [showWord, setShowWord] = useState(true);
-  const [closing, setClosing] = useState(false);
 
   const primaryRgb = cleanRgb(primaryColor);
   const secondaryRgb = cleanRgb(secondaryColor);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-        setIsVisible(true);
+      setIsVisible(true);
     });
 
     let timeoutId: number | undefined;
 
     const startCycle = () => {
-        setPhase("inhale");
+      setPhase("inhale");
 
-        timeoutId = window.setTimeout(() => {
+      timeoutId = window.setTimeout(() => {
         setPhase("exhale");
 
         timeoutId = window.setTimeout(() => {
-            startCycle();
-            const secondWord = introWords[
-                Math.floor(Math.random() * (introWords.length - 1)) + 1
-                ];
-
-                const firstTimeout = window.setTimeout(() => {
-                setDisplayWord(secondWord);
-                }, 3500);
-
-                const hideTimeout = window.setTimeout(() => {
-                setShowWord(false);
-                }, 7000);
-                window.clearTimeout(firstTimeout);
-                window.clearTimeout(hideTimeout);
+          startCycle();
+          const secondWord =
+            introWords[
+              Math.floor(Math.random() * (introWords.length - 1)) + 1
+            ];
+          window.setTimeout(() => {
+            setDisplayWord(secondWord);
+          }, 3500);
+          window.setTimeout(() => {
+            setShowWord(false);
+          }, 7000);
         }, EXHALE_LENGTH);
-        }, INHALE_LENGTH);
+      }, INHALE_LENGTH);
     };
 
-    startCycle();
+    const emergeTimeout = window.setTimeout(() => {
+      setEnvironmentReady(true);
+    }, 120);
+    const animationTimeout = window.setTimeout(() => {
+      setAnimationStarted(true);
+      startCycle();
+    }, 1050);
 
     return () => {
-        window.cancelAnimationFrame(frame);
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(emergeTimeout);
+      window.clearTimeout(animationTimeout);
 
-        if (timeoutId !== undefined) {
+      if (timeoutId !== undefined) {
         window.clearTimeout(timeoutId);
-        }
+      }
     };
-    }, []);
+  }, []);
 
   return (
     <div
-      className={`fixed inset-0 z-[210] flex min-h-screen flex-col items-center justify-center overflow-hidden transition-opacity duration-700 ${
-        isVisible ? "opacity-100" : "opacity-0"
+      className={`fixed inset-0 z-[210] flex min-h-screen flex-col items-center justify-center overflow-hidden transition-opacity duration-1000 ${
+        environmentReady
+          ? "opacity-100"
+          : isVisible
+            ? "opacity-[0.16]"
+            : "opacity-0"
       }`}
       style={{
         background: `
@@ -112,7 +122,13 @@ export default function BreathPractice({
       >
         ← Practice
       </button>
-      <div className="absolute top-12 text-center">
+      <div
+        className={`absolute top-12 text-center transition-all duration-1000 ${
+          environmentReady
+            ? "translate-y-0 opacity-100"
+            : "translate-y-2 opacity-0"
+        }`}
+      >
         <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">
             Long Breath
         </p>
@@ -132,9 +148,11 @@ export default function BreathPractice({
         <div className="relative flex h-[310px] w-[310px] items-center justify-center">
           <span
             className={`awake-breath-ring absolute h-40 w-40 rounded-full ${
-              phase === "inhale"
-                ? "awake-breath-ring-inhale"
-                : "awake-breath-ring-exhale"
+              animationStarted
+                ? phase === "inhale"
+                  ? "awake-breath-ring-inhale"
+                  : "awake-breath-ring-exhale"
+                : "awake-breath-ring-idle"
             }`}
             style={{
               border: "2px solid rgba(255,255,255,0.8)",
@@ -148,9 +166,11 @@ export default function BreathPractice({
 
           <span
             className={`awake-breath-core relative flex h-40 w-40 items-center justify-center overflow-hidden rounded-full ${
-                phase === "inhale"
-                ? "awake-breath-core-inhale"
-                : "awake-breath-core-exhale"
+              animationStarted
+                ? phase === "inhale"
+                  ? "awake-breath-core-inhale"
+                  : "awake-breath-core-exhale"
+                : "awake-breath-core-idle"
             }`}
             style={{
                 background: `
@@ -168,7 +188,7 @@ export default function BreathPractice({
                 `,
             }}
             >
-            {[0, 1, 2].map((ring) => (
+            {environmentReady && [0, 1, 2].map((ring) => (
                 <span
                 key={ring}
                 aria-hidden="true"
@@ -181,7 +201,7 @@ export default function BreathPractice({
 
             <span
                 className={`relative z-10 text-2xl font-extralight tracking-[0.08em] text-white/90 transition-all duration-1000 ${
-                showWord
+                environmentReady && showWord
                     ? phase === "inhale"
                     ? "scale-105 opacity-100 blur-0"
                     : "scale-100 opacity-75 blur-[0.7px]"
@@ -193,11 +213,19 @@ export default function BreathPractice({
             </span>
         </div>
 
-        <p className="mt-8 text-lg font-light tracking-[0.18em] text-white/85">
+        <p
+          className={`mt-8 text-lg font-light tracking-[0.18em] text-white/85 transition-opacity duration-1000 ${
+            environmentReady ? "opacity-100" : "opacity-0"
+          }`}
+        >
           {phase === "inhale" ? "Breathe in" : "Breathe out"}
         </p>
 
-        <p className="mt-4 text-xs font-light tracking-[0.08em] text-white/55">
+        <p
+          className={`mt-4 text-xs font-light tracking-[0.08em] text-white/55 transition-opacity duration-1000 ${
+            environmentReady ? "opacity-100" : "opacity-0"
+          }`}
+        >
           Follow the light
         </p>
       </div>
@@ -207,8 +235,6 @@ export default function BreathPractice({
         onClick={() => {
             setDisplayWord("Choose");
             setShowWord(true);
-            setClosing(true);
-
             setTimeout(() => {
                 onFinish();
             }, 1800);
@@ -232,6 +258,11 @@ export default function BreathPractice({
           filter: brightness(1.18);
         }
 
+        .awake-breath-core-idle {
+          opacity: 0.34;
+          transform: scale(0.9);
+        }
+
         .awake-breath-core-exhale {
           transform: scale(0.88);
           filter: brightness(0.9);
@@ -245,6 +276,11 @@ export default function BreathPractice({
         .awake-breath-ring-exhale {
           transform: scale(0.8);
           opacity: 0.36;
+        }
+
+        .awake-breath-ring-idle {
+          opacity: 0;
+          transform: scale(0.72);
         }
           @keyframes awake-inner-ripple {
             0% {

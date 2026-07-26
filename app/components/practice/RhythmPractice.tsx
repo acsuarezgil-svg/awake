@@ -2,6 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import {
+  patternsForLevel,
+  readablePattern,
+  rhythmLevels,
+  rhythmTempos,
+  type RhythmLevel,
+  type RhythmPattern,
+  type RhythmSide,
+  type RhythmTempo,
+} from "./rhythmPatterns";
+
 type RhythmPracticeProps = {
   onFinish: () => void;
   primaryColor: string;
@@ -9,7 +20,9 @@ type RhythmPracticeProps = {
   pageBackground: string;
 };
 
-const BEAT_LENGTH = 2400;
+type PracticePhase = "choose" | "preview" | "practice" | "complete";
+
+const REPEATS_TO_SETTLE = 3;
 
 export default function RhythmPractice({
   onFinish,
@@ -19,321 +32,404 @@ export default function RhythmPractice({
 }: RhythmPracticeProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [pulseKey, setPulseKey] = useState(0);
-  const [tapKey, setTapKey] = useState(0);
-  const [feedback, setFeedback] = useState(
-    "Notice the ripple"
+  const [level, setLevel] = useState<RhythmLevel>("pulse");
+  const [tempo, setTempo] = useState<RhythmTempo>("steady");
+  const [pattern, setPattern] = useState<RhythmPattern>(
+    () => patternsForLevel("pulse")[0],
   );
-  const primaryRgb = primaryColor
-  .replace("rgb(", "")
-  .replace(")", "");
+  const [phase, setPhase] = useState<PracticePhase>("choose");
+  const [stepIndex, setStepIndex] = useState(0);
+  const [repetitions, setRepetitions] = useState(0);
+  const [feedback, setFeedback] = useState(
+    "Choose a rhythm to begin",
+  );
+  const [leftRipple, setLeftRipple] = useState(0);
+  const [rightRipple, setRightRipple] = useState(0);
+  const lastTapRef = useRef<number | null>(null);
+  const timerRef = useRef<number | null>(null);
+  const lastPatternIdRef = useRef<string | null>(null);
 
-  const secondaryRgb = secondaryColor
-    .replace("rgb(", "")
-    .replace(")", "");
-
-  const lastPulseTimeRef = useRef(0);
-  const feedbackTimeoutRef = useRef<number | null>(null);
-
+  const tempoConfig =
+    rhythmTempos.find((option) => option.id === tempo) ??
+    rhythmTempos[1];
   useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      setIsVisible(true);
-    });
-
-    function beginPulse() {
-      lastPulseTimeRef.current = performance.now();
-      setPulseKey((current) => current + 1);
-    }
-
-    beginPulse();
-
-    const pulseInterval = window.setInterval(
-      beginPulse,
-      BEAT_LENGTH
-    );
-
+    const frame = requestAnimationFrame(() => setIsVisible(true));
     return () => {
       cancelAnimationFrame(frame);
-      window.clearInterval(pulseInterval);
-
-      if (feedbackTimeoutRef.current !== null) {
-        window.clearTimeout(feedbackTimeoutRef.current);
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current);
       }
     };
   }, []);
 
-  function showFeedback(message: string) {
-    setFeedback(message);
+  useEffect(() => {
+    if (phase !== "preview") return;
+    timerRef.current = window.setTimeout(() => {
+      if (stepIndex >= pattern.steps.length - 1) {
+        setStepIndex(0);
+        setPhase("practice");
+        setFeedback("Tap the pattern");
+        lastTapRef.current = null;
+        return;
+      }
+      setStepIndex((current) => current + 1);
+    }, tempoConfig.stepMs);
+    return () => {
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current);
+      }
+    };
+  }, [
+    pattern.steps.length,
+    phase,
+    stepIndex,
+    tempoConfig.stepMs,
+  ]);
 
-    if (feedbackTimeoutRef.current !== null) {
-      window.clearTimeout(feedbackTimeoutRef.current);
+  useEffect(() => {
+    if (
+      phase !== "practice" ||
+      pattern.steps[stepIndex] !== "rest"
+    ) {
+      return;
     }
+    timerRef.current = window.setTimeout(() => {
+      advanceStep();
+    }, tempoConfig.stepMs);
+    return () => {
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current);
+      }
+    };
+    // advanceStep uses the current render's step and repetition state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, stepIndex, pattern.id, tempoConfig.stepMs]);
 
-    feedbackTimeoutRef.current = window.setTimeout(() => {
-      setFeedback("Notice the ripple");
-      feedbackTimeoutRef.current = null;
-    }, 1400);
+  function choosePattern(nextLevel = level) {
+    const choices = patternsForLevel(nextLevel);
+    const alternatives = choices.filter(
+      (item) => item.id !== lastPatternIdRef.current,
+    );
+    const pool = alternatives.length > 0 ? alternatives : choices;
+    const next = pool[Math.floor(Math.random() * pool.length)];
+    lastPatternIdRef.current = next.id;
+    setPattern(next);
+    setStepIndex(0);
+    setRepetitions(0);
+    setFeedback("Watch once");
+    setPhase("preview");
   }
 
-  function handleRhythmTap() {
+  function advanceStep() {
+    if (stepIndex < pattern.steps.length - 1) {
+      setStepIndex((current) => current + 1);
+      return;
+    }
+
+    const nextRepetitions = repetitions + 1;
+    if (nextRepetitions >= REPEATS_TO_SETTLE) {
+      setRepetitions(nextRepetitions);
+      setPhase("complete");
+      setFeedback("The rhythm has settled");
+      if ("vibrate" in navigator) navigator.vibrate([10, 40, 10]);
+      return;
+    }
+
+    setRepetitions(nextRepetitions);
+    setStepIndex(0);
+    setFeedback("Again, gently");
+    lastTapRef.current = null;
+  }
+
+  function returnToRhythm() {
+    setStepIndex(0);
+    setRepetitions(0);
+    setFeedback("Return to the rhythm");
+    lastTapRef.current = null;
+  }
+
+  function handleTap(side: RhythmSide) {
+    if (phase !== "practice") return;
+    const expected = pattern.steps[stepIndex];
+    if (expected === "rest") {
+      returnToRhythm();
+      return;
+    }
+
     const now = performance.now();
-    const elapsed =
-      (now - lastPulseTimeRef.current) % BEAT_LENGTH;
-
-    const distanceFromPulse = Math.min(
-      elapsed,
-      BEAT_LENGTH - elapsed
-    );
-
-    setTapKey((current) => current + 1);
-
-    if ("vibrate" in navigator) {
-      navigator.vibrate(8);
+    if (
+      lastTapRef.current !== null &&
+      now - lastTapRef.current >
+        tempoConfig.stepMs + tempoConfig.toleranceMs
+    ) {
+      returnToRhythm();
+      return;
     }
-
-    if (distanceFromPulse <= 220) {
-      showFeedback("Together");
+    if (side !== expected) {
+      returnToRhythm();
       return;
     }
 
-    if (distanceFromPulse <= 520) {
-      showFeedback("Close");
-      return;
+    if (side === "left") {
+      setLeftRipple((current) => current + 1);
+    } else {
+      setRightRipple((current) => current + 1);
     }
-
-    showFeedback("Notice the next ripple");
+    lastTapRef.current = now;
+    setFeedback("Stay with it");
+    if ("vibrate" in navigator) navigator.vibrate(8);
+    advanceStep();
   }
 
   function finishPractice() {
     setIsLeaving(true);
     setIsVisible(false);
-
-    window.setTimeout(() => {
-      onFinish();
-    }, 700);
+    window.setTimeout(onFinish, 700);
   }
+
+  const currentStep =
+    phase === "preview" || phase === "practice"
+      ? pattern.steps[stepIndex]
+      : null;
 
   return (
     <div
-      className={`fixed inset-0 z-[200] flex min-h-screen flex-col items-center justify-center overflow-hidden transition-opacity duration-700 ${
-        isVisible && !isLeaving
-          ? "opacity-100"
-          : "opacity-0"
+      className={`fixed inset-0 z-[200] min-h-screen overflow-y-auto transition-opacity duration-700 ${
+        isVisible && !isLeaving ? "opacity-100" : "opacity-0"
       }`}
       style={{
+        color: "var(--awake-text)",
         background: `
-          radial-gradient(
-            circle at 50% 34%,
-            rgba(${secondaryRgb}, 0.34) 0%,
-            transparent 46%
-          ),
-          linear-gradient(
-            180deg,
-            rgba(${primaryRgb}, 0.16) 0%,
-            rgba(${secondaryRgb}, 0.32) 52%,
-            rgba(${primaryRgb}, 0.48) 100%
-          ),
+          radial-gradient(circle at 50% 24%, color-mix(in srgb, ${secondaryColor} 30%, transparent), transparent 48%),
+          linear-gradient(180deg, color-mix(in srgb, ${primaryColor} 12%, transparent), color-mix(in srgb, ${secondaryColor} 22%, transparent)),
           ${pageBackground}
         `,
       }}
     >
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="awake-water-line awake-water-line-one" />
-        <div className="awake-water-line awake-water-line-two" />
-        <div className="awake-water-line awake-water-line-three" />
-      </div>
+      <div className="mx-auto flex min-h-screen w-full max-w-xl flex-col px-5 pb-24 pt-10">
+        <header className="text-center">
+          <p className="awake-eyebrow">Rhythm</p>
+          <h1 className="mt-3 text-3xl font-light">Return to a pattern</h1>
+          <p className="awake-supporting mt-2">
+            Coordination, attention, and flow.
+          </p>
+        </header>
 
-      <div className="relative flex flex-col items-center">
+        {phase === "choose" ? (
+          <section className="mt-9">
+            <fieldset>
+              <legend className="text-sm font-medium">
+                Choose a feeling
+              </legend>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {rhythmLevels.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => {
+                      setLevel(option.id);
+                      setPattern(patternsForLevel(option.id)[0]);
+                    }}
+                    className="awake-chip min-h-14 px-2"
+                    aria-pressed={level === option.id}
+                    title={option.description}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <p
+                className="mt-2 text-center text-xs"
+                style={{ color: "var(--awake-text-secondary)" }}
+              >
+                {
+                  rhythmLevels.find((option) => option.id === level)
+                    ?.description
+                }
+              </p>
+            </fieldset>
+
+            <fieldset className="mt-7">
+              <legend className="text-sm font-medium">Tempo</legend>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {rhythmTempos.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setTempo(option.id)}
+                    className="awake-chip"
+                    aria-pressed={tempo === option.id}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <button
+              type="button"
+              onClick={() => choosePattern()}
+              className="awake-button awake-button-primary mt-9 w-full"
+            >
+              Begin
+            </button>
+          </section>
+        ) : (
+          <>
+            <section className="mt-8 text-center">
+              <p className="text-sm font-medium">{pattern.name}</p>
+              <p className="sr-only">
+                Pattern: {readablePattern(pattern)}
+              </p>
+              <div
+                className="mt-4 flex flex-wrap justify-center gap-2"
+                aria-hidden="true"
+              >
+                {pattern.steps.map((step, index) => (
+                  <span
+                    key={`${step}-${index}`}
+                    className="flex h-10 min-w-10 items-center justify-center rounded-full border px-3 text-xs font-medium transition"
+                    style={{
+                      borderColor:
+                        index === stepIndex &&
+                        (phase === "preview" || phase === "practice")
+                          ? "var(--awake-accent)"
+                          : "var(--awake-border)",
+                      background:
+                        index === stepIndex &&
+                        (phase === "preview" || phase === "practice")
+                          ? "var(--awake-accent)"
+                          : "var(--awake-surface-subtle)",
+                      color:
+                        index === stepIndex &&
+                        (phase === "preview" || phase === "practice")
+                          ? "var(--awake-accent-contrast)"
+                          : "var(--awake-text-secondary)",
+                    }}
+                  >
+                    {step === "left"
+                      ? "Left"
+                      : step === "right"
+                        ? "Right"
+                        : "Pause"}
+                  </span>
+                ))}
+              </div>
+              <p
+                aria-live="polite"
+                className="mt-4 min-h-6 text-sm"
+                style={{ color: "var(--awake-text-secondary)" }}
+              >
+                {phase === "preview"
+                  ? "Watch once"
+                  : currentStep === "rest"
+                    ? "Pause"
+                    : feedback}
+              </p>
+            </section>
+
+            {phase === "complete" ? (
+              <section className="mt-10 text-center">
+                <div className="awake-orb is-breathing mx-auto h-28 w-28" />
+                <p className="mt-5 text-lg font-medium">
+                  The rhythm has settled
+                </p>
+                <div className="mt-7 grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => choosePattern(level)}
+                    className="awake-button awake-button-secondary"
+                  >
+                    Another pattern
+                  </button>
+                  <button
+                    type="button"
+                    onClick={finishPractice}
+                    className="awake-button awake-button-primary"
+                  >
+                    Finish
+                  </button>
+                </div>
+              </section>
+            ) : (
+              <section className="mt-8 grid grid-cols-2 gap-4">
+                {(["left", "right"] as const).map((side) => (
+                  <button
+                    key={side}
+                    type="button"
+                    disabled={phase !== "practice"}
+                    onClick={() => handleTap(side)}
+                    aria-label={`Tap ${side}`}
+                    className={`rhythm-side relative flex h-56 touch-manipulation items-center justify-center overflow-hidden rounded-[2.5rem] border text-lg font-medium transition active:scale-[0.99] ${
+                      currentStep === side && phase === "preview"
+                        ? "is-previewing"
+                        : ""
+                    }`}
+                    style={{
+                      borderColor: "var(--awake-border)",
+                      background: "var(--awake-surface-subtle)",
+                      color: "var(--awake-text)",
+                    }}
+                  >
+                    <span className="relative z-10 capitalize">{side}</span>
+                    {(side === "left"
+                      ? leftRipple > 0
+                      : rightRipple > 0) && (
+                      <span
+                        key={
+                          side === "left"
+                            ? `left-${leftRipple}`
+                            : `right-${rightRipple}`
+                        }
+                        className="tap-ripple absolute h-24 w-24 rounded-full border"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                ))}
+              </section>
+            )}
+          </>
+        )}
+
         <button
           type="button"
-          onClick={handleRhythmTap}
-          aria-label="Tap with the water ripple"
-          className="relative flex h-[320px] w-[320px] touch-manipulation items-center justify-center rounded-full outline-none transition-transform active:scale-[0.98] sm:h-[390px] sm:w-[390px]"
+          onClick={finishPractice}
+          className="awake-button awake-button-quiet mx-auto mt-auto"
         >
-          <span
-            key={`pulse-${pulseKey}`}
-            aria-hidden="true"
-            className="awake-rhythm-pulse absolute h-40 w-40 rounded-full"
-          />
-
-          <span
-            key={`tap-${tapKey}`}
-            aria-hidden="true"
-            className="awake-tap-ripple absolute h-28 w-28 rounded-full border border-white/70"
-          />
-
-          <span className="awake-water-breathe relative flex h-32 w-32 items-center justify-center rounded-full">
-            <span className="awake-water-core absolute inset-0 rounded-full" />
-
-            <span className="awake-water-shimmer absolute left-[18%] top-[22%] h-[22%] w-[48%] rounded-full" />
-
-            <span className="relative h-20 w-20 rounded-full bg-white/10" />
-          </span>
+          Finish
         </button>
-
-        <p
-          aria-live="polite"
-          className="mt-8 min-h-6 text-sm font-light tracking-[0.12em] text-slate-700/80"
-        >
-          {feedback}
-        </p>
-
-        <p className="mt-3 text-[10px] uppercase tracking-[0.3em] text-slate-600/60">
-          Tap with the ripple
-        </p>
       </div>
 
-      <button
-        type="button"
-        onClick={finishPractice}
-        className="absolute bottom-10 rounded-full border border-white/50 bg-white/25 px-6 py-3 text-sm text-slate-700 backdrop-blur-sm transition hover:bg-white/40"
-      >
-        Finish
-      </button>
-
       <style jsx>{`
-        @keyframes awake-water-drift {
-          0% {
-            transform: translateX(-8%) scaleX(1);
-          }
-
-          50% {
-            transform: translateX(8%) scaleX(1.08);
-          }
-
-          100% {
-            transform: translateX(-8%) scaleX(1);
-          }
+        .rhythm-side.is-previewing {
+          background: var(--awake-accent-soft) !important;
+          border-color: var(--awake-accent) !important;
         }
 
-        @keyframes awake-water-breathe {
-          0%,
-          100% {
-            transform: scale(0.96);
-            filter: brightness(0.92);
-          }
-
-          50% {
-            transform: scale(1.06);
-            filter: brightness(1.15);
-          }
+        .tap-ripple {
+          border-color: var(--awake-orb-glow);
+          opacity: 0;
+          animation: tap-ripple 520ms ease-out;
         }
 
-        @keyframes awake-rhythm-pulse {
-          0% {
-            transform: scale(0.42);
-            opacity: 0.96;
+        @keyframes tap-ripple {
+          from {
+            opacity: 0.62;
+            transform: scale(0.55);
           }
-
-          28% {
-            opacity: 0.82;
-          }
-
-          68% {
-            opacity: 0.42;
-          }
-
-          100% {
-            transform: scale(2.65);
+          to {
             opacity: 0;
+            transform: scale(2.25);
           }
-        }
-
-        @keyframes awake-tap-ripple {
-          0% {
-            transform: scale(0.7);
-            opacity: 0.8;
-          }
-
-          100% {
-            transform: scale(1.25);
-            opacity: 0;
-          }
-        }
-
-        .awake-water-line {
-          position: absolute;
-          left: -20%;
-          width: 140%;
-          height: 1px;
-          border-radius: 999px;
-          background: rgba(255, 255, 255, 0.38);
-          animation: awake-water-drift 8s ease-in-out infinite;
-        }
-
-        .awake-water-line-one {
-          top: 30%;
-        }
-
-        .awake-water-line-two {
-          top: 48%;
-          animation-delay: -2.5s;
-          animation-duration: 10s;
-        }
-
-        .awake-water-line-three {
-          top: 66%;
-          animation-delay: -5s;
-          animation-duration: 12s;
-        }
-
-        .awake-water-breathe {
-          animation: awake-water-breathe 5.6s ease-in-out infinite;
-        }
-
-        .awake-water-core {
-          background:
-            radial-gradient(
-              circle at 42% 34%,
-              rgba(255, 255, 255, 0.78) 0%,
-              rgba(255, 255, 255, 0.32) 18%,
-              rgba(${secondaryRgb}, 0.26) 52%,
-              rgba(${primaryRgb}, 0.12) 100%
-            );
-
-          border: 1px solid rgba(255, 255, 255, 0.72);
-
-          box-shadow:
-            0 0 16px rgba(255, 255, 255, 0.72),
-            0 0 38px rgba(${secondaryRgb}, 0.55),
-            0 0 86px rgba(${primaryRgb}, 0.4),
-            inset 0 0 28px rgba(255, 255, 255, 0.26);
-        }
-
-        .awake-water-shimmer {
-          background: rgba(255, 255, 255, 0.28);
-          filter: blur(5px);
-          transform: rotate(-14deg);
-        }
-
-        .awake-rhythm-pulse {
-          border: 2px solid rgba(255, 255, 255, 0.9);
-
-          box-shadow:
-            0 0 10px rgba(255, 255, 255, 0.82),
-            0 0 26px rgba(${secondaryRgb}, 0.56),
-            0 0 58px rgba(${primaryRgb}, 0.38);
-
-          animation: awake-rhythm-pulse
-            ${BEAT_LENGTH}ms cubic-bezier(0.18, 0.72, 0.32, 1)
-            forwards;
-        }
-        .awake-tap-ripple {
-          border-width: 2px;
-
-          box-shadow:
-            0 0 8px rgba(255, 255, 255, 0.6),
-            0 0 20px rgba(220, 248, 255, 0.35);
-
-          animation: awake-tap-ripple 550ms ease-out forwards;
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .awake-water-line,
-          .awake-water-breathe,
-          .awake-rhythm-pulse,
-          .awake-tap-ripple {
+          .tap-ripple {
             animation: none;
+            background: var(--awake-accent-soft);
+            opacity: 0.55;
+            transform: scale(0.7);
           }
         }
       `}</style>

@@ -137,7 +137,7 @@ export function generateAwakePalette(
   const hue = normalizeHue(anchorHue);
   const companion = companionHue(hue, harmony);
   const dark = appearance === "dark";
-  const accentLightness = dark ? 68 : 38;
+  const accentLightness = dark ? 68 : 32;
   const accentSaturation = dark ? 38 : 42;
 
   return {

@@ -157,7 +157,7 @@ export default function SystemsOverview() {
       }}
     >
       <div className="mx-auto w-full max-w-3xl">
-        <header className="flex items-end justify-between gap-4">
+        <header className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p
               className="text-xs uppercase tracking-[0.22em]"
@@ -169,11 +169,11 @@ export default function SystemsOverview() {
               Your Foundations
             </h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex w-full gap-2 sm:w-auto">
             <button
               type="button"
               onClick={() => setAppearanceOpen((open) => !open)}
-              className="min-h-11 rounded-full border px-3 text-sm"
+              className="min-h-11 flex-1 rounded-full border px-3 text-sm sm:flex-none"
               style={{
                 borderColor: palette.border,
                 background: palette.mutedSurface,
@@ -185,7 +185,7 @@ export default function SystemsOverview() {
             </button>
             <Link
               href="/systems"
-              className="flex min-h-11 items-center rounded-full px-4 text-sm font-medium"
+              className="flex min-h-11 flex-1 items-center justify-center rounded-full px-4 text-sm font-medium sm:flex-none"
               style={{
                 background: palette.primaryAccent,
                 color: palette.buttonText,
@@ -240,7 +240,7 @@ export default function SystemsOverview() {
           </section>
         )}
 
-        <div className="mt-7 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
           {views.map((option) => (
             <button
               key={option.id}
@@ -265,7 +265,7 @@ export default function SystemsOverview() {
         </div>
 
         <section className="relative mt-7">
-          <div className="flex justify-center py-5">
+          <div className="flex flex-col items-center justify-center py-5">
             <button
               type="button"
               onPointerDown={beginHold}
@@ -279,15 +279,21 @@ export default function SystemsOverview() {
               style={{ color: palette.secondaryText }}
               aria-label="Hold for breathing and rhythm"
             >
-              <span className="relative z-10 text-center text-xs font-medium leading-5">
-                Hold to breathe
-              </span>
               <span
                 className={`awake-hold-progress pointer-events-none absolute inset-[-9px] rounded-full ${
                   holding ? "is-holding" : ""
                 }`}
               />
             </button>
+            <span
+              className="mt-3 rounded-full px-3 py-1 text-xs font-medium"
+              style={{
+                color: palette.secondaryText,
+                background: `color-mix(in srgb, ${palette.mutedSurface} 72%, transparent)`,
+              }}
+            >
+              Hold to breathe
+            </span>
           </div>
 
           {view === "foundations" ? (
@@ -426,24 +432,33 @@ export default function SystemsOverview() {
       </div>
 
       <nav
-        className="awake-navigation fixed inset-x-0 bottom-0 border-t px-5 py-3 backdrop-blur"
+        className="awake-navigation fixed inset-x-0 bottom-0 border-t px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur"
         style={{
           borderColor: palette.border,
-          background: palette.navigation,
+          background: `color-mix(in srgb, ${palette.mutedSurface} 94%, transparent)`,
         }}
       >
-        <div className="mx-auto flex max-w-md items-center justify-around text-sm">
-          <span className="font-medium">Systems</span>
+        <div className="mx-auto grid max-w-md grid-cols-3 items-center gap-2 text-center text-sm">
+          <span
+            aria-current="page"
+            className="flex min-h-11 items-center justify-center rounded-full px-3 font-semibold"
+            style={{
+              background: palette.primaryAccent,
+              color: palette.buttonText,
+            }}
+          >
+            Systems
+          </span>
           <Link
             href="/privacy"
-            className="min-h-11 px-3 py-3"
+            className="flex min-h-11 items-center justify-center rounded-full px-3"
             style={{ color: palette.secondaryText }}
           >
             Privacy
           </Link>
           <Link
             href="/about"
-            className="min-h-11 px-3 py-3"
+            className="flex min-h-11 items-center justify-center rounded-full px-3"
             style={{ color: palette.secondaryText }}
           >
             About
@@ -541,6 +556,28 @@ export default function SystemsOverview() {
             inset 8px 9px 17px rgba(255, 255, 255, 0.75),
             0 14px 30px rgba(80, 98, 86, 0.14),
             0 0 0 10px color-mix(in srgb, ${palette.orbGlow} 8%, transparent);
+        }
+
+        .awake-center-orb::after {
+          position: absolute;
+          inset: -38%;
+          z-index: -1;
+          content: "";
+          border-radius: inherit;
+          background: radial-gradient(
+            circle,
+            color-mix(in srgb, ${palette.orbGlow} 24%, transparent),
+            transparent 68%
+          );
+          opacity: 0.16;
+          transition:
+            opacity 650ms ease,
+            transform 650ms ease;
+        }
+
+        .awake-center-orb:active::after {
+          opacity: 0.42;
+          transform: scale(1.08);
         }
 
         .awake-hold-progress {

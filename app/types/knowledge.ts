@@ -2,6 +2,8 @@ export type LifeAreaStatus = "active" | "stable" | "quiet";
 
 export type SystemStatus = "active" | "stable" | "quiet";
 
+export type LifeMapActionType = "maintenance" | "investment";
+
 export type ExperimentStatus =
   | "planned"
   | "active"
@@ -18,9 +20,15 @@ export type LifeArea = {
   name: string;
   icon: string;
   description: string;
-  status: LifeAreaStatus;
+  status: "active" | "stable" | "quiet";
   accent: string;
   background: string;
+};
+
+export type LifeMapAction = {
+  id: string;
+  title: string;
+  type: LifeMapActionType;
 };
 
 export type LifeMap = {
@@ -30,7 +38,8 @@ export type LifeMap = {
   icon?: string;
   purpose: string;
   commonChallenges: string[];
-  ideasToTry: string[];
+  actions: LifeMapAction[];
+  knowledge?: string[];
 };
 
 export type PersonalSystem = {

@@ -148,6 +148,34 @@ const actionTemplates: Record<string, FocusAreaAction[]> = {
   ],
 };
 
+const defaultActions: FocusAreaAction[] = [
+  {
+    id: "default-check-in",
+    title: "Check in with this area",
+    type: "maintenance",
+  },
+  {
+    id: "default-remove-obstacle",
+    title: "Remove one small obstacle",
+    type: "maintenance",
+  },
+  {
+    id: "default-prepare-next-step",
+    title: "Prepare the next step",
+    type: "maintenance",
+  },
+  {
+    id: "default-strengthen-system",
+    title: "Strengthen this system",
+    type: "investment",
+  },
+  {
+    id: "default-small-improvement",
+    title: "Try one small improvement",
+    type: "investment",
+  },
+];
+
 function normalizeTitle(title: string): string {
   return title
     .trim()
@@ -198,7 +226,7 @@ export default function FocusAreaActions({
   const actions = useMemo(() => {
     const templateKey = normalizeTitle(focusAreaTitle);
 
-    return actionTemplates[templateKey] ?? [];
+    return actionTemplates[templateKey] ?? defaultActions;
   }, [focusAreaTitle]);
 
   const [events, setEvents] = useState<
@@ -275,7 +303,7 @@ export default function FocusAreaActions({
     saveEvents([...storedEvents, newEvent]);
   }
 
-  if (!loaded || actions.length === 0) {
+  if (!loaded) {
     return null;
   }
 

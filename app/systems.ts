@@ -51,6 +51,16 @@ export type SystemUnderstanding = {
   meetsNeed: string;
 };
 
+export type FocusAreaActionType =
+  | "maintenance"
+  | "investment";
+
+export type FocusAreaCareAction = {
+  id: string;
+  title: string;
+  type: FocusAreaActionType;
+};
+
 export type AwakeFocusArea = {
   id: string;
   title: string;
@@ -58,6 +68,7 @@ export type AwakeFocusArea = {
   updatedAt: string;
 
   understanding: SystemUnderstanding;
+  careActions?: FocusAreaCareAction[];
   experiments: SystemExperiment[];
   lessons: SystemLesson[];
   gratitude: SystemGratitude[];

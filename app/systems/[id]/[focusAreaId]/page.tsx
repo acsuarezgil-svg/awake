@@ -8,6 +8,7 @@ import FocusAreaActions from "./FocusAreaActions";
 import type {
     AwakeFocusArea,
     AwakeSystem,
+    FocusAreaCareAction,
     SystemUnderstanding,
 } from "../../../systems";
 import {
@@ -239,6 +240,42 @@ export default function SystemDetailPage() {
     setDraftValue("");
     }
 
+  function saveCareActions(
+    careActions: FocusAreaCareAction[],
+  ) {
+    if (!system || !focusArea) return;
+
+    const now = new Date().toISOString();
+
+    const updatedFocusArea: AwakeFocusArea = {
+      ...focusArea,
+      careActions,
+      updatedAt: now,
+    };
+
+    const updatedSystem: AwakeSystem = {
+      ...system,
+      focusAreas: system.focusAreas.map((item) =>
+        item.id === focusArea.id
+          ? updatedFocusArea
+          : item,
+      ),
+      updatedAt: now,
+    };
+
+    const updatedSystems = systems.map((item) =>
+      item.id === system.id
+        ? updatedSystem
+        : item,
+    );
+
+    saveAwakeSystems(updatedSystems);
+
+    setSystems(updatedSystems);
+    setSystem(updatedSystem);
+    setFocusArea(updatedFocusArea);
+  }
+
     if (!loaded) {
     return null;
     }
@@ -363,7 +400,9 @@ export default function SystemDetailPage() {
           systemId={system.id}
           focusAreaId={focusArea.id}
           focusAreaTitle={focusArea.title}
+          savedActions={focusArea.careActions}
           isDark={isDark}
+          onSaveActions={saveCareActions}
         />
 
         <section className="mt-12">

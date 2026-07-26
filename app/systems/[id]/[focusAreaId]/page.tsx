@@ -27,47 +27,68 @@ type UnderstandingField = keyof SystemUnderstanding;
 const understandingPrompts: Array<{
   field: UnderstandingField;
   title: string;
-  prompt: string;
+  helper: string;
   placeholder: string;
 }> = [
   {
+    field: "purpose",
+    title: "Purpose",
+    helper: "Why this system matters to me",
+    placeholder:
+      "Describe why this area matters to you...",
+  },
+  {
     field: "currentApproach",
     title: "Current approach",
-    prompt: "How does this currently work in your life?",
+    helper: "How this system works today",
     placeholder:
-      "Describe what you usually do, expect, avoid, or rely on...",
+      "Describe how this currently works in your life...",
   },
   {
     field: "helps",
-    title: "What helps",
-    prompt: "What supports this system when it is working well?",
+    title: "What supports it",
+    helper: "What makes this easier",
     placeholder:
-      "People, routines, environments, choices, reminders...",
+      "People, routines, environments, or choices that help...",
   },
   {
     field: "obstacles",
     title: "What gets in the way",
-    prompt: "What tends to make this harder?",
+    helper: "What is making this difficult lately",
     placeholder:
-      "Patterns, pressure, uncertainty, habits, circumstances...",
-  },
-  {
-    field: "purpose",
-    title: "Purpose",
-    prompt:
-      "What need is your current approach trying to meet?",
-    placeholder:
-      "Protection, belonging, rest, control, safety, understanding...",
+      "Patterns, pressure, uncertainty, or circumstances...",
   },
   {
     field: "meetsNeed",
-    title: "What you are discovering",
-    prompt:
-      "Is this approach meeting the need, or does something need to change?",
+    title: "Working theory",
+    helper:
+      "What I currently believe helps this system work",
     placeholder:
-      "What seems true now? What might be worth trying differently?",
+      "Describe what you currently believe helps...",
   },
 ];
+
+const emptyUnderstanding: SystemUnderstanding = {
+  currentApproach: "",
+  helps: "",
+  obstacles: "",
+  purpose: "",
+  meetsNeed: "",
+};
+
+function formatUpdatedDate(value: string): string | null {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
 
 export default function SystemDetailPage() {
   const params = useParams<{
@@ -87,19 +108,17 @@ export default function SystemDetailPage() {
 
 
   const [understanding, setUnderstanding] =
-    useState<SystemUnderstanding>({
-      currentApproach: "",
-      helps: "",
-      obstacles: "",
-      purpose: "",
-      meetsNeed: "",
-    });
+    useState<SystemUnderstanding>(emptyUnderstanding);
+
+  const [editingField, setEditingField] =
+    useState<UnderstandingField | null>(null);
+
+  const [draftValue, setDraftValue] = useState("");
 
   const [wheelTheme, setWheelTheme] =
     useState<WheelTheme>("roseSage");
 
   const [loaded, setLoaded] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     const storedSystems = loadAwakeSystems();
@@ -151,16 +170,13 @@ export default function SystemDetailPage() {
 
     if (selectedFocusArea) {
         setUnderstanding(
-            selectedFocusArea.understanding
+            {
+              ...emptyUnderstanding,
+              ...selectedFocusArea.understanding,
+            }
         );
         } else {
-        setUnderstanding({
-            currentApproach: "",
-            helps: "",
-            obstacles: "",
-            purpose: "",
-            meetsNeed: "",
-        });
+        setUnderstanding(emptyUnderstanding);
         }
 
     if (savedTheme && isWheelTheme(savedTheme)) {
@@ -172,26 +188,28 @@ export default function SystemDetailPage() {
   const activeTheme = wheelThemes[wheelTheme];
   const isDark = isDarkWheelTheme(wheelTheme);
 
-  function updateUnderstanding(
-    field: UnderstandingField,
-    value: string
-  ) {
-    setUnderstanding((current) => ({
-      ...current,
-      [field]: value,
-    }));
-
-    setSaved(false);
+  function beginEditing(field: UnderstandingField) {
+    setEditingField(field);
+    setDraftValue(understanding[field] ?? "");
   }
 
-  function saveUnderstanding() {
+  function cancelEditing() {
+    setEditingField(null);
+    setDraftValue("");
+  }
+
+  function saveUnderstanding(field: UnderstandingField) {
     if (!system || !focusArea) return;
 
     const now = new Date().toISOString();
+    const nextUnderstanding: SystemUnderstanding = {
+      ...understanding,
+      [field]: draftValue.trim(),
+    };
 
     const updatedFocusArea: AwakeFocusArea = {
         ...focusArea,
-        understanding,
+        understanding: nextUnderstanding,
         updatedAt: now,
     };
 
@@ -216,11 +234,9 @@ export default function SystemDetailPage() {
     setSystems(updatedSystems);
     setSystem(updatedSystem);
     setFocusArea(updatedFocusArea);
-    setSaved(true);
-
-    window.setTimeout(() => {
-        setSaved(false);
-    }, 2200);
+    setUnderstanding(nextUnderstanding);
+    setEditingField(null);
+    setDraftValue("");
     }
 
     if (!loaded) {
@@ -351,99 +367,194 @@ export default function SystemDetailPage() {
         />
 
         <section className="mt-12">
-          <div className="mb-4 flex items-end justify-between">
-            <div>
-              <p
-                className={`text-xs uppercase tracking-[0.2em] ${
-                  isDark
-                    ? "text-slate-400"
-                    : "text-stone-400"
-                }`}
-              >
-                Foundation
-              </p>
-
-              <h2
-                className={`mt-2 text-2xl font-semibold ${
-                  isDark
-                    ? "text-stone-100"
-                    : "text-stone-800"
-                }`}
-              >
-                What have you noticed?
-              </h2>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {understandingPrompts.map((item) => (
-              <article
-                key={item.field}
-                className={`rounded-[1.75rem] border p-5 ${
-                  isDark
-                    ? "border-white/10 bg-slate-800/65"
-                    : "border-stone-200 bg-white/75"
-                }`}
-              >
-                <label
-                  htmlFor={item.field}
-                  className={`block text-xs uppercase tracking-[0.17em] ${
-                    isDark
-                      ? "text-slate-400"
-                      : "text-stone-400"
-                  }`}
-                >
-                  {item.title}
-                </label>
-
-                <p
-                  className={`mt-3 text-lg font-medium leading-7 ${
-                    isDark
-                      ? "text-stone-100"
-                      : "text-stone-800"
-                  }`}
-                >
-                  {item.prompt}
-                </p>
-
-                <textarea
-                  id={item.field}
-                  value={understanding[item.field]}
-                  onChange={(event) =>
-                    updateUnderstanding(
-                      item.field,
-                      event.target.value
-                    )
-                  }
-                  placeholder={item.placeholder}
-                  rows={4}
-                  className={`mt-4 w-full resize-none rounded-2xl border px-4 py-3 leading-6 outline-none transition ${
-                    isDark
-                      ? "border-slate-600 bg-slate-900/55 text-stone-100 placeholder:text-slate-500 focus:border-slate-400"
-                      : "border-stone-200 bg-white/85 text-stone-800 placeholder:text-stone-400 focus:border-stone-400"
-                  }`}
-                />
-              </article>
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={saveUnderstanding}
-            className={`mt-5 w-full rounded-2xl px-5 py-4 text-base font-semibold transition ${
-              saved
-                ? isDark
-                  ? "bg-emerald-800/70 text-emerald-100"
-                  : "bg-emerald-100 text-emerald-800"
-                : isDark
-                  ? "bg-stone-100 text-stone-900 hover:bg-white"
-                  : "bg-stone-900 text-white hover:bg-stone-700"
+          <p
+            className={`text-xs uppercase tracking-[0.2em] ${
+              isDark
+                ? "text-slate-400"
+                : "text-stone-400"
             }`}
           >
-            {saved
-              ? "Understanding saved"
-              : "Save understanding"}
-          </button>
+            Understanding
+          </p>
+
+          <h2
+            className={`mt-2 text-2xl font-semibold ${
+              isDark
+                ? "text-stone-100"
+                : "text-stone-800"
+            }`}
+          >
+            What feels true right now?
+          </h2>
+
+          <p
+            className={`mt-2 text-sm leading-6 ${
+              isDark
+                ? "text-slate-400"
+                : "text-stone-500"
+            }`}
+          >
+            Keep what is useful and revise it as your
+            understanding changes.
+          </p>
+
+          <div className="mt-5 space-y-3">
+            {understandingPrompts.map((item) => {
+              const isEditing =
+                editingField === item.field;
+              const savedValue =
+                understanding[item.field]?.trim();
+              const updatedDate =
+                focusArea.updatedAt !==
+                focusArea.createdAt
+                  ? formatUpdatedDate(
+                      focusArea.updatedAt,
+                    )
+                  : null;
+
+              return (
+                <article
+                  key={item.field}
+                  className={`rounded-3xl border px-5 py-4 transition-colors duration-200 ${
+                    isEditing
+                      ? isDark
+                        ? "border-slate-500 bg-slate-800/80"
+                        : "border-stone-300 bg-white/90"
+                      : isDark
+                        ? "border-white/10 bg-slate-800/45"
+                        : "border-stone-200 bg-white/65"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3
+                        className={`font-semibold ${
+                          isDark
+                            ? "text-stone-100"
+                            : "text-stone-800"
+                        }`}
+                      >
+                        {item.title}
+                      </h3>
+
+                      <p
+                        className={`mt-1 text-sm leading-5 ${
+                          isDark
+                            ? "text-slate-400"
+                            : "text-stone-500"
+                        }`}
+                      >
+                        {item.helper}
+                      </p>
+                    </div>
+
+                    {!isEditing && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          beginEditing(item.field)
+                        }
+                        className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                          isDark
+                            ? "bg-slate-700 text-slate-200 hover:bg-slate-600"
+                            : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                        }`}
+                      >
+                        Edit
+                      </button>
+                    )}
+                  </div>
+
+                  {isEditing ? (
+                    <div className="mt-4">
+                      <label
+                        htmlFor={`understanding-${item.field}`}
+                        className="sr-only"
+                      >
+                        {item.title}
+                      </label>
+
+                      <textarea
+                        id={`understanding-${item.field}`}
+                        value={draftValue}
+                        onChange={(event) =>
+                          setDraftValue(
+                            event.target.value,
+                          )
+                        }
+                        placeholder={item.placeholder}
+                        rows={3}
+                        autoFocus
+                        className={`w-full resize-none rounded-2xl border px-4 py-3 text-sm leading-6 outline-none transition-colors ${
+                          isDark
+                            ? "border-slate-600 bg-slate-900/55 text-stone-100 placeholder:text-slate-500 focus:border-slate-400"
+                            : "border-stone-200 bg-white text-stone-800 placeholder:text-stone-400 focus:border-stone-400"
+                        }`}
+                      />
+
+                      <div className="mt-3 flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={cancelEditing}
+                          className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
+                            isDark
+                              ? "text-slate-300 hover:bg-slate-700"
+                              : "text-stone-500 hover:bg-stone-100"
+                          }`}
+                        >
+                          Cancel
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            saveUnderstanding(
+                              item.field,
+                            )
+                          }
+                          className={`rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${
+                            isDark
+                              ? "bg-stone-100 text-stone-900 hover:bg-white"
+                              : "bg-stone-900 text-white hover:bg-stone-700"
+                          }`}
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-4">
+                      <p
+                        className={`whitespace-pre-wrap text-sm leading-6 ${
+                          savedValue
+                            ? isDark
+                              ? "text-stone-200"
+                              : "text-stone-700"
+                            : isDark
+                              ? "italic text-slate-500"
+                              : "italic text-stone-400"
+                        }`}
+                      >
+                        {savedValue || "Not added yet"}
+                      </p>
+
+                      {savedValue && updatedDate && (
+                        <p
+                          className={`mt-3 text-xs ${
+                            isDark
+                              ? "text-slate-500"
+                              : "text-stone-400"
+                          }`}
+                        >
+                          Updated {updatedDate}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
         </section>
 
 

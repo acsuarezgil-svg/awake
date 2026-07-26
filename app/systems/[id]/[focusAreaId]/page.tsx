@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { createAwakeFocusArea } from "../../../systems";
 import { getSystemTemplates } from "../../../systemTemplates";
+import FocusAreaActions from "./FocusAreaActions";
 import type {
     AwakeFocusArea,
     AwakeSystem,
@@ -341,7 +342,15 @@ export default function SystemDetailPage() {
           </p>
         </header>
 
-        <section>
+
+        <FocusAreaActions
+          systemId={system.id}
+          focusAreaId={focusArea.id}
+          focusAreaTitle={focusArea.title}
+          isDark={isDark}
+        />
+
+        <section className="mt-12">
           <div className="mb-4 flex items-end justify-between">
             <div>
               <p
@@ -361,7 +370,7 @@ export default function SystemDetailPage() {
                     : "text-stone-800"
                 }`}
               >
-                What feels true right now?
+                What have you noticed?
               </h2>
             </div>
           </div>
@@ -436,6 +445,7 @@ export default function SystemDetailPage() {
               : "Save understanding"}
           </button>
         </section>
+
 
         <section className="mt-12">
           <p

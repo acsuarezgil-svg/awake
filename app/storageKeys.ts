@@ -18,5 +18,6 @@ export const awakeStorageKeys = [
   "awake-wheel-theme",
   "awake-color-preferences",
   "awake-wheel-view",
+  "awake-foundation-view",
   "awake-insight-view",
 ] as const;

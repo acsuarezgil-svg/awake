@@ -202,6 +202,36 @@ export function generateSystemOrbPalette(
   };
 }
 
+const foundationHueOffsets: Record<string, number> = {
+  health: 0,
+  financial: 42,
+  finances: 42,
+  home: 24,
+  learning: 72,
+  relationships: 132,
+  energy: 188,
+  work: 215,
+  creativity: 292,
+  boundaries: 330,
+  communication: 108,
+};
+
+export function getFoundationHue(
+  title: string,
+  awakeAnchorHue: number,
+) {
+  const knownOffset =
+    foundationHueOffsets[title.trim().toLowerCase()];
+  if (knownOffset !== undefined) {
+    return normalizeHue(awakeAnchorHue + knownOffset);
+  }
+  const stableOffset = Array.from(title).reduce(
+    (total, character) => total + character.charCodeAt(0),
+    0,
+  );
+  return normalizeHue(awakeAnchorHue + (stableOffset % 240));
+}
+
 export function loadColorPreferences(): AwakeColorPreferences {
   if (typeof window === "undefined") return defaultColorPreferences;
 

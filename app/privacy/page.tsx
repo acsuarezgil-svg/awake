@@ -24,6 +24,8 @@ const awakeStorageKeys = [
   "awake-language",
   "awake-wheel-theme",
   "awake-wheel-view",
+  "awake-focus-area-action-events",
+  "awake-system-action-events",
 ];
 
 export default function PrivacyPage() {

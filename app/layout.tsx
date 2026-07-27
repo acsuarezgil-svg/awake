@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Awake",
   description:
-    "Build systems that support your life.",
+    "Observe, choose, and grow through practices for awareness.",
 };
 
 export default function RootLayout({

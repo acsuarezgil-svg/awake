@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { translations, type Language } from "../translations";
 import {
@@ -8,6 +9,11 @@ import {
   wheelThemes,
   type WheelTheme,
 } from "../theme";
+import {
+  EmptyState,
+  GentleLink,
+  PracticeHeader,
+} from "../components/practice/PracticePrimitives";
 
 type ReflectionSignature = {
   patterns: number;
@@ -49,6 +55,8 @@ export default function ReflectionsPage() {
     const savedWheelTheme = localStorage.getItem("awake-wheel-theme");
 
     if (saved) {
+      // Hydrate this legacy local-only collection after mounting.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReflections(JSON.parse(saved));
     }
     if (savedLanguage) {
@@ -204,7 +212,7 @@ const displayedReflections = showFavoritesOnly
       style={{ background: activeTheme.pageBackground }}
     >
       <section className="mx-auto w-full max-w-md">
-        <a
+        <Link
           href="/"
           className={`text-sm transition ${
             isDark
@@ -213,23 +221,15 @@ const displayedReflections = showFavoritesOnly
           }`}
         >
           {t.back}
-        </a>
+        </Link>
 
-        <h1
-          className={`mb-2 mt-4 text-3xl font-bold ${
-            isDark ? "text-stone-100" : "text-stone-900"
-          }`}
-        >
-          {t.journeyTitle}
-        </h1>
-
-        <p
-          className={`mb-8 ${
-            isDark ? "text-slate-300" : "text-gray-600"
-          }`}
-        >
-          {t.journeyDescription}.
-        </p>
+        <div className="mb-8 mt-5">
+          <PracticeHeader
+            eyebrow="Journey"
+            title="Notice how you grow."
+            subtitle="A quiet place for the observations, lessons, gratitude, and experiments that stay with you."
+          />
+        </div>
 
         <div className="mb-6 flex gap-2">
           <button
@@ -315,13 +315,18 @@ const displayedReflections = showFavoritesOnly
 
         <div className="space-y-4">
           {displayedReflections.length === 0 && (
-            <p
-              className={
-                isDark ? "text-slate-400" : "text-gray-500"
+            <EmptyState
+              title={
+                showFavoritesOnly
+                  ? "Nothing held close yet."
+                  : "Your Journey is quiet."
               }
+              action={<GentleLink href="/reflection">Notice something</GentleLink>}
             >
-              {showFavoritesOnly ? "No favorites yet." : t.noReflections}
-            </p>
+              {showFavoritesOnly
+                ? "Reflections you hold close will gather here."
+                : "When something stays with you, give it a little space here."}
+            </EmptyState>
           )}
 
           {displayedReflections.map((reflection) => (

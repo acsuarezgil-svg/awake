@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import BreathPractice from "./BreathPractice";
 import RhythmPractice from "./RhythmPractice";
 
-type PracticeMode = "menu" | "breath" | "rhythm";
+export type PracticeMode = "menu" | "breath" | "rhythm";
 
 type PracticeSpaceProps = {
   onFinish: () => void;
@@ -12,6 +12,7 @@ type PracticeSpaceProps = {
   secondaryColor: string;
   pageBackground: string;
   isDark: boolean;
+  initialMode?: PracticeMode;
 };
 
 export default function PracticeSpace({
@@ -20,8 +21,9 @@ export default function PracticeSpace({
   secondaryColor,
   pageBackground,
   isDark,
+  initialMode = "menu",
 }: PracticeSpaceProps) {
-  const [mode, setMode] = useState<PracticeMode>("menu");
+  const [mode, setMode] = useState<PracticeMode>(initialMode);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

@@ -37,14 +37,12 @@ import {
   saveAwakeSystems,
 } from "../systemStorage";
 import { getSystemTemplates } from "../systemTemplates";
-import type { Language } from "../translations";
 import AwakeColorPicker from "./AwakeColorPicker";
 import {
   circularOrbOffset,
   useOrbCarouselController,
 } from "./navigation/OrbCarousel";
 import PracticeSpace from "./practice/PracticeSpace";
-import VoiceCustomization from "./voice/VoiceCustomization";
 
 const HIDDEN_FOUNDATIONS_KEY = "awake-hidden-foundations";
 const BREATHE_ID = "awake-breathe";
@@ -115,8 +113,6 @@ export default function SystemsOverview() {
   const [selectedId, setSelectedId] = useState(BREATHE_ID);
   const [loaded, setLoaded] = useState(false);
   const [practiceOpen, setPracticeOpen] = useState(false);
-  const [voiceOpen, setVoiceOpen] = useState(false);
-  const [language, setLanguage] = useState<Language>("en");
   const [foundationViewPreferences, setFoundationViewPreferences] =
     useState<FoundationViewPreferences>({
       defaultView: "orb",
@@ -132,7 +128,6 @@ export default function SystemsOverview() {
   const suppressOpen = useRef(false);
   const lastBackgroundTap = useRef(0);
   const returnTimer = useRef<number | null>(null);
-  const voiceLaunchRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const initialized = initializeFoundations(loadAwakeSystems());
@@ -142,10 +137,6 @@ export default function SystemsOverview() {
     setHiddenIds(readHiddenFoundations());
     setColorPreferences(loadColorPreferences());
     setFoundationViewPreferences(loadFoundationViewPreferences());
-    const savedLanguage = localStorage.getItem("awake-language");
-    if (savedLanguage === "en" || savedLanguage === "es") {
-      setLanguage(savedLanguage);
-    }
     setLoaded(true);
     return () => {
       if (longPressTimer.current !== null) {
@@ -331,30 +322,6 @@ export default function SystemsOverview() {
           </div>
         </header>
 
-        <section
-          id="shape-awake"
-          className="awake-card relative z-20 mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <div>
-            <h2 className="text-lg">Shape your Awake</h2>
-            <p className="awake-supporting mt-1 text-sm">
-              Tell Awake what you want help organizing.
-            </p>
-            <p className="awake-supporting mt-1 text-xs">
-              You can review and edit your words before choosing anything.
-            </p>
-          </div>
-          <button
-            ref={voiceLaunchRef}
-            type="button"
-            onClick={() => setVoiceOpen(true)}
-            className="awake-button awake-button-secondary shrink-0"
-          >
-            Customize with voice
-          </button>
-        </section>
-
         {appearanceOpen && (
           <section
             className="awake-card relative z-30 mt-6 max-h-[70vh] overflow-y-auto"
@@ -469,7 +436,7 @@ export default function SystemsOverview() {
         )}
 
         <section
-          className="relative mt-10 h-[28rem] touch-pan-y select-none"
+          className="relative mt-6 h-[28rem] touch-pan-y select-none"
           aria-label="Foundation navigation"
           tabIndex={0}
           onKeyDown={(event) => {
@@ -529,7 +496,9 @@ export default function SystemsOverview() {
                         homeCarousel.didSwipe.current = false;
                         return;
                       }
-                      if (isCentered) setPracticeOpen(true);
+                      if (isCentered) {
+                        setPracticeOpen(true);
+                      }
                       else setSelectedId(BREATHE_ID);
                     }}
                     className="flex flex-col items-center outline-none"
@@ -697,15 +666,6 @@ export default function SystemsOverview() {
         </div>
       )}
 
-      {voiceOpen && (
-        <VoiceCustomization
-          language={language}
-          onClose={() => {
-            setVoiceOpen(false);
-            window.setTimeout(() => voiceLaunchRef.current?.focus(), 0);
-          }}
-        />
-      )}
 
       <style jsx>{`
         .navigation-foundation-orb {

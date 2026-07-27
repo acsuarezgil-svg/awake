@@ -126,3 +126,30 @@ export const awakeComponentClasses = {
   emptyState: "awake-empty-state",
   orb: "awake-orb",
 } as const;
+
+export const awakePillars = [
+  {
+    id: "breathe",
+    name: "Breathe",
+    purpose: "Return to yourself",
+    language: ["Pause", "Breathe", "Return"],
+  },
+  {
+    id: "rhythm",
+    name: "Rhythm",
+    purpose: "Return to your pattern",
+    language: ["Listen", "Flow", "Again"],
+  },
+  {
+    id: "world",
+    name: "World",
+    purpose: "Understand your life",
+    language: ["Notice", "Understand", "Choose"],
+  },
+  {
+    id: "journey",
+    name: "Journey",
+    purpose: "Notice how you grow",
+    language: ["Observe", "Reflect", "Grow"],
+  },
+] as const;

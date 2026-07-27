@@ -67,6 +67,17 @@ function applyAppearance() {
   root.style.setProperty("--awake-orb-highlight", palette.orbHighlight);
   root.style.setProperty("--awake-orb-glow", palette.orbGlow);
   root.style.setProperty(
+    "--awake-breathe-background",
+    palette.breatheOrbBackground,
+  );
+  root.style.setProperty("--awake-breathe-text", palette.breatheOrbText);
+  root.style.setProperty(
+    "--awake-breathe-border",
+    palette.breatheOrbBorder,
+  );
+  root.style.setProperty("--awake-breathe-ripple", palette.breatheRipple);
+  root.style.setProperty("--awake-breathe-halo", palette.breatheHalo);
+  root.style.setProperty(
     "--awake-inactive",
     palette.inactiveAmber,
   );

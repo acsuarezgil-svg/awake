@@ -40,6 +40,7 @@ export default function PracticeSpace({
         primaryColor={primaryColor}
         secondaryColor={secondaryColor}
         pageBackground={pageBackground}
+        isDark={isDark}
         onBack={() => setMode("menu")}
         onFinish={leavePractice}
       />

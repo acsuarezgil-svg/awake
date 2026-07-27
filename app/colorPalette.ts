@@ -36,6 +36,11 @@ export type AwakePalette = {
   mutedSurface: string;
   navigation: string;
   focus: string;
+  breatheOrbBackground: string;
+  breatheOrbText: string;
+  breatheOrbBorder: string;
+  breatheRipple: string;
+  breatheHalo: string;
 };
 
 export type SystemOrbPalette = {
@@ -190,6 +195,23 @@ export function generateAwakePalette(
       : hsl(hue, 34, 98),
     navigation: hsl(companion, dark ? 34 : 38, dark ? 70 : 38),
     focus: hsl(companion, dark ? 46 : 52, dark ? 72 : 37),
+    breatheOrbBackground: dark
+      ? hsl(hue, 25, 27)
+      : hsl(hue, 32, 78),
+    breatheOrbText: dark
+      ? hsl(hue, 12, 96)
+      : hsl(hue, 24, 16),
+    breatheOrbBorder: dark
+      ? hsl(hue, 24, 62)
+      : hsl(hue, 28, 45),
+    breatheRipple: dark
+      ? hsl(companion, 30, 82)
+      : hsl(companion, 36, 34),
+    breatheHalo: hsl(
+      companion,
+      dark ? 38 : 34,
+      dark ? 62 : 48,
+    ),
   };
 }
 

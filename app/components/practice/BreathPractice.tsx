@@ -10,6 +10,7 @@ type BreathPracticeProps = {
   primaryColor: string;
   secondaryColor: string;
   pageBackground: string;
+  isDark: boolean;
 };
 
 const INHALE_LENGTH = 4000;
@@ -30,6 +31,7 @@ export default function BreathPractice({
   primaryColor,
   secondaryColor,
   pageBackground,
+  isDark,
 }: BreathPracticeProps) {
   const [phase, setPhase] = useState<BreathPhase>("inhale");
   const [isVisible, setIsVisible] = useState(false);
@@ -37,9 +39,6 @@ export default function BreathPractice({
   const [animationStarted, setAnimationStarted] = useState(false);
   const [displayWord, setDisplayWord] = useState("Awake");
   const [showWord, setShowWord] = useState(true);
-
-  const primaryRgb = cleanRgb(primaryColor);
-  const secondaryRgb = cleanRgb(secondaryColor);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -102,23 +101,24 @@ export default function BreathPractice({
         background: `
           radial-gradient(
             circle at 50% 38%,
-            rgba(${secondaryRgb}, 0.34),
+            color-mix(in srgb, ${secondaryColor} 34%, transparent),
             transparent 46%
           ),
           linear-gradient(
             180deg,
-            rgba(${primaryRgb}, 0.12),
-            rgba(${secondaryRgb}, 0.28),
-            rgba(${primaryRgb}, 0.42)
+            color-mix(in srgb, ${primaryColor} 12%, transparent),
+            color-mix(in srgb, ${secondaryColor} 28%, transparent),
+            color-mix(in srgb, ${primaryColor} 42%, transparent)
           ),
           ${pageBackground}
         `,
       }}
+      data-breathe-mode={isDark ? "dark" : "light"}
     >
       <button
         type="button"
         onClick={onBack}
-        className="absolute left-5 top-7 rounded-full border border-white/35 bg-white/10 px-4 py-2 text-xs text-white/75 backdrop-blur-sm"
+        className="breathe-chrome absolute left-5 top-7 rounded-full border px-4 py-2 text-xs backdrop-blur-sm"
       >
         ← Practice
       </button>
@@ -129,7 +129,7 @@ export default function BreathPractice({
             : "translate-y-2 opacity-0"
         }`}
       >
-        <p className="text-[10px] uppercase tracking-[0.35em] text-white/45">
+        <p className="breathe-secondary text-[10px] uppercase tracking-[0.35em]">
             Long Breath
         </p>
 
@@ -155,11 +155,10 @@ export default function BreathPractice({
                 : "awake-breath-ring-idle"
             }`}
             style={{
-              border: "2px solid rgba(255,255,255,0.8)",
+              border: "2px solid var(--awake-breathe-border)",
               boxShadow: `
-                0 0 14px rgba(255,255,255,0.7),
-                0 0 42px rgba(${secondaryRgb},0.5),
-                0 0 90px rgba(${primaryRgb},0.32)
+                0 0 14px color-mix(in srgb, var(--awake-breathe-halo) 38%, transparent),
+                0 0 52px color-mix(in srgb, var(--awake-breathe-halo) 22%, transparent)
               `,
             }}
           />
@@ -176,15 +175,15 @@ export default function BreathPractice({
                 background: `
                 radial-gradient(
                     circle at 38% 32%,
-                    rgba(255,255,255,0.72),
-                    rgba(${secondaryRgb},0.32) 42%,
-                    rgba(${primaryRgb},0.14) 100%
+                    color-mix(in srgb, var(--awake-orb-highlight) 78%, white),
+                    var(--awake-breathe-background) 45%,
+                    color-mix(in srgb, var(--awake-breathe-background) 72%, var(--awake-accent)) 100%
                 )
                 `,
                 boxShadow: `
-                inset 0 0 24px rgba(255,255,255,0.18),
-                0 0 18px rgba(255,255,255,0.55),
-                0 0 55px rgba(${secondaryRgb},0.36)
+                inset 0 0 24px color-mix(in srgb, var(--awake-orb-highlight) 32%, transparent),
+                0 0 0 1px var(--awake-breathe-border),
+                0 8px 28px color-mix(in srgb, var(--awake-breathe-halo) 22%, transparent)
                 `,
             }}
             >
@@ -192,7 +191,7 @@ export default function BreathPractice({
                 <span
                 key={ring}
                 aria-hidden="true"
-                className="awake-inner-ripple absolute rounded-full border border-white/45"
+                className="awake-inner-ripple absolute rounded-full border"
                 style={{
                     animationDelay: `${ring * 1100}ms`,
                 }}
@@ -200,12 +199,12 @@ export default function BreathPractice({
             ))}
 
             <span
-                className={`relative z-10 text-2xl font-extralight tracking-[0.08em] text-white/90 transition-all duration-1000 ${
+                className={`breathe-center-text relative z-10 text-2xl font-light tracking-[0.08em] transition-all duration-1000 ${
                 environmentReady && showWord
                     ? phase === "inhale"
                     ? "scale-105 opacity-100 blur-0"
                     : "scale-100 opacity-75 blur-[0.7px]"
-                    : "scale-95 opacity-0 blur-sm"
+                    : "scale-95 opacity-60 blur-[0.4px]"
                 }`}
             >
                 {displayWord}
@@ -214,7 +213,7 @@ export default function BreathPractice({
         </div>
 
         <p
-          className={`mt-8 text-lg font-light tracking-[0.18em] text-white/85 transition-opacity duration-1000 ${
+          className={`breathe-center-text mt-8 text-lg font-light tracking-[0.18em] transition-opacity duration-1000 ${
             environmentReady ? "opacity-100" : "opacity-0"
           }`}
         >
@@ -222,7 +221,7 @@ export default function BreathPractice({
         </p>
 
         <p
-          className={`mt-4 text-xs font-light tracking-[0.08em] text-white/55 transition-opacity duration-1000 ${
+          className={`breathe-secondary mt-4 text-xs font-light tracking-[0.08em] transition-opacity duration-1000 ${
             environmentReady ? "opacity-100" : "opacity-0"
           }`}
         >
@@ -239,7 +238,7 @@ export default function BreathPractice({
                 onFinish();
             }, 1800);
             }}
-        className="absolute bottom-10 rounded-full border border-white/40 bg-white/15 px-7 py-3 text-sm text-white/80 backdrop-blur-sm transition hover:bg-white/25"
+        className="breathe-chrome absolute bottom-10 rounded-full border px-7 py-3 text-sm backdrop-blur-sm transition"
       >
         Finish
       </button>
@@ -256,6 +255,42 @@ export default function BreathPractice({
         .awake-breath-core-inhale {
           transform: scale(1.35);
           filter: brightness(1.18);
+        }
+
+        .breathe-center-text {
+          color: var(--awake-breathe-text);
+          text-shadow: 0 1px 10px
+            color-mix(in srgb, var(--awake-surface) 45%, transparent);
+        }
+
+        .breathe-secondary {
+          color: color-mix(
+            in srgb,
+            var(--awake-breathe-text) 72%,
+            transparent
+          );
+        }
+
+        .breathe-chrome {
+          color: var(--awake-breathe-text);
+          border-color: color-mix(
+            in srgb,
+            var(--awake-breathe-border) 72%,
+            transparent
+          );
+          background: color-mix(
+            in srgb,
+            var(--awake-breathe-background) 38%,
+            transparent
+          );
+        }
+
+        .awake-inner-ripple {
+          border-color: color-mix(
+            in srgb,
+            var(--awake-breathe-ripple) 58%,
+            transparent
+          );
         }
 
         .awake-breath-core-idle {
@@ -326,11 +361,4 @@ export default function BreathPractice({
       `}</style>
     </div>
   );
-}
-
-function cleanRgb(color: string) {
-  return color
-    .replace("rgb(", "")
-    .replace("rgba(", "")
-    .replace(")", "");
 }

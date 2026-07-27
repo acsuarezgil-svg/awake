@@ -507,15 +507,23 @@ export default function SystemsOverview() {
                     className="flex flex-col items-center outline-none"
                     aria-label={
                       isCentered
-                        ? "Open Practice"
+                        ? "Open breathing practice"
                         : "Move Breathe to the center"
                     }
                   >
                     <span
-                      className={`breathe-navigation-orb awake-orb h-32 w-32 ${
+                      className={`breathe-navigation-orb awake-orb flex h-32 w-32 items-center justify-center ${
                         isCentered ? "is-centered" : ""
                       }`}
-                    />
+                    >
+                      <span className="breathe-navigation-text">
+                        Breathe
+                      </span>
+                      <span
+                        className="breathe-navigation-ripple"
+                        aria-hidden="true"
+                      />
+                    </span>
                     <span className="mt-5 text-base font-medium">Breathe</span>
                     <span className="awake-supporting mt-1 text-xs">
                       {isCentered ? "Tap to enter Practice" : "Return to yourself"}
@@ -673,18 +681,61 @@ export default function SystemsOverview() {
         }
 
         .breathe-navigation-orb {
+          overflow: hidden;
+          border: 1px solid var(--awake-breathe-border);
+          background:
+            radial-gradient(
+              circle at 32% 24%,
+              color-mix(in srgb, var(--awake-orb-highlight) 76%, white),
+              transparent 30%
+            ),
+            linear-gradient(
+              145deg,
+              color-mix(in srgb, var(--awake-breathe-background) 78%, white),
+              var(--awake-breathe-background)
+            );
+          box-shadow:
+            inset 6px 7px 14px
+              color-mix(in srgb, var(--awake-orb-highlight) 35%, transparent),
+            0 8px 24px
+              color-mix(in srgb, var(--awake-breathe-halo) 16%, transparent);
           animation:
             navigation-breathe 7.5s ease-in-out infinite,
             navigation-light 18s linear infinite;
         }
 
         .breathe-navigation-orb.is-centered {
+          border-width: 2px;
           box-shadow:
-            inset -10px -12px 22px
-              color-mix(in srgb, var(--awake-accent) 28%, transparent),
-            inset 8px 9px 18px rgba(255, 255, 255, 0.56),
-            0 0 48px
-              color-mix(in srgb, var(--awake-orb-glow) 28%, transparent);
+            inset 6px 7px 16px
+              color-mix(in srgb, var(--awake-orb-highlight) 42%, transparent),
+            0 10px 28px
+              color-mix(in srgb, var(--awake-breathe-halo) 22%, transparent),
+            0 0 34px
+              color-mix(in srgb, var(--awake-breathe-halo) 14%, transparent);
+        }
+
+        .breathe-navigation-text {
+          position: relative;
+          z-index: 2;
+          color: var(--awake-breathe-text);
+          font-size: 0.875rem;
+          font-weight: 600;
+          letter-spacing: 0.04em;
+        }
+
+        .breathe-navigation-ripple {
+          position: absolute;
+          width: 78%;
+          height: 78%;
+          border: 1px solid
+            color-mix(
+              in srgb,
+              var(--awake-breathe-ripple) 48%,
+              transparent
+            );
+          border-radius: 9999px;
+          opacity: 0.72;
         }
 
         @keyframes navigation-breathe {

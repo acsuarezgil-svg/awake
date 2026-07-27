@@ -1,156 +1,86 @@
 export type RhythmSide = "left" | "right";
 export type RhythmStep = RhythmSide | "rest";
-export type RhythmLevel = "pulse" | "flow" | "weave";
-export type RhythmTempo = "slow" | "steady" | "flowing";
+export type RhythmStage =
+  | "pulse"
+  | "echo"
+  | "flow"
+  | "cadence"
+  | "harmony";
 
 export type RhythmPattern = {
   id: string;
   name: string;
-  level: RhythmLevel;
+  stage: RhythmStage;
   steps: RhythmStep[];
-  beatsPerStep?: number;
+  subdivision: 1 | 2;
 };
 
-export const rhythmLevels: Array<{
-  id: RhythmLevel;
+export const rhythmStages: Array<{
+  id: RhythmStage;
   label: string;
   description: string;
 }> = [
-  {
-    id: "pulse",
-    label: "Pulse",
-    description: "Simple, steady alternation",
-  },
-  {
-    id: "flow",
-    label: "Flow",
-    description: "Short groups and light pauses",
-  },
-  {
-    id: "weave",
-    label: "Weave",
-    description: "Longer patterns and changing direction",
-  },
-];
-
-export const rhythmTempos: Array<{
-  id: RhythmTempo;
-  label: string;
-  stepMs: number;
-  toleranceMs: number;
-}> = [
-  {
-    id: "slow",
-    label: "Slow",
-    stepMs: 1100,
-    toleranceMs: 1050,
-  },
-  {
-    id: "steady",
-    label: "Steady",
-    stepMs: 820,
-    toleranceMs: 760,
-  },
-  {
-    id: "flowing",
-    label: "Flowing",
-    stepMs: 620,
-    toleranceMs: 580,
-  },
+  { id: "pulse", label: "Pulse", description: "Watch a slow, steady beat." },
+  { id: "echo", label: "Echo", description: "Listen once, then answer." },
+  { id: "flow", label: "Flow", description: "Stay with a longer phrase." },
+  { id: "cadence", label: "Cadence", description: "Let guidance become quieter." },
+  { id: "harmony", label: "Harmony", description: "Feel the musical shape." },
 ];
 
 export const rhythmPatterns: RhythmPattern[] = [
   {
-    id: "pulse",
-    name: "Pulse",
-    level: "pulse",
+    id: "pulse-alternate",
+    name: "Steady pulse",
+    stage: "pulse",
     steps: ["left", "right", "left", "right"],
+    subdivision: 1,
   },
   {
-    id: "double",
-    name: "Double",
-    level: "pulse",
+    id: "pulse-pairs",
+    name: "Gentle pairs",
+    stage: "pulse",
     steps: ["left", "left", "right", "right"],
+    subdivision: 1,
   },
   {
-    id: "flow",
-    name: "Flow",
-    level: "flow",
-    steps: ["left", "right", "right", "left"],
+    id: "echo-space",
+    name: "Echo and space",
+    stage: "echo",
+    steps: ["left", "right", "rest", "left", "right", "rest"],
+    subdivision: 1,
   },
   {
-    id: "echo",
-    name: "Echo",
-    level: "flow",
-    steps: [
-      "left",
-      "right",
-      "left",
-      "rest",
-      "right",
-      "left",
-      "right",
-    ],
+    id: "flow-crossing",
+    name: "Crossing flow",
+    stage: "flow",
+    steps: ["left", "right", "left", "left", "right", "rest", "right", "left"],
+    subdivision: 2,
   },
   {
-    id: "rest",
-    name: "Rest",
-    level: "flow",
-    steps: [
-      "left",
-      "right",
-      "rest",
-      "left",
-      "right",
-      "rest",
-      "right",
-      "left",
-    ],
+    id: "cadence-return",
+    name: "Return",
+    stage: "cadence",
+    steps: ["left", "right", "right", "left", "rest", "left", "right", "left"],
+    subdivision: 2,
   },
   {
-    id: "wave",
-    name: "Wave",
-    level: "weave",
-    steps: [
-      "left",
-      "left",
-      "right",
-      "left",
-      "rest",
-      "right",
-      "right",
-      "left",
-      "right",
-    ],
-  },
-  {
-    id: "cross",
-    name: "Cross",
-    level: "weave",
-    steps: [
-      "left",
-      "right",
-      "left",
-      "right",
-      "rest",
-      "right",
-      "left",
-      "right",
-      "left",
-    ],
+    id: "harmony-phrase",
+    name: "Open phrase",
+    stage: "harmony",
+    steps: ["left", "right", "left", "rest", "right", "left", "right", "rest"],
+    subdivision: 2,
   },
 ];
 
-export function patternsForLevel(level: RhythmLevel) {
-  return rhythmPatterns.filter((pattern) => pattern.level === level);
+export function patternsForStage(stage: RhythmStage) {
+  return rhythmPatterns.filter((pattern) => pattern.stage === stage);
 }
 
 export function readablePattern(pattern: RhythmPattern) {
   return pattern.steps
-    .map((step) => {
-      if (step === "left") return "Left";
-      if (step === "right") return "Right";
-      return "Pause";
-    })
+    .map((step) =>
+      step === "left" ? "Left" : step === "right" ? "Right" : "Pause",
+    )
     .join(", ");
 }
+

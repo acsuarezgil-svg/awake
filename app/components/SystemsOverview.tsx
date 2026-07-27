@@ -19,6 +19,11 @@ import {
 } from "../colorPalette";
 import { defaultSystems } from "../systemPresets";
 import {
+  loadFoundationViewPreferences,
+  saveFoundationViewPreferences,
+  type FoundationViewPreferences,
+} from "../foundationViewPreferences";
+import {
   getFoundationLabel,
   getFoundationSummary,
 } from "../systemStatus";
@@ -34,6 +39,7 @@ import {
 import { getSystemTemplates } from "../systemTemplates";
 import type { Language } from "../translations";
 import AwakeColorPicker from "./AwakeColorPicker";
+import { circularOrbOffset } from "./navigation/OrbCarousel";
 import PracticeSpace from "./practice/PracticeSpace";
 import VoiceCustomization from "./voice/VoiceCustomization";
 
@@ -94,13 +100,6 @@ function initializeFoundations(stored: AwakeSystem[]) {
   return initialized;
 }
 
-function circularOffset(index: number, selected: number, length: number) {
-  let offset = index - selected;
-  if (offset > length / 2) offset -= length;
-  if (offset < -length / 2) offset += length;
-  return offset;
-}
-
 function offsetTransform(offset: number) {
   if (offset === 0) return "translateX(-50%) scale(1)";
   const direction = offset > 0 ? "+" : "-";
@@ -115,6 +114,11 @@ export default function SystemsOverview() {
   const [practiceOpen, setPracticeOpen] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
   const [language, setLanguage] = useState<Language>("en");
+  const [foundationViewPreferences, setFoundationViewPreferences] =
+    useState<FoundationViewPreferences>({
+      defaultView: "orb",
+      byFoundation: {},
+    });
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const [actionFoundation, setActionFoundation] =
     useState<AwakeSystem | null>(null);
@@ -136,6 +140,7 @@ export default function SystemsOverview() {
     setFoundations(initialized);
     setHiddenIds(readHiddenFoundations());
     setColorPreferences(loadColorPreferences());
+    setFoundationViewPreferences(loadFoundationViewPreferences());
     const savedLanguage = localStorage.getItem("awake-language");
     if (savedLanguage === "en" || savedLanguage === "es") {
       setLanguage(savedLanguage);
@@ -351,6 +356,7 @@ export default function SystemsOverview() {
         </header>
 
         <section
+          id="shape-awake"
           className="awake-card relative z-20 mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
           onClick={(event) => event.stopPropagation()}
         >
@@ -415,6 +421,38 @@ export default function SystemsOverview() {
               />
             </div>
             <div className="mt-8 border-t pt-6">
+              <h3>Foundation view</h3>
+              <p className="awake-supporting mt-1 text-xs">
+                Used when a Foundation has no individual preference.
+              </p>
+              <div className="mt-3 flex gap-2">
+                {(["orb", "list"] as const).map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => {
+                      const next = {
+                        ...foundationViewPreferences,
+                        defaultView: option,
+                      };
+                      setFoundationViewPreferences(next);
+                      saveFoundationViewPreferences(next);
+                    }}
+                    className={`awake-chip min-h-10 px-4 ${
+                      foundationViewPreferences.defaultView === option
+                        ? "is-selected"
+                        : ""
+                    }`}
+                    aria-pressed={
+                      foundationViewPreferences.defaultView === option
+                    }
+                  >
+                    {option === "orb" ? "Orb" : "List"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-8 border-t pt-6">
               <h3>Navigation orbs</h3>
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {foundations.map((foundation) => {
@@ -459,7 +497,11 @@ export default function SystemsOverview() {
           aria-label="Foundation navigation"
         >
           {items.map((item, index) => {
-            const offset = circularOffset(index, selectedIndex, items.length);
+            const offset = circularOrbOffset(
+              index,
+              selectedIndex,
+              items.length,
+            );
             const isCentered = offset === 0;
             const nearby = Math.abs(offset) <= 1;
             const visible = Math.abs(offset) <= 2;

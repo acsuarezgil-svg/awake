@@ -17,6 +17,13 @@ import {
   type AwakeColorPreferences,
 } from "../../colorPalette";
 import PracticeSpace from "../../components/practice/PracticeSpace";
+import OrbCarousel from "../../components/navigation/OrbCarousel";
+import {
+  loadFoundationViewPreferences,
+  saveFoundationViewPreferences,
+  type FoundationView,
+  type FoundationViewPreferences,
+} from "../../foundationViewPreferences";
 import { getSystemStatus } from "../../systemStatus";
 import {
   loadAwakeSystems,
@@ -28,17 +35,20 @@ import {
   type AwakeSystem,
 } from "../../systems";
 
-type FoundationView = "orbs" | "list";
-
-const FOUNDATION_VIEW_KEY = "awake-foundation-view";
-
 export default function FoundationPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [foundation, setFoundation] =
     useState<AwakeSystem | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [view, setView] = useState<FoundationView>("orbs");
+  const [viewPreferences, setViewPreferences] =
+    useState<FoundationViewPreferences>({
+      defaultView: "orb",
+      byFoundation: {},
+    });
+  const [selectedSystemId, setSelectedSystemId] = useState<string | null>(
+    null,
+  );
   const [showAdd, setShowAdd] = useState(false);
   const [customTitle, setCustomTitle] = useState("");
   const [practiceOpen, setPracticeOpen] = useState(false);
@@ -70,18 +80,34 @@ export default function FoundationPage() {
       );
     }
 
-    const savedView = localStorage.getItem(FOUNDATION_VIEW_KEY);
+    const savedView = loadFoundationViewPreferences();
     // Hydrate client-owned preferences and systems after mounting.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFoundation(initialized);
     setPreferences(loadColorPreferences());
-    setView(savedView === "list" ? "list" : "orbs");
+    setViewPreferences(savedView);
+    setSelectedSystemId(initialized?.focusAreas[0]?.id ?? null);
     setLoaded(true);
   }, [params.id]);
 
   function selectView(nextView: FoundationView) {
-    setView(nextView);
-    localStorage.setItem(FOUNDATION_VIEW_KEY, nextView);
+    const next = {
+      ...viewPreferences,
+      byFoundation: {
+        ...viewPreferences.byFoundation,
+        [params.id]: nextView,
+      },
+    };
+    setViewPreferences(next);
+    saveFoundationViewPreferences(next);
+  }
+
+  function useDefaultView() {
+    const nextByFoundation = { ...viewPreferences.byFoundation };
+    delete nextByFoundation[params.id];
+    const next = { ...viewPreferences, byFoundation: nextByFoundation };
+    setViewPreferences(next);
+    saveFoundationViewPreferences(next);
   }
 
   function addSystem(title: string) {
@@ -152,7 +178,7 @@ export default function FoundationPage() {
       <main className="awake-page min-h-screen px-5 py-8">
         <div className="mx-auto max-w-xl">
           <Link href="/" className="text-sm text-stone-500">
-            ← Foundations
+            ← World
           </Link>
           <h1 className="mt-12 text-xl font-medium">
             Foundation not found
@@ -183,6 +209,9 @@ export default function FoundationPage() {
           focusArea.title.toLowerCase() === title.toLowerCase(),
       ),
   );
+  const view =
+    viewPreferences.byFoundation[foundation.id] ??
+    viewPreferences.defaultView;
 
   if (practiceOpen) {
     return (
@@ -210,7 +239,7 @@ export default function FoundationPage() {
           className="text-sm transition"
           style={{ color: palette.secondaryText }}
         >
-          ← Foundations
+          ← World
         </Link>
 
         <header className="mt-8 text-center">
@@ -239,7 +268,7 @@ export default function FoundationPage() {
           }}
           aria-label="Foundation view"
         >
-          {(["orbs", "list"] as const).map((option) => (
+          {(["orb", "list"] as const).map((option) => (
             <button
               key={option}
               type="button"
@@ -257,10 +286,21 @@ export default function FoundationPage() {
               }}
               aria-pressed={view === option}
             >
-              {option}
+              {option === "orb" ? "Orb" : "List"}
             </button>
           ))}
         </div>
+        {viewPreferences.byFoundation[foundation.id] && (
+          <div className="mt-2 text-center">
+            <button
+              type="button"
+              onClick={useDefaultView}
+              className="awake-button awake-button-quiet min-h-9 px-3 text-xs"
+            >
+              Use default view
+            </button>
+          </div>
+        )}
 
         <div className="flex flex-col items-center justify-center py-9">
           <button
@@ -301,22 +341,46 @@ export default function FoundationPage() {
         </div>
 
         {foundation.focusAreas.length === 0 ? (
-          <p
-            className="awake-empty-state mx-auto max-w-sm rounded-3xl border border-dashed p-6 text-center text-sm"
+          <section
+            className="awake-empty-state mx-auto max-w-sm rounded-3xl border border-dashed p-6 text-center"
             style={{
               borderColor: palette.border,
               background: palette.mutedSurface,
               color: palette.secondaryText,
             }}
           >
-            No systems yet
-          </p>
-        ) : view === "orbs" ? (
-          <section
-            className="grid grid-cols-2 gap-x-5 gap-y-7 sm:grid-cols-3 sm:gap-x-10"
-            aria-label={`${foundation.title} systems`}
-          >
-            {foundation.focusAreas.map((focusArea, index) => {
+            <h2 className="text-base font-medium" style={{ color: palette.text }}>
+              No systems here yet.
+            </h2>
+            <p className="mt-2 text-sm">
+              Add one or tell Awake what you want help with.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowAdd(true)}
+                className="awake-button awake-button-primary"
+              >
+                Add a system
+              </button>
+              <Link href="/#shape-awake" className="awake-button awake-button-secondary">
+                Speak
+              </Link>
+            </div>
+          </section>
+        ) : view === "orb" ? (
+          <OrbCarousel
+            items={foundation.focusAreas}
+            selectedId={selectedSystemId}
+            onSelectedChange={setSelectedSystemId}
+            onOpen={(focusArea) =>
+              router.push(`/systems/${foundation.id}/${focusArea.id}`)
+            }
+            ariaLabel={`${foundation.title} systems`}
+            renderItem={(focusArea, { centered }) => {
+              const index = foundation.focusAreas.findIndex(
+                (item) => item.id === focusArea.id,
+              );
               const status = getSystemStatus(focusArea);
               const orb = generateSystemOrbPalette(
                 foundationHue + index * 12,
@@ -328,24 +392,15 @@ export default function FoundationPage() {
                 status.primary === "new" ||
                 status.primary === "paused";
               return (
-                <Link
-                  key={focusArea.id}
-                  href={`/systems/${foundation.id}/${focusArea.id}`}
-                  aria-label={`Open ${focusArea.title}. ${status.label}${
-                    status.isMine ? ". This is my system" : ""
-                  }`}
-                  className="group flex min-h-44 flex-col items-center rounded-[2.5rem] px-2 py-3 text-center outline-none transition-transform hover:-translate-y-1"
-                  style={{
-                    paddingTop: 12 + [0, 16, 5, 20, 8, 14][index % 6],
-                    color: palette.text,
-                  }}
-                >
+                <>
                   <span
-                    className={`foundation-system-orb relative rounded-full ${
+                    className={`foundation-system-orb relative flex items-center justify-center rounded-full ${
                       status.primary === "active" ? "is-active" : ""
                     } ${
                       status.primary === "review" ? "is-review" : ""
-                    } ${quiet ? "is-quiet" : ""}`}
+                    } ${quiet ? "is-quiet" : ""} ${
+                      centered ? "is-centered" : ""
+                    }`}
                     style={
                       {
                         "--orb-main":
@@ -371,7 +426,7 @@ export default function FoundationPage() {
                       />
                     )}
                   </span>
-                  <span className="mt-3 text-sm font-medium">
+                  <span className="mt-3 line-clamp-2 max-w-36 text-sm font-medium">
                     {focusArea.title}
                     {status.isMine ? " ★" : ""}
                   </span>
@@ -383,10 +438,10 @@ export default function FoundationPage() {
                       ? "Review"
                       : status.label}
                   </span>
-                </Link>
+                </>
               );
-            })}
-          </section>
+            }}
+          />
         ) : (
           <section
             className="space-y-3"
@@ -609,6 +664,11 @@ export default function FoundationPage() {
             filter 400ms ease,
             opacity 400ms ease,
             transform 400ms ease;
+        }
+
+        .foundation-system-orb.is-centered {
+          width: 112px;
+          height: 112px;
         }
 
         .foundation-system-orb::after {

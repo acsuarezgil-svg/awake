@@ -32,8 +32,10 @@ import {
   saveAwakeSystems,
 } from "../systemStorage";
 import { getSystemTemplates } from "../systemTemplates";
+import type { Language } from "../translations";
 import AwakeColorPicker from "./AwakeColorPicker";
 import PracticeSpace from "./practice/PracticeSpace";
+import VoiceCustomization from "./voice/VoiceCustomization";
 
 const HIDDEN_FOUNDATIONS_KEY = "awake-hidden-foundations";
 const BREATHE_ID = "awake-breathe";
@@ -111,6 +113,8 @@ export default function SystemsOverview() {
   const [selectedId, setSelectedId] = useState(BREATHE_ID);
   const [loaded, setLoaded] = useState(false);
   const [practiceOpen, setPracticeOpen] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
+  const [language, setLanguage] = useState<Language>("en");
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const [actionFoundation, setActionFoundation] =
     useState<AwakeSystem | null>(null);
@@ -123,6 +127,7 @@ export default function SystemsOverview() {
   const suppressOpen = useRef(false);
   const lastBackgroundTap = useRef(0);
   const returnTimer = useRef<number | null>(null);
+  const voiceLaunchRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const initialized = initializeFoundations(loadAwakeSystems());
@@ -131,6 +136,10 @@ export default function SystemsOverview() {
     setFoundations(initialized);
     setHiddenIds(readHiddenFoundations());
     setColorPreferences(loadColorPreferences());
+    const savedLanguage = localStorage.getItem("awake-language");
+    if (savedLanguage === "en" || savedLanguage === "es") {
+      setLanguage(savedLanguage);
+    }
     setLoaded(true);
     return () => {
       if (longPressTimer.current !== null) {
@@ -340,6 +349,29 @@ export default function SystemsOverview() {
             </Link>
           </div>
         </header>
+
+        <section
+          className="awake-card relative z-20 mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div>
+            <h2 className="text-lg">Shape your Awake</h2>
+            <p className="awake-supporting mt-1 text-sm">
+              Tell Awake what you want help organizing.
+            </p>
+            <p className="awake-supporting mt-1 text-xs">
+              You can review and edit your words before choosing anything.
+            </p>
+          </div>
+          <button
+            ref={voiceLaunchRef}
+            type="button"
+            onClick={() => setVoiceOpen(true)}
+            className="awake-button awake-button-secondary shrink-0"
+          >
+            Customize with voice
+          </button>
+        </section>
 
         {appearanceOpen && (
           <section
@@ -601,6 +633,16 @@ export default function SystemsOverview() {
             </div>
           </section>
         </div>
+      )}
+
+      {voiceOpen && (
+        <VoiceCustomization
+          language={language}
+          onClose={() => {
+            setVoiceOpen(false);
+            window.setTimeout(() => voiceLaunchRef.current?.focus(), 0);
+          }}
+        />
       )}
 
       <style jsx>{`

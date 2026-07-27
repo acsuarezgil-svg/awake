@@ -25,6 +25,7 @@ import {
 } from "../../../colorPalette";
 import AwakeColorPicker from "../../../components/AwakeColorPicker";
 import FocusAreaActions from "./FocusAreaActions";
+import { getSystemStatus } from "../../../systemStatus";
 
 const periodOptions = [
   { label: "1 week", value: 1, unit: "weeks" },
@@ -147,6 +148,7 @@ export default function SystemLifecyclePage() {
       ? currentCommitment
       : null;
   const latestReview = reviews.at(-1);
+  const systemStatus = focusArea ? getSystemStatus(focusArea) : null;
 
   function saveFocusArea(nextFocusArea: AwakeFocusArea) {
     if (!system) return;
@@ -345,21 +347,32 @@ export default function SystemLifecyclePage() {
       }}
     >
       <div className="mx-auto w-full max-w-lg">
-        <Link href="/" className="text-sm text-stone-500 transition hover:text-stone-800">
-          ← Systems
+        <Link
+          href={`/systems/${system.id}`}
+          className="text-sm transition"
+          style={{ color: palette.secondaryText }}
+        >
+          ← {system.title}
         </Link>
 
         <header className="mt-8">
-          <p className="text-xs uppercase tracking-[0.2em] text-stone-400">
-            Your System
+          <p
+            className="text-xs uppercase tracking-[0.2em]"
+            style={{ color: palette.secondaryText }}
+          >
+            {system.title} Foundation
           </p>
           <div className="mt-2 flex items-start justify-between gap-5">
             <div>
               <h1 className="text-3xl font-semibold tracking-tight">
                 {focusArea.title}
               </h1>
-              <p className="mt-2 text-sm text-stone-500">
-                Last updated {relativeDate(focusArea.lastUpdatedAt)}
+              <p
+                className="mt-2 text-sm"
+                style={{ color: palette.secondaryText }}
+              >
+                {systemStatus?.label ?? "System"} · Last updated{" "}
+                {relativeDate(focusArea.lastUpdatedAt)}
               </p>
             </div>
             <button
@@ -378,6 +391,21 @@ export default function SystemLifecyclePage() {
             </button>
           </div>
         </header>
+
+        <section
+          className="mt-7 border-y py-5"
+          style={{ borderColor: palette.border }}
+        >
+          <p
+            className="text-xs uppercase tracking-[0.18em]"
+            style={{ color: palette.secondaryText }}
+          >
+            Purpose
+          </p>
+          <p className="mt-2 leading-7">
+            {focusArea.understanding.purpose.trim() || "Not added yet"}
+          </p>
+        </section>
 
         <div className="mt-4 flex justify-end">
           <button

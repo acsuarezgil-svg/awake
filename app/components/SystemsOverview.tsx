@@ -39,7 +39,10 @@ import {
 import { getSystemTemplates } from "../systemTemplates";
 import type { Language } from "../translations";
 import AwakeColorPicker from "./AwakeColorPicker";
-import { circularOrbOffset } from "./navigation/OrbCarousel";
+import {
+  circularOrbOffset,
+  useOrbCarouselController,
+} from "./navigation/OrbCarousel";
 import PracticeSpace from "./practice/PracticeSpace";
 import VoiceCustomization from "./voice/VoiceCustomization";
 
@@ -124,8 +127,6 @@ export default function SystemsOverview() {
     useState<AwakeSystem | null>(null);
   const [colorPreferences, setColorPreferences] =
     useState<AwakeColorPreferences>(defaultColorPreferences);
-  const swipeStart = useRef<{ x: number; y: number } | null>(null);
-  const didSwipe = useRef(false);
   const longPressTimer = useRef<number | null>(null);
   const longPressStart = useRef<{ x: number; y: number } | null>(null);
   const suppressOpen = useRef(false);
@@ -174,36 +175,15 @@ export default function SystemsOverview() {
     ),
     { id: BREATHE_ID, kind: "breathe" },
   ];
-  const selectedIndex = Math.max(
-    0,
-    items.findIndex((item) => item.id === selectedId),
+  const homeCarousel = useOrbCarouselController(
+    items,
+    selectedId,
+    setSelectedId,
   );
+  const selectedIndex = homeCarousel.selectedIndex;
   function updateColorPreferences(next: AwakeColorPreferences) {
     setColorPreferences(next);
     saveColorPreferences(next);
-  }
-
-  function move(direction: -1 | 1) {
-    if (items.length < 2) return;
-    const nextIndex =
-      (selectedIndex + direction + items.length) % items.length;
-    setSelectedId(items[nextIndex].id);
-    if ("vibrate" in navigator) navigator.vibrate(5);
-  }
-
-  function beginSwipe(event: ReactPointerEvent<HTMLElement>) {
-    didSwipe.current = false;
-    swipeStart.current = { x: event.clientX, y: event.clientY };
-  }
-
-  function finishSwipe(event: ReactPointerEvent<HTMLElement>) {
-    if (!swipeStart.current) return;
-    const x = event.clientX - swipeStart.current.x;
-    const y = event.clientY - swipeStart.current.y;
-    swipeStart.current = null;
-    if (Math.abs(x) < 42 || Math.abs(x) < Math.abs(y)) return;
-    didSwipe.current = true;
-    move(x < 0 ? 1 : -1);
   }
 
   function animateBreatheHome() {
@@ -316,11 +296,7 @@ export default function SystemsOverview() {
   return (
     <main
       className="awake-page min-h-screen overflow-hidden px-4 pb-12 pt-8 sm:px-6"
-      onPointerDown={beginSwipe}
-      onPointerUp={finishSwipe}
-      onPointerCancel={() => {
-        swipeStart.current = null;
-      }}
+      {...homeCarousel.pointerHandlers}
       onClick={handleBackgroundTap}
     >
       <div className="mx-auto w-full max-w-4xl">
@@ -495,6 +471,16 @@ export default function SystemsOverview() {
         <section
           className="relative mt-10 h-[28rem] touch-pan-y select-none"
           aria-label="Foundation navigation"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "ArrowLeft") {
+              event.preventDefault();
+              homeCarousel.move(-1);
+            } else if (event.key === "ArrowRight") {
+              event.preventDefault();
+              homeCarousel.move(1);
+            }
+          }}
         >
           {items.map((item, index) => {
             const offset = circularOrbOffset(
@@ -539,8 +525,8 @@ export default function SystemsOverview() {
                     type="button"
                     onClick={(event) => {
                       event.stopPropagation();
-                      if (didSwipe.current) {
-                        didSwipe.current = false;
+                      if (homeCarousel.didSwipe.current) {
+                        homeCarousel.didSwipe.current = false;
                         return;
                       }
                       if (isCentered) setPracticeOpen(true);
@@ -583,8 +569,8 @@ export default function SystemsOverview() {
                     onPointerCancel={cancelFoundationHold}
                     onClick={(event) => {
                       event.stopPropagation();
-                      if (didSwipe.current) {
-                        didSwipe.current = false;
+                      if (homeCarousel.didSwipe.current) {
+                        homeCarousel.didSwipe.current = false;
                         return;
                       }
                       if (suppressOpen.current) {
@@ -625,9 +611,35 @@ export default function SystemsOverview() {
             );
           })}
 
-          <p className="awake-supporting absolute inset-x-0 bottom-7 text-center text-xs">
+          <p className="awake-supporting absolute inset-x-0 bottom-16 text-center text-xs">
             Swipe to move · Double-tap the background to return
           </p>
+          <div className="absolute inset-x-0 bottom-1 flex justify-center gap-3">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                homeCarousel.move(-1);
+              }}
+              disabled={items.length < 2}
+              className="awake-button awake-button-secondary h-11 w-11 rounded-full p-0 disabled:opacity-35"
+              aria-label="Previous orb"
+            >
+              ←
+            </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                homeCarousel.move(1);
+              }}
+              disabled={items.length < 2}
+              className="awake-button awake-button-secondary h-11 w-11 rounded-full p-0 disabled:opacity-35"
+              aria-label="Next orb"
+            >
+              →
+            </button>
+          </div>
         </section>
 
         <div className="flex justify-center sm:hidden">

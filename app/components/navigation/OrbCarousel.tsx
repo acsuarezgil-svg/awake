@@ -18,6 +18,52 @@ export function circularOrbOffset(
   return offset;
 }
 
+export function useOrbCarouselController<T extends { id: string }>(
+  items: T[],
+  selectedId: string | null,
+  onSelectedChange: (id: string) => void,
+) {
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const didSwipe = useRef(false);
+  const selectedIndex = Math.max(
+    0,
+    items.findIndex((item) => item.id === selectedId),
+  );
+
+  function move(direction: -1 | 1) {
+    if (items.length < 2) return;
+    const next =
+      (selectedIndex + direction + items.length) % items.length;
+    onSelectedChange(items[next].id);
+  }
+
+  function onPointerDown(event: ReactPointerEvent<HTMLElement>) {
+    didSwipe.current = false;
+    swipeStart.current = { x: event.clientX, y: event.clientY };
+  }
+
+  function onPointerUp(event: ReactPointerEvent<HTMLElement>) {
+    if (!swipeStart.current) return;
+    const x = event.clientX - swipeStart.current.x;
+    const y = event.clientY - swipeStart.current.y;
+    swipeStart.current = null;
+    if (Math.abs(x) < 42 || Math.abs(x) < Math.abs(y)) return;
+    didSwipe.current = true;
+    move(x < 0 ? 1 : -1);
+  }
+
+  function onPointerCancel() {
+    swipeStart.current = null;
+  }
+
+  return {
+    selectedIndex,
+    move,
+    didSwipe,
+    pointerHandlers: { onPointerDown, onPointerUp, onPointerCancel },
+  };
+}
+
 type OrbCarouselProps<T extends { id: string }> = {
   items: T[];
   selectedId: string | null;
@@ -38,11 +84,15 @@ export default function OrbCarousel<T extends { id: string }>({
   renderItem,
   ariaLabel,
 }: OrbCarouselProps<T>) {
-  const swipeStart = useRef<{ x: number; y: number } | null>(null);
-  const didSwipe = useRef(false);
-  const selectedIndex = Math.max(
-    0,
-    items.findIndex((item) => item.id === selectedId),
+  const {
+    selectedIndex,
+    move,
+    didSwipe,
+    pointerHandlers,
+  } = useOrbCarouselController(
+    items,
+    selectedId,
+    onSelectedChange,
   );
 
   useEffect(() => {
@@ -50,23 +100,6 @@ export default function OrbCarousel<T extends { id: string }>({
       onSelectedChange(items[0].id);
     }
   }, [items, onSelectedChange, selectedId]);
-
-  function move(direction: -1 | 1) {
-    if (items.length < 2) return;
-    const next =
-      (selectedIndex + direction + items.length) % items.length;
-    onSelectedChange(items[next].id);
-  }
-
-  function finishSwipe(event: ReactPointerEvent<HTMLElement>) {
-    if (!swipeStart.current) return;
-    const x = event.clientX - swipeStart.current.x;
-    const y = event.clientY - swipeStart.current.y;
-    swipeStart.current = null;
-    if (Math.abs(x) < 42 || Math.abs(x) < Math.abs(y)) return;
-    didSwipe.current = true;
-    move(x < 0 ? 1 : -1);
-  }
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
     if (event.key === "ArrowLeft") {
@@ -90,14 +123,7 @@ export default function OrbCarousel<T extends { id: string }>({
       aria-label={ariaLabel}
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onPointerDown={(event) => {
-        didSwipe.current = false;
-        swipeStart.current = { x: event.clientX, y: event.clientY };
-      }}
-      onPointerUp={finishSwipe}
-      onPointerCancel={() => {
-        swipeStart.current = null;
-      }}
+      {...pointerHandlers}
     >
       {items.map((item, index) => {
         const offset = circularOrbOffset(index, selectedIndex, items.length);

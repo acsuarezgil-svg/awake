@@ -1,28 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   CSSProperties,
+  MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
 } from "react";
 
 import {
-  colorToHue,
   defaultColorPreferences,
   generateAwakePalette,
   generateSystemOrbPalette,
+  getFoundationHue,
   loadColorPreferences,
   saveColorPreferences,
   type AwakeColorPreferences,
 } from "../colorPalette";
+import { defaultSystems } from "../systemPresets";
 import {
   getFoundationLabel,
   getFoundationSummary,
-  getSystemStatus,
 } from "../systemStatus";
 import {
   createAwakeFocusArea,
+  createAwakeSystem,
   type AwakeSystem,
 } from "../systems";
 import {
@@ -33,56 +35,111 @@ import { getSystemTemplates } from "../systemTemplates";
 import AwakeColorPicker from "./AwakeColorPicker";
 import PracticeSpace from "./practice/PracticeSpace";
 
-type View = "foundations" | "mine" | "active" | "review";
+const HIDDEN_FOUNDATIONS_KEY = "awake-hidden-foundations";
+const BREATHE_ID = "awake-breathe";
 
-const views: Array<{ id: View; label: string }> = [
-  { id: "foundations", label: "Foundations" },
-  { id: "mine", label: "★ Mine" },
-  { id: "active", label: "Active" },
-  { id: "review", label: "Review" },
-];
+type NavigationItem =
+  | { id: string; kind: "foundation"; foundation: AwakeSystem }
+  | { id: typeof BREATHE_ID; kind: "breathe" };
 
-const emptyMessages: Record<Exclude<View, "foundations">, string> = {
-  mine: "No systems are marked as yours yet.",
-  active: "No systems are being tried right now.",
-  review: "Nothing needs review right now.",
-};
+function readHiddenFoundations() {
+  try {
+    const parsed = JSON.parse(
+      localStorage.getItem(HIDDEN_FOUNDATIONS_KEY) ?? "[]",
+    );
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function initializeFoundations(stored: AwakeSystem[]) {
+  let changed = false;
+  const existingTitles = new Set(
+    stored.map((foundation) => foundation.title.toLowerCase()),
+  );
+  const withDefaults = [...stored];
+
+  for (const title of defaultSystems) {
+    if (existingTitles.has(title.toLowerCase())) continue;
+    const foundation = createAwakeSystem(title);
+    foundation.focusAreas = getSystemTemplates(title).map(
+      createAwakeFocusArea,
+    );
+    foundation.focusAreasInitialized = true;
+    withDefaults.push(foundation);
+    changed = true;
+  }
+
+  const initialized = withDefaults.map((foundation) => {
+    if (foundation.focusAreasInitialized) return foundation;
+    const templates = getSystemTemplates(foundation.title);
+    if (templates.length === 0) return foundation;
+    changed = true;
+    return {
+      ...foundation,
+      focusAreas:
+        foundation.focusAreas.length > 0
+          ? foundation.focusAreas
+          : templates.map(createAwakeFocusArea),
+      focusAreasInitialized: true,
+    };
+  });
+
+  if (changed) saveAwakeSystems(initialized);
+  return initialized;
+}
+
+function circularOffset(index: number, selected: number, length: number) {
+  let offset = index - selected;
+  if (offset > length / 2) offset -= length;
+  if (offset < -length / 2) offset += length;
+  return offset;
+}
+
+function offsetTransform(offset: number) {
+  if (offset === 0) return "translateX(-50%) scale(1)";
+  const direction = offset > 0 ? "+" : "-";
+  return `translateX(calc(-50% ${direction} clamp(8rem, 25vw, 12rem))) scale(0.72)`;
+}
 
 export default function SystemsOverview() {
   const [foundations, setFoundations] = useState<AwakeSystem[]>([]);
-  const [view, setView] = useState<View>("foundations");
+  const [hiddenIds, setHiddenIds] = useState<string[]>([]);
+  const [selectedId, setSelectedId] = useState(BREATHE_ID);
   const [loaded, setLoaded] = useState(false);
   const [practiceOpen, setPracticeOpen] = useState(false);
   const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const [actionFoundation, setActionFoundation] =
+    useState<AwakeSystem | null>(null);
   const [colorPreferences, setColorPreferences] =
     useState<AwakeColorPreferences>(defaultColorPreferences);
-  const [holding, setHolding] = useState(false);
-  const holdTimer = useRef<number | null>(null);
-  const holdStart = useRef<{ x: number; y: number } | null>(null);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const didSwipe = useRef(false);
+  const longPressTimer = useRef<number | null>(null);
+  const longPressStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressOpen = useRef(false);
+  const lastBackgroundTap = useRef(0);
+  const returnTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    const stored = loadAwakeSystems();
-    let changed = false;
-    const initialized = stored.map((foundation) => {
-      if (foundation.focusAreasInitialized) return foundation;
-      const templates = getSystemTemplates(foundation.title);
-      if (templates.length === 0) return foundation;
-      changed = true;
-      return {
-        ...foundation,
-        focusAreas:
-          foundation.focusAreas.length > 0
-            ? foundation.focusAreas
-            : templates.map(createAwakeFocusArea),
-        focusAreasInitialized: true,
-      };
-    });
-    if (changed) saveAwakeSystems(initialized);
-    // Hydrate the client-only local system store after mounting.
+    const initialized = initializeFoundations(loadAwakeSystems());
+    // Hydrate client-owned local data after mounting.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFoundations(initialized);
+    setHiddenIds(readHiddenFoundations());
     setColorPreferences(loadColorPreferences());
     setLoaded(true);
+    return () => {
+      if (longPressTimer.current !== null) {
+        window.clearTimeout(longPressTimer.current);
+      }
+      if (returnTimer.current !== null) {
+        window.clearTimeout(returnTimer.current);
+      }
+    };
   }, []);
 
   const palette = generateAwakePalette(
@@ -90,59 +147,141 @@ export default function SystemsOverview() {
     colorPreferences.harmony,
     colorPreferences.appearance,
   );
-
-  const individualSystems = useMemo(
-    () =>
-      foundations.flatMap((foundation) =>
-        foundation.focusAreas.map((focusArea) => ({
-          foundation,
-          focusArea,
-          status: getSystemStatus(focusArea),
-        })),
-      ),
-    [foundations],
+  const visibleFoundations = foundations.filter(
+    (foundation) => !hiddenIds.includes(foundation.id),
   );
-
-  const visibleSystems = individualSystems.filter(({ status }) => {
-    if (view === "mine") return status.isMine;
-    if (view === "active") return status.activeCommitment;
-    if (view === "review") return status.reviewDue;
-    return false;
-  });
-
+  const items: NavigationItem[] = [
+    ...visibleFoundations.map(
+      (foundation): NavigationItem => ({
+        id: foundation.id,
+        kind: "foundation",
+        foundation,
+      }),
+    ),
+    { id: BREATHE_ID, kind: "breathe" },
+  ];
+  const selectedIndex = Math.max(
+    0,
+    items.findIndex((item) => item.id === selectedId),
+  );
   function updateColorPreferences(next: AwakeColorPreferences) {
     setColorPreferences(next);
     saveColorPreferences(next);
   }
 
-  function beginHold(event: ReactPointerEvent<HTMLButtonElement>) {
-    holdStart.current = { x: event.clientX, y: event.clientY };
-    setHolding(true);
-    holdTimer.current = window.setTimeout(() => {
-      setHolding(false);
-      setPracticeOpen(true);
-      if ("vibrate" in navigator) navigator.vibrate(35);
-    }, 750);
+  function move(direction: -1 | 1) {
+    if (items.length < 2) return;
+    const nextIndex =
+      (selectedIndex + direction + items.length) % items.length;
+    setSelectedId(items[nextIndex].id);
+    if ("vibrate" in navigator) navigator.vibrate(5);
   }
 
-  function cancelHold() {
-    setHolding(false);
-    holdStart.current = null;
-    if (holdTimer.current !== null) {
-      window.clearTimeout(holdTimer.current);
-      holdTimer.current = null;
+  function beginSwipe(event: ReactPointerEvent<HTMLElement>) {
+    didSwipe.current = false;
+    swipeStart.current = { x: event.clientX, y: event.clientY };
+  }
+
+  function finishSwipe(event: ReactPointerEvent<HTMLElement>) {
+    if (!swipeStart.current) return;
+    const x = event.clientX - swipeStart.current.x;
+    const y = event.clientY - swipeStart.current.y;
+    swipeStart.current = null;
+    if (Math.abs(x) < 42 || Math.abs(x) < Math.abs(y)) return;
+    didSwipe.current = true;
+    move(x < 0 ? 1 : -1);
+  }
+
+  function animateBreatheHome() {
+    const breatheIndex = items.findIndex((item) => item.id === BREATHE_ID);
+    if (breatheIndex === selectedIndex) return;
+    const forward =
+      (breatheIndex - selectedIndex + items.length) % items.length;
+    const backward =
+      (selectedIndex - breatheIndex + items.length) % items.length;
+    const direction: -1 | 1 = forward <= backward ? 1 : -1;
+    let steps = Math.min(forward, backward);
+    let cursor = selectedIndex;
+
+    const rotate = () => {
+      if (steps <= 0) return;
+      cursor = (cursor + direction + items.length) % items.length;
+      setSelectedId(items[cursor].id);
+      steps -= 1;
+      if (steps > 0) {
+        returnTimer.current = window.setTimeout(rotate, 210);
+      }
+    };
+    rotate();
+  }
+
+  function handleBackgroundTap(event: ReactMouseEvent<HTMLElement>) {
+    if (
+      (event.target as HTMLElement).closest("[data-navigation-orb]") ||
+      (event.target as HTMLElement).closest("button, a")
+    ) {
+      return;
+    }
+    const now = Date.now();
+    if (now - lastBackgroundTap.current < 330) {
+      animateBreatheHome();
+      lastBackgroundTap.current = 0;
+    } else {
+      lastBackgroundTap.current = now;
     }
   }
 
-  function trackHold(event: ReactPointerEvent<HTMLButtonElement>) {
-    if (!holding || !holdStart.current) return;
+  function beginFoundationHold(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    foundation: AwakeSystem,
+  ) {
+    suppressOpen.current = false;
+    longPressStart.current = { x: event.clientX, y: event.clientY };
+    longPressTimer.current = window.setTimeout(() => {
+      suppressOpen.current = true;
+      setActionFoundation(foundation);
+      if ("vibrate" in navigator) navigator.vibrate(22);
+    }, 650);
+  }
+
+  function trackFoundationHold(
+    event: ReactPointerEvent<HTMLButtonElement>,
+  ) {
+    if (!longPressStart.current) return;
     if (
       Math.hypot(
-        event.clientX - holdStart.current.x,
-        event.clientY - holdStart.current.y,
-      ) > 10
+        event.clientX - longPressStart.current.x,
+        event.clientY - longPressStart.current.y,
+      ) > 9
     ) {
-      cancelHold();
+      cancelFoundationHold();
+    }
+  }
+
+  function cancelFoundationHold() {
+    longPressStart.current = null;
+    if (longPressTimer.current !== null) {
+      window.clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }
+
+  function hideFoundation(foundation: AwakeSystem) {
+    const next = Array.from(new Set([...hiddenIds, foundation.id]));
+    setHiddenIds(next);
+    localStorage.setItem(HIDDEN_FOUNDATIONS_KEY, JSON.stringify(next));
+    setActionFoundation(null);
+    setSelectedId(BREATHE_ID);
+  }
+
+  function toggleFoundation(foundationId: string) {
+    const next = hiddenIds.includes(foundationId)
+      ? hiddenIds.filter((id) => id !== foundationId)
+      : [...hiddenIds, foundationId];
+    setHiddenIds(next);
+    localStorage.setItem(HIDDEN_FOUNDATIONS_KEY, JSON.stringify(next));
+    if (foundationId === selectedId && next.includes(foundationId)) {
+      setSelectedId(BREATHE_ID);
     }
   }
 
@@ -162,513 +301,375 @@ export default function SystemsOverview() {
 
   return (
     <main
-      className="awake-page min-h-screen px-4 pb-28 pt-8 transition-colors sm:px-6"
-      style={{
-        color: palette.text,
-        background: `radial-gradient(circle at 50% 18%, ${palette.pageTint} 0%, ${palette.pageBackground} 48%, ${palette.mutedSurface} 100%)`,
+      className="awake-page min-h-screen overflow-hidden px-4 pb-12 pt-8 sm:px-6"
+      onPointerDown={beginSwipe}
+      onPointerUp={finishSwipe}
+      onPointerCancel={() => {
+        swipeStart.current = null;
       }}
+      onClick={handleBackgroundTap}
     >
-      <div className="mx-auto w-full max-w-3xl">
-        <header className="flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mx-auto w-full max-w-4xl">
+        <header className="flex items-start justify-between gap-4">
           <div>
-            <p
-              className="text-xs uppercase tracking-[0.22em]"
-              style={{ color: palette.secondaryText }}
-            >
-              Awake
+            <p className="awake-eyebrow">Awake</p>
+            <h1 className="mt-2">Your world</h1>
+            <p className="awake-supporting mt-2">
+              Move gently between the parts of life that support you.
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-              Your Foundations
-            </h1>
           </div>
-          <div className="flex w-full gap-2 sm:w-auto">
+          <div className="flex shrink-0 gap-2">
             <button
               type="button"
-              onClick={() => setAppearanceOpen((open) => !open)}
-              className="min-h-11 flex-1 rounded-full border px-3 text-sm sm:flex-none"
-              style={{
-                borderColor: palette.border,
-                background: palette.mutedSurface,
-                color: palette.secondaryText,
+              onClick={(event) => {
+                event.stopPropagation();
+                setAppearanceOpen((open) => !open);
               }}
+              className="awake-button awake-button-secondary h-11 w-11 rounded-full p-0"
+              aria-label="Appearance and navigation settings"
               aria-expanded={appearanceOpen}
             >
-              Appearance
+              <span aria-hidden="true">◐</span>
             </button>
             <Link
               href="/systems"
-              className="flex min-h-11 flex-1 items-center justify-center rounded-full px-4 text-sm font-medium sm:flex-none"
-              style={{
-                background: palette.primaryAccent,
-                color: palette.buttonText,
-              }}
+              onClick={(event) => event.stopPropagation()}
+              className="awake-button awake-button-primary hidden sm:inline-flex"
             >
               Add system
             </Link>
           </div>
         </header>
 
-        <p
-          className="mt-3 max-w-md text-sm leading-6"
-          style={{ color: palette.secondaryText }}
-        >
-          Build systems that support your life. Make them yours. Let them
-          change when life changes.
-        </p>
-
         {appearanceOpen && (
           <section
-            className="mt-6 rounded-3xl border p-5 shadow-sm"
-            style={{
-              background: palette.mutedSurface,
-              borderColor: palette.border,
-            }}
-            aria-label="Awake appearance"
+            className="awake-card relative z-30 mt-6 max-h-[70vh] overflow-y-auto"
+            onClick={(event) => event.stopPropagation()}
           >
-            <h2 className="text-lg font-semibold">Awake appearance</h2>
-            <p
-              className="mb-5 mt-1 text-sm"
-              style={{ color: palette.secondaryText }}
-            >
-              Choose one anchor color. Awake coordinates the rest.
+            <h2>Appearance</h2>
+            <p className="awake-supporting mt-1">
+              Shape the atmosphere and choose which Foundations are nearby.
             </p>
-            <AwakeColorPicker
-              hue={colorPreferences.anchorHue}
-              harmony={colorPreferences.harmony}
-              appearance={colorPreferences.appearance}
-              onHueChange={(anchorHue) =>
-                updateColorPreferences({
-                  ...colorPreferences,
-                  anchorHue,
-                })
-              }
-              onHarmonyChange={(harmony) =>
-                updateColorPreferences({ ...colorPreferences, harmony })
-              }
-              onAppearanceChange={(appearance) =>
-                updateColorPreferences({ ...colorPreferences, appearance })
-              }
-              orbMaterial={colorPreferences.orbMaterial}
-              onOrbMaterialChange={(orbMaterial) =>
-                updateColorPreferences({
-                  ...colorPreferences,
-                  orbMaterial,
-                })
-              }
-            />
-          </section>
-        )}
-
-        <div className="mt-6 flex gap-2 overflow-x-auto pb-2">
-          {views.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              onClick={() => setView(option.id)}
-              className="awake-chip min-h-10 shrink-0 rounded-full px-4 text-sm transition"
-              style={{
-                background:
-                  view === option.id
-                    ? palette.primaryAccent
-                    : palette.mutedSurface,
-                color:
-                  view === option.id
-                    ? palette.buttonText
-                    : palette.secondaryText,
-              }}
-              aria-pressed={view === option.id}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-
-        <section className="relative mt-7">
-          <div className="flex flex-col items-center justify-center py-5">
-            <button
-              type="button"
-              onPointerDown={beginHold}
-              onPointerMove={trackHold}
-              onPointerUp={cancelHold}
-              onPointerLeave={cancelHold}
-              onPointerCancel={cancelHold}
-              className={`awake-center-orb relative flex h-28 w-28 select-none items-center justify-center rounded-full outline-none transition-transform duration-200 [touch-action:pan-y] focus-visible:ring-2 focus-visible:ring-offset-4 ${
-                holding ? "scale-95" : "scale-100"
-              }`}
-              style={{ color: palette.secondaryText }}
-              aria-label="Hold for breathing and rhythm"
-            >
-              <span
-                className={`awake-hold-progress pointer-events-none absolute inset-[-9px] rounded-full ${
-                  holding ? "is-holding" : ""
-                }`}
+            <div className="mt-5">
+              <AwakeColorPicker
+                hue={colorPreferences.anchorHue}
+                harmony={colorPreferences.harmony}
+                appearance={colorPreferences.appearance}
+                onHueChange={(anchorHue) =>
+                  updateColorPreferences({
+                    ...colorPreferences,
+                    anchorHue,
+                  })
+                }
+                onHarmonyChange={(harmony) =>
+                  updateColorPreferences({
+                    ...colorPreferences,
+                    harmony,
+                  })
+                }
+                onAppearanceChange={(appearance) =>
+                  updateColorPreferences({
+                    ...colorPreferences,
+                    appearance,
+                  })
+                }
+                orbMaterial={colorPreferences.orbMaterial}
+                onOrbMaterialChange={(orbMaterial) =>
+                  updateColorPreferences({
+                    ...colorPreferences,
+                    orbMaterial,
+                  })
+                }
               />
-            </button>
-            <span
-              className="mt-3 rounded-full px-3 py-1 text-xs font-medium"
-              style={{
-                color: palette.secondaryText,
-                background: `color-mix(in srgb, ${palette.mutedSurface} 72%, transparent)`,
-              }}
-            >
-              Hold to breathe
-            </span>
-          </div>
-
-          {view === "foundations" ? (
-            foundations.length > 0 ? (
-              <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3">
-                {foundations.map((foundation, index) => {
-                  const summary = getFoundationSummary(foundation);
-                  const hue =
-                    foundation.focusAreas[0]?.colorHue ??
-                    colorToHue(foundation.focusAreas[0]?.color) ??
-                    colorPreferences.anchorHue;
-                  const orb = generateSystemOrbPalette(
-                    hue,
-                    colorPreferences.harmony,
-                    colorPreferences.appearance,
-                  );
-                  const review = summary.hasReviewDue;
-                  const active = summary.activeCount > 0;
-                  const quiet =
-                    summary.totalSystems === 0 ||
-                    summary.pausedCount === summary.totalSystems;
-                  const size = Math.min(
-                    108,
-                    78 + summary.totalSystems * 4,
-                  );
+            </div>
+            <div className="mt-8 border-t pt-6">
+              <h3>Navigation orbs</h3>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                {foundations.map((foundation) => {
+                  const visible = !hiddenIds.includes(foundation.id);
                   return (
-                    <Link
+                    <label
                       key={foundation.id}
-                      href={`/systems/${foundation.id}`}
-                      className="group flex min-h-44 flex-col items-center justify-start rounded-[2.5rem] px-2 py-4 text-center outline-none transition-transform hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-offset-4"
-                      style={{
-                        paddingTop: 16 + [0, 12, 5, 16][index % 4],
-                        color: palette.text,
-                      }}
+                      className="flex min-h-11 items-center justify-between rounded-2xl border px-4 text-sm"
                     >
-                      <span
-                        className={`system-orb relative rounded-full ${
-                          review || active ? "is-active" : ""
-                        } ${quiet ? "is-quiet" : ""}`}
-                        style={
-                          {
-                            "--orb-color": review
-                              ? palette.inactiveAmber
-                              : orb.main,
-                            "--orb-highlight": orb.highlight,
-                            "--orb-glow-color": review
-                              ? palette.inactiveAmber
-                              : orb.glow,
-                            "--orb-quiet": orb.quiet,
-                            "--orb-paused": orb.paused,
-                            "--orb-size": `${size}px`,
-                            "--orb-opacity": quiet ? 0.6 : 0.9,
-                            "--orb-glow": review ? 0.75 : active ? 0.58 : 0.18,
-                            "--orb-delay": `${-(index % 7) * 0.83}s`,
-                          } as CSSProperties
-                        }
+                      {foundation.title}
+                      <input
+                        type="checkbox"
+                        checked={visible}
+                        onChange={() => toggleFoundation(foundation.id)}
+                        aria-label={`Show ${foundation.title} in navigation`}
+                        className="h-5 w-5"
                       />
-                      <span className="mt-4 text-sm font-medium">
-                        {foundation.title}
-                      </span>
-                      <span
-                        className="mt-1 text-xs"
-                        style={{ color: palette.secondaryText }}
-                      >
-                        {getFoundationLabel(summary)}
-                      </span>
-                    </Link>
+                    </label>
                   );
                 })}
               </div>
-            ) : (
-              <EmptyFoundation palette={palette} />
-            )
-          ) : visibleSystems.length > 0 ? (
-            <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3">
-              {visibleSystems.map(
-                ({ foundation, focusArea, status }, index) => {
-                  const orb = generateSystemOrbPalette(
-                    focusArea.colorHue ?? colorToHue(focusArea.color),
-                    colorPreferences.harmony,
-                    colorPreferences.appearance,
-                  );
-                  return (
-                    <Link
-                      key={focusArea.id}
-                      href={`/systems/${foundation.id}/${focusArea.id}`}
-                      className="flex min-h-40 flex-col items-center rounded-[2.25rem] px-2 py-4 text-center outline-none transition-transform hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-offset-4"
-                      style={{ color: palette.text }}
-                    >
-                      <span
-                        className={`system-orb relative rounded-full ${
-                          status.primary === "active" ||
-                          status.primary === "review"
-                            ? "is-active"
-                            : ""
-                        }`}
-                        style={
-                          {
-                            "--orb-color": orb.main,
-                            "--orb-highlight": orb.highlight,
-                            "--orb-glow-color": orb.glow,
-                            "--orb-quiet": orb.quiet,
-                            "--orb-paused": orb.paused,
-                            "--orb-size": "76px",
-                            "--orb-opacity": 0.9,
-                            "--orb-glow":
-                              status.primary === "review" ? 0.72 : 0.48,
-                            "--orb-delay": `${-(index % 7) * 0.83}s`,
-                          } as CSSProperties
-                        }
-                      />
-                      <span className="mt-3 text-sm font-medium">
-                        {focusArea.title}
-                        {status.isMine ? " ★" : ""}
-                      </span>
-                      <span
-                        className="mt-1 text-xs"
-                        style={{ color: palette.secondaryText }}
-                      >
-                        {foundation.title} · {status.label}
-                      </span>
-                    </Link>
-                  );
-                },
-              )}
             </div>
-          ) : (
-            <p
-              className="mt-8 text-center text-sm"
-              style={{ color: palette.secondaryText }}
-            >
-              {emptyMessages[view]}
-            </p>
-          )}
-        </section>
-      </div>
+            <div className="mt-6 flex justify-center gap-2 border-t pt-5">
+              <Link
+                href="/privacy"
+                className="awake-button awake-button-quiet"
+              >
+                Privacy
+              </Link>
+              <Link
+                href="/about"
+                className="awake-button awake-button-quiet"
+              >
+                About
+              </Link>
+            </div>
+          </section>
+        )}
 
-      <nav
-        className="awake-navigation fixed inset-x-0 bottom-0 border-t px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur"
-        style={{
-          borderColor: palette.border,
-          background: `color-mix(in srgb, ${palette.mutedSurface} 94%, transparent)`,
-        }}
-      >
-        <div className="mx-auto grid max-w-md grid-cols-3 items-center gap-2 text-center text-sm">
-          <span
-            aria-current="page"
-            className="flex min-h-11 items-center justify-center rounded-full px-3 font-semibold"
-            style={{
-              background: palette.primaryAccent,
-              color: palette.buttonText,
-            }}
-          >
-            Systems
-          </span>
+        <section
+          className="relative mt-10 h-[28rem] touch-pan-y select-none"
+          aria-label="Foundation navigation"
+        >
+          {items.map((item, index) => {
+            const offset = circularOffset(index, selectedIndex, items.length);
+            const isCentered = offset === 0;
+            const nearby = Math.abs(offset) <= 1;
+            const visible = Math.abs(offset) <= 2;
+            const foundation =
+              item.kind === "foundation" ? item.foundation : null;
+            const hue = foundation
+              ? getFoundationHue(
+                  foundation.title,
+                  colorPreferences.anchorHue,
+                )
+              : colorPreferences.anchorHue;
+            const orb = generateSystemOrbPalette(
+              hue,
+              colorPreferences.harmony,
+              colorPreferences.appearance,
+            );
+            const summary = foundation
+              ? getFoundationSummary(foundation)
+              : null;
+
+            return (
+              <div
+                key={item.id}
+                data-navigation-orb
+                className="absolute left-1/2 top-12 flex w-36 flex-col items-center text-center transition-all duration-700 ease-out"
+                style={{
+                  transform: offsetTransform(offset),
+                  opacity: visible ? (nearby ? 1 : 0.12) : 0,
+                  pointerEvents: nearby ? "auto" : "none",
+                  zIndex: isCentered ? 10 : 5 - Math.abs(offset),
+                }}
+              >
+                {item.kind === "breathe" ? (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      if (didSwipe.current) {
+                        didSwipe.current = false;
+                        return;
+                      }
+                      if (isCentered) setPracticeOpen(true);
+                      else setSelectedId(BREATHE_ID);
+                    }}
+                    className="flex flex-col items-center outline-none"
+                    aria-label={
+                      isCentered
+                        ? "Open Practice"
+                        : "Move Breathe to the center"
+                    }
+                  >
+                    <span
+                      className={`breathe-navigation-orb awake-orb h-32 w-32 ${
+                        isCentered ? "is-centered" : ""
+                      }`}
+                    />
+                    <span className="mt-5 text-base font-medium">Breathe</span>
+                    <span className="awake-supporting mt-1 text-xs">
+                      {isCentered ? "Tap to enter Practice" : "Return to yourself"}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onPointerDown={(event) =>
+                      isCentered &&
+                      beginFoundationHold(event, item.foundation)
+                    }
+                    onPointerMove={trackFoundationHold}
+                    onPointerUp={cancelFoundationHold}
+                    onPointerCancel={cancelFoundationHold}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      if (didSwipe.current) {
+                        didSwipe.current = false;
+                        return;
+                      }
+                      if (suppressOpen.current) {
+                        suppressOpen.current = false;
+                        return;
+                      }
+                      if (!isCentered) {
+                        setSelectedId(item.id);
+                      } else {
+                        window.location.href = `/systems/${item.foundation.id}`;
+                      }
+                    }}
+                    className="flex flex-col items-center outline-none"
+                    aria-label={`${isCentered ? "Open" : "Center"} ${
+                      item.foundation.title
+                    } foundation`}
+                  >
+                    <span
+                      className="navigation-foundation-orb relative h-32 w-32 rounded-full"
+                      style={
+                        {
+                          "--nav-main": orb.main,
+                          "--nav-highlight": orb.highlight,
+                          "--nav-glow": orb.glow,
+                          "--nav-quiet": orb.quiet,
+                        } as CSSProperties
+                      }
+                    />
+                    <span className="mt-5 text-base font-medium">
+                      {item.foundation.title}
+                    </span>
+                    <span className="awake-supporting mt-1 text-xs">
+                      {summary ? getFoundationLabel(summary) : "Foundation"}
+                    </span>
+                  </button>
+                )}
+              </div>
+            );
+          })}
+
+          <p className="awake-supporting absolute inset-x-0 bottom-7 text-center text-xs">
+            Swipe to move · Double-tap the background to return
+          </p>
+        </section>
+
+        <div className="flex justify-center sm:hidden">
           <Link
-            href="/privacy"
-            className="flex min-h-11 items-center justify-center rounded-full px-3"
-            style={{ color: palette.secondaryText }}
+            href="/systems"
+            className="awake-button awake-button-primary"
+            onClick={(event) => event.stopPropagation()}
           >
-            Privacy
-          </Link>
-          <Link
-            href="/about"
-            className="flex min-h-11 items-center justify-center rounded-full px-3"
-            style={{ color: palette.secondaryText }}
-          >
-            About
+            Add system
           </Link>
         </div>
-      </nav>
+      </div>
+
+      {actionFoundation && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-black/20 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-sm sm:items-center sm:justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="foundation-actions-title"
+          onClick={() => setActionFoundation(null)}
+        >
+          <section
+            className="awake-card w-full max-w-sm"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 id="foundation-actions-title">
+              {actionFoundation.title}
+            </h2>
+            <p className="awake-supporting mt-2">
+              Hiding a Foundation only removes it from this navigation.
+            </p>
+            <div className="mt-5 grid gap-2">
+              <Link
+                href={`/systems/${actionFoundation.id}`}
+                className="awake-button awake-button-primary"
+              >
+                Open Foundation
+              </Link>
+              <button
+                type="button"
+                onClick={() => hideFoundation(actionFoundation)}
+                className="awake-button awake-button-secondary"
+              >
+                Hide from Navigation
+              </button>
+              <button
+                type="button"
+                onClick={() => setActionFoundation(null)}
+                className="awake-button awake-button-quiet"
+              >
+                Cancel
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
 
       <style jsx>{`
-        .system-orb {
-          width: var(--orb-size);
-          height: var(--orb-size);
-          opacity: var(--orb-opacity);
+        .navigation-foundation-orb {
           background:
             radial-gradient(
               circle at 31% 24%,
-              rgba(255, 255, 255, 0.92),
-              transparent 30%
+              rgba(255, 255, 255, 0.9),
+              transparent 29%
             ),
             radial-gradient(
-              circle at 68% 72%,
-              color-mix(in srgb, var(--orb-glow-color) 35%, transparent),
+              circle at 70% 72%,
+              color-mix(in srgb, var(--nav-glow) 28%, transparent),
               transparent 58%
             ),
             linear-gradient(
               145deg,
-              color-mix(in srgb, var(--orb-highlight) 62%, white),
-              var(--orb-color) 55%,
-              color-mix(in srgb, var(--orb-quiet) 78%, var(--orb-paused))
+              var(--nav-highlight),
+              var(--nav-main) 58%,
+              var(--nav-quiet)
             );
           box-shadow:
-            inset -9px -12px 18px
-              color-mix(in srgb, var(--orb-glow-color) 32%, transparent),
-            inset 7px 8px 15px rgba(255, 255, 255, 0.42),
-            0 12px 25px rgba(75, 72, 61, 0.1);
-          transition:
-            opacity 400ms ease,
-            filter 400ms ease,
-            transform 400ms ease;
+            inset -10px -12px 20px
+              color-mix(in srgb, var(--nav-main) 28%, transparent),
+            inset 8px 9px 16px rgba(255, 255, 255, 0.48),
+            0 12px 30px rgba(28, 34, 30, 0.1),
+            0 0 38px color-mix(in srgb, var(--nav-glow) 18%, transparent);
         }
 
-        .system-orb::after {
-          position: absolute;
-          inset: -22%;
-          z-index: -1;
-          content: "";
-          border-radius: inherit;
-          background: radial-gradient(
-            circle,
-            color-mix(in srgb, var(--orb-glow-color) 58%, transparent),
-            transparent 68%
-          );
-          opacity: var(--orb-glow);
-          animation: orb-aura 7.5s ease-in-out infinite;
-          animation-delay: var(--orb-delay);
+        .breathe-navigation-orb {
+          animation:
+            navigation-breathe 7.5s ease-in-out infinite,
+            navigation-light 18s linear infinite;
         }
 
-        .system-orb.is-active {
-          filter: saturate(1.04) brightness(1.03);
-        }
-
-        .system-orb.is-quiet {
-          filter: saturate(0.7);
-        }
-
-        .awake-center-orb {
-          background:
-            radial-gradient(
-              circle at 32% 25%,
-              rgba(255, 255, 255, 0.95),
-              transparent 28%
-            ),
-            radial-gradient(
-              circle at 66% 72%,
-              color-mix(in srgb, ${palette.companion} 24%, transparent),
-              transparent 56%
-            ),
-            linear-gradient(
-              145deg,
-              rgba(255, 255, 255, 0.82),
-              color-mix(in srgb, ${palette.orbHighlight} 74%, transparent) 52%,
-              color-mix(in srgb, ${palette.primaryAccent} 72%, transparent)
-            );
+        .breathe-navigation-orb.is-centered {
           box-shadow:
-            inset -12px -14px 22px rgba(96, 121, 105, 0.16),
-            inset 8px 9px 17px rgba(255, 255, 255, 0.75),
-            0 14px 30px rgba(80, 98, 86, 0.14),
-            0 0 0 10px color-mix(in srgb, ${palette.orbGlow} 8%, transparent);
+            inset -10px -12px 22px
+              color-mix(in srgb, var(--awake-accent) 28%, transparent),
+            inset 8px 9px 18px rgba(255, 255, 255, 0.56),
+            0 0 48px
+              color-mix(in srgb, var(--awake-orb-glow) 28%, transparent);
         }
 
-        .awake-center-orb::after {
-          position: absolute;
-          inset: -38%;
-          z-index: -1;
-          content: "";
-          border-radius: inherit;
-          background: radial-gradient(
-            circle,
-            color-mix(in srgb, ${palette.orbGlow} 24%, transparent),
-            transparent 68%
-          );
-          opacity: 0.16;
-          transition:
-            opacity 650ms ease,
-            transform 650ms ease;
-        }
-
-        .awake-center-orb:active::after {
-          opacity: 0.42;
-          transform: scale(1.08);
-        }
-
-        .awake-hold-progress {
-          border: 2px solid color-mix(in srgb, ${palette.focus} 15%, transparent);
-          opacity: 0;
-          transform: scale(0.82);
-        }
-
-        .awake-hold-progress.is-holding {
-          animation: center-hold 750ms ease-out forwards;
-        }
-
-        @keyframes center-hold {
-          from {
-            opacity: 0.35;
-            transform: scale(0.82);
-          }
-          to {
-            border-color: ${palette.focus};
-            box-shadow: 0 0 0 15px
-              color-mix(in srgb, ${palette.focus} 14%, transparent);
-            opacity: 1;
-            transform: scale(1.08);
-          }
-        }
-
-        @keyframes orb-aura {
+        @keyframes navigation-breathe {
           0%,
           100% {
-            opacity: calc(var(--orb-glow) * 0.55);
-            transform: scale(0.96);
+            transform: scale(0.97);
           }
           50% {
-            opacity: var(--orb-glow);
-            transform: scale(1.06);
+            transform: scale(1.035);
+          }
+        }
+
+        @keyframes navigation-light {
+          from {
+            filter: hue-rotate(0deg);
+          }
+          to {
+            filter: hue-rotate(10deg);
           }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .system-orb,
-          .system-orb::after,
-          .awake-center-orb,
-          .awake-hold-progress {
-            animation: none !important;
-            transition-duration: 0.01ms !important;
+          .breathe-navigation-orb {
+            animation: none;
           }
         }
       `}</style>
     </main>
-  );
-}
-
-function EmptyFoundation({
-  palette,
-}: {
-  palette: ReturnType<typeof generateAwakePalette>;
-}) {
-  return (
-    <div
-      className="awake-empty-state mt-6 rounded-3xl border p-6 text-center"
-      style={{
-        borderColor: palette.border,
-        background: palette.mutedSurface,
-      }}
-    >
-      <h2 className="text-lg font-medium">Build your first foundation</h2>
-      <p
-        className="mt-2 text-sm leading-6"
-        style={{ color: palette.secondaryText }}
-      >
-        Choose a part of life, then shape a system around what supports you.
-      </p>
-      <Link
-        href="/systems"
-        className="mt-5 inline-flex min-h-11 items-center rounded-full px-5 text-sm font-medium"
-        style={{
-          background: palette.primaryAccent,
-          color: palette.buttonText,
-        }}
-      >
-        Choose a foundation
-      </Link>
-    </div>
   );
 }

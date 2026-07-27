@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -77,6 +77,7 @@ function relativeDate(value?: string) {
 
 export default function SystemLifecyclePage() {
   const params = useParams<{ id: string; focusAreaId: string }>();
+  const router = useRouter();
   const [systems, setSystems] = useState<AwakeSystem[]>([]);
   const [system, setSystem] = useState<AwakeSystem | null>(null);
   const [focusArea, setFocusArea] = useState<AwakeFocusArea | null>(null);
@@ -94,6 +95,7 @@ export default function SystemLifecyclePage() {
   const [flexible, setFlexible] = useState(true);
   const [duration, setDuration] = useState("");
   const [showReview, setShowReview] = useState(false);
+  const [showDeleteSystem, setShowDeleteSystem] = useState(false);
   const [supportResult, setSupportResult] =
     useState<SystemReview["supportResult"] | null>(null);
   const [completedAsPlanned, setCompletedAsPlanned] =
@@ -192,6 +194,49 @@ export default function SystemLifecyclePage() {
       color: orb.main,
     });
     setShowColor(false);
+  }
+
+  function deleteSystem() {
+    if (!system || !focusArea) return;
+    const nextSystems = systems.map((item) =>
+      item.id === system.id
+        ? {
+            ...item,
+            focusAreas: item.focusAreas.filter(
+              (candidate) => candidate.id !== focusArea.id,
+            ),
+            updatedAt: new Date().toISOString(),
+          }
+        : item,
+    );
+    saveAwakeSystems(nextSystems);
+
+    for (const key of [
+      "awake-focus-area-action-events",
+      "awake-system-action-events",
+    ]) {
+      try {
+        const saved = localStorage.getItem(key);
+        const events = saved ? JSON.parse(saved) : [];
+        if (!Array.isArray(events)) continue;
+        localStorage.setItem(
+          key,
+          JSON.stringify(
+            events.filter(
+              (event) =>
+                !event ||
+                typeof event !== "object" ||
+                !("focusAreaId" in event) ||
+                event.focusAreaId !== focusArea.id,
+            ),
+          ),
+        );
+      } catch {
+        // Leave malformed legacy data untouched.
+      }
+    }
+
+    router.push(`/systems/${system.id}`);
   }
 
   function createCommitmentFrom(
@@ -704,8 +749,55 @@ export default function SystemLifecyclePage() {
               </span>
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => setShowDeleteSystem(true)}
+            className="awake-button awake-button-danger mt-5"
+          >
+            Delete system
+          </button>
         </section>
       </div>
+
+      {showDeleteSystem && (
+        <div
+          className="fixed inset-0 z-50 flex items-end bg-black/25 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur-sm sm:items-center sm:justify-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-system-title"
+          onClick={() => setShowDeleteSystem(false)}
+        >
+          <section
+            className="awake-card w-full max-w-sm"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h2 id="delete-system-title">
+              Delete {focusArea.title}?
+            </h2>
+            <p className="awake-supporting mt-3">
+              This removes its plan, commitments, reviews, lessons,
+              gratitude, experiments, observations, and action history.
+              The {system.title} Foundation will remain.
+            </p>
+            <div className="mt-6 grid gap-2">
+              <button
+                type="button"
+                onClick={deleteSystem}
+                className="awake-button awake-button-danger"
+              >
+                Delete system
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDeleteSystem(false)}
+                className="awake-button awake-button-quiet"
+              >
+                Cancel
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }

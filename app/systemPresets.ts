@@ -41,6 +41,21 @@ export const systemPresets: SystemPreset[] = [
     description: "Make room to create.",
   },
   {
+    title: "Energy",
+    icon: "◌",
+    description: "Protect the rhythms that help you feel present.",
+  },
+  {
+    title: "Boundaries",
+    icon: "◌",
+    description: "Create space for what matters.",
+  },
+  {
+    title: "Communication",
+    icon: "◌",
+    description: "Make understanding easier to reach.",
+  },
+  {
     title: "Personal Growth",
     icon: "🌿",
     description: "Become who you're becoming.",

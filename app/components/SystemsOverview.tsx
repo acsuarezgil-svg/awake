@@ -38,12 +38,13 @@ import {
 } from "../systemStorage";
 import { getSystemTemplates } from "../systemTemplates";
 import AwakeColorPicker from "./AwakeColorPicker";
+import RotatingOrbRing from "./navigation/RotatingOrbRing";
 import {
   circularOrbOffset,
   useOrbCarouselController,
 } from "./navigation/OrbCarousel";
 import PracticeSpace from "./practice/PracticeSpace";
-import ExpandedFoundationView from "./foundation/ExpandedFoundationView";
+import ExpandedFoundationView from "./foundation/LivingFoundationView";
 import type { HomeViewState } from "./foundation/foundationExperience";
 import type { Language } from "../translations";
 
@@ -53,6 +54,12 @@ const BREATHE_ID = "awake-breathe";
 type NavigationItem =
   | { id: string; kind: "foundation"; foundation: AwakeSystem }
   | { id: typeof BREATHE_ID; kind: "breathe" };
+
+function offsetTransform(offset: number) {
+  if (offset === 0) return "translateX(-50%) scale(1)";
+  const direction = offset > 0 ? "+" : "-";
+  return `translateX(calc(-50% ${direction} clamp(8rem, 25vw, 12rem))) scale(0.72)`;
+}
 
 function readHiddenFoundations() {
   try {
@@ -102,12 +109,6 @@ function initializeFoundations(stored: AwakeSystem[]) {
 
   if (changed) saveAwakeSystems(initialized);
   return initialized;
-}
-
-function offsetTransform(offset: number) {
-  if (offset === 0) return "translateX(-50%) scale(1)";
-  const direction = offset > 0 ? "+" : "-";
-  return `translateX(calc(-50% ${direction} clamp(8rem, 25vw, 12rem))) scale(0.72)`;
 }
 
 export default function SystemsOverview() {
@@ -197,12 +198,15 @@ export default function SystemsOverview() {
     ),
     { id: BREATHE_ID, kind: "breathe" },
   ];
+  const selectedIndex = Math.max(
+    0,
+    items.findIndex((item) => item.id === selectedId),
+  );
   const homeCarousel = useOrbCarouselController(
     items,
     selectedId,
     setSelectedId,
   );
-  const selectedIndex = homeCarousel.selectedIndex;
   function updateColorPreferences(next: AwakeColorPreferences) {
     setColorPreferences(next);
     saveColorPreferences(next);
@@ -375,7 +379,6 @@ export default function SystemsOverview() {
   return (
     <main
       className="awake-page min-h-screen overflow-hidden px-4 pb-12 pt-8 sm:px-6"
-      {...homeCarousel.pointerHandlers}
       onClick={handleBackgroundTap}
     >
       <div className="mx-auto w-full max-w-4xl">
@@ -523,8 +526,97 @@ export default function SystemsOverview() {
           </section>
         )}
 
+        <RotatingOrbRing
+          items={items}
+          selectedId={selectedId}
+          onSelectedChange={setSelectedId}
+          ariaLabel="Foundation world"
+          className="home-foundation-ring mt-5"
+          onActivate={(item) => {
+            if (item.kind === "breathe") setPracticeOpen(true);
+            else openFoundation(item.foundation);
+          }}
+          onLongPress={(item) => {
+            if (item.kind === "foundation") {
+              setActionFoundation(item.foundation);
+            }
+          }}
+          getAriaLabel={(item, centered) =>
+            item.kind === "breathe"
+              ? centered
+                ? "Open breathing practice"
+                : "Bring Breathe to the center"
+              : `${centered ? "Enter" : "Bring to center"} ${
+                  item.foundation.title
+                } foundation, ${item.foundation.focusAreas.length} systems`
+          }
+          renderItem={(item, { centered, index }) => {
+            const foundation =
+              item.kind === "foundation" ? item.foundation : null;
+            const hue = foundation
+              ? getFoundationHue(
+                  foundation.title,
+                  colorPreferences.anchorHue,
+                )
+              : colorPreferences.anchorHue;
+            const orb = generateSystemOrbPalette(
+              hue,
+              colorPreferences.harmony,
+              colorPreferences.appearance,
+            );
+            const summary = foundation
+              ? getFoundationSummary(foundation)
+              : null;
+
+            return item.kind === "breathe" ? (
+              <>
+                <span
+                  className={`breathe-navigation-orb awake-orb flex h-20 w-20 items-center justify-center sm:h-24 sm:w-24 ${
+                    centered ? "is-centered" : ""
+                  }`}
+                >
+                  <span className="breathe-navigation-text">Breathe</span>
+                  <span
+                    className="breathe-navigation-ripple"
+                    aria-hidden="true"
+                  />
+                </span>
+                <span className="mt-2 text-sm font-medium">Breathe</span>
+                {centered && (
+                  <span className="awake-supporting mt-1 text-[0.68rem]">
+                    Tap to enter Practice
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <span
+                  className="navigation-foundation-orb relative h-20 w-20 rounded-full sm:h-24 sm:w-24"
+                  style={
+                    {
+                      "--nav-main": orb.main,
+                      "--nav-highlight": orb.highlight,
+                      "--nav-glow": orb.glow,
+                      "--nav-quiet": orb.quiet,
+                      "--orb-delay": `${-(index % 9) * 0.55}s`,
+                    } as CSSProperties
+                  }
+                />
+                <span className="mt-2 max-w-24 text-sm font-medium leading-tight">
+                  {item.foundation.title}
+                </span>
+                {centered && (
+                  <span className="awake-supporting mt-1 text-[0.68rem]">
+                    {summary ? getFoundationLabel(summary) : "Foundation"}
+                  </span>
+                )}
+              </>
+            );
+          }}
+        />
+
         <section
-          className="relative mt-6 h-[28rem] touch-pan-y select-none"
+          className="hidden"
           aria-label="Foundation navigation"
           tabIndex={0}
           onKeyDown={(event) => {

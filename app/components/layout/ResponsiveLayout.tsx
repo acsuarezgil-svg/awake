@@ -18,7 +18,7 @@ export default function ResponsiveLayout({
   overlay,
 }: Props) {
   return (
-    <div className="awake-responsive-shell mx-auto w-full max-w-[90rem]">
+    <div className="awake-responsive-shell mx-auto w-full max-w-[64rem]">
       <div className="awake-responsive-header">{header}</div>
       {overlay && <div className="awake-responsive-overlay">{overlay}</div>}
       <div className="awake-responsive-grid">

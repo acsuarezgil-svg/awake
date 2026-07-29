@@ -17,7 +17,6 @@ import {
   saveFoundationViewPreferences,
   type FoundationViewPreferences,
 } from "../foundationViewPreferences";
-import { getSystemStatus } from "../systemStatus";
 import {
   createAwakeFocusArea,
   createAwakeSystem,
@@ -174,31 +173,10 @@ export default function SystemsOverview() {
     ),
     { id: BREATHE_ID, kind: "breathe" },
   ];
-  const systemHighlights = visibleFoundations
-    .flatMap((foundation) =>
-      foundation.focusAreas.map((system) => ({
-        foundation,
-        system,
-        status: getSystemStatus(system),
-      })),
-    )
-    .sort((left, right) => {
-      const priority = {
-        review: 0,
-        active: 1,
-        mine: 2,
-        new: 3,
-        quiet: 4,
-        paused: 5,
-      };
-      const statusOrder =
-        priority[left.status.primary] - priority[right.status.primary];
-      return (
-        statusOrder ||
-        right.system.updatedAt.localeCompare(left.system.updatedAt)
-      );
-    });
-  const totalSystems = systemHighlights.length;
+  const totalSystems = visibleFoundations.reduce(
+    (total, foundation) => total + foundation.focusAreas.length,
+    0,
+  );
   const selectedIndex = Math.max(
     0,
     items.findIndex((item) => item.id === selectedId),
@@ -339,7 +317,7 @@ export default function SystemsOverview() {
 
   return (
     <main
-      className="awake-page awake-home-responsive min-h-screen overflow-hidden"
+      className="awake-page awake-home-responsive min-h-screen overflow-x-hidden"
       onClick={handleBackgroundTap}
     >
       <ResponsiveLayout
@@ -380,67 +358,6 @@ export default function SystemsOverview() {
             <p className="awake-world-count" aria-live="polite">
               {totalSystems} {totalSystems === 1 ? "system" : "systems"} nearby
             </p>
-          </div>
-        }
-        leading={
-          <div className="awake-home-panel-stack">
-            <section className="awake-home-panel">
-              <p className="awake-eyebrow">Today&apos;s focus</p>
-              <h2>{systemHighlights[0]?.system.title ?? "A quiet moment"}</h2>
-              <p className="awake-supporting">
-                {systemHighlights[0]?.status.label ??
-                  "Your world is ready when you are."}
-              </p>
-            </section>
-            <section className="awake-home-panel">
-              <p className="awake-eyebrow">Recent systems</p>
-              <div className="awake-home-system-list">
-                {systemHighlights.slice(0, 3).map(({ foundation, system }) => (
-                  <button
-                    type="button"
-                    key={system.id}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      openFoundation(foundation);
-                    }}
-                  >
-                    <span>{system.title}</span>
-                    <small>{foundation.title}</small>
-                  </button>
-                ))}
-              </div>
-            </section>
-          </div>
-        }
-        supporting={
-          <div className="awake-home-panel-stack">
-            <section className="awake-home-panel">
-              <p className="awake-eyebrow">Today&apos;s systems</p>
-              <div className="awake-home-system-list">
-                {systemHighlights.slice(0, 4).map(({ foundation, system, status }) => (
-                  <button
-                    type="button"
-                    key={system.id}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      openFoundation(foundation);
-                    }}
-                  >
-                    <span>{system.title}</span>
-                    <small>{status.label}</small>
-                  </button>
-                ))}
-              </div>
-            </section>
-            <nav className="awake-home-panel awake-home-quick" aria-label="Quick actions">
-              <p className="awake-eyebrow">Quick actions</p>
-              <Link href="/direction" onClick={(event) => event.stopPropagation()}>
-                Journey <span aria-hidden="true">→</span>
-              </Link>
-              <Link href="/insights" onClick={(event) => event.stopPropagation()}>
-                Insights <span aria-hidden="true">→</span>
-              </Link>
-            </nav>
           </div>
         }
         primaryAction={

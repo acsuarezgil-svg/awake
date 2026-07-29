@@ -1065,6 +1065,169 @@ dialog,
     opacity: max(0.78, var(--ring-opacity));
   }
 }
+
+/* Unfocused foundations are small worlds; their buttons retain larger hit areas. */
+.home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .foundation-waypoint-orb {
+  width: clamp(1.75rem, 8.5vw, 2.125rem) !important;
+  height: clamp(1.75rem, 8.5vw, 2.125rem) !important;
+  filter: saturate(0.88) contrast(0.98);
+  box-shadow:
+    inset -3px -4px 7px
+      color-mix(in srgb, var(--nav-main, var(--awake-orb-glow)) 18%, transparent),
+    inset 2px 3px 5px
+      color-mix(in srgb, var(--nav-highlight, var(--awake-orb-highlight)) 22%, transparent),
+    0 0.45rem 1rem
+      color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 14%, transparent);
+}
+
+@media (min-width: 420px) {
+  .home-foundation-ring
+    .rotating-orb-item:not(.is-centered)
+    .foundation-waypoint-orb {
+    width: clamp(2.125rem, 5vw, 2.5rem) !important;
+    height: clamp(2.125rem, 5vw, 2.5rem) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .home-foundation-ring
+    .rotating-orb-item:not(.is-centered)
+    .foundation-waypoint-orb {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-foundation-ring
+    .rotating-orb-item:not(.is-centered)
+    .foundation-waypoint-orb {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+}
+
+/* Focused homepage: orbiting foundations are visual waypoints, not tiny labels. */
+.home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .ring-orb-label,
+.home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .ring-orb-detail {
+  display: none;
+}
+
+.home-foundation-ring .rotating-orb-item.is-centered .ring-orb-label {
+  max-width: 12rem;
+  margin-top: 0.65rem;
+  font-size: clamp(1rem, 2.4vw, 1.15rem);
+  line-height: 1.25;
+}
+
+.home-foundation-ring .rotating-orb-item.is-centered .ring-orb-detail {
+  max-width: 12rem;
+  margin-top: 0.2rem;
+  font-size: clamp(0.78rem, 1.8vw, 0.88rem);
+  line-height: 1.35;
+}
+
+.home-foundation-ring
+  .rotating-orb-item.is-centered
+  .navigation-foundation-orb,
+.home-foundation-ring
+  .rotating-orb-item.is-centered
+  .breathe-navigation-orb {
+  box-shadow:
+    inset -9px -11px 18px
+      color-mix(in srgb, var(--nav-main, var(--awake-orb-glow)) 22%, transparent),
+    inset 6px 7px 13px
+      color-mix(in srgb, var(--nav-highlight, var(--awake-orb-highlight)) 24%, transparent),
+    0 1rem 2.5rem
+      color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 22%, transparent),
+    0 0 2.2rem
+      color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 12%, transparent);
+}
+
+.awake-responsive-grid {
+  min-height: max(
+    0px,
+    calc(
+      100dvh - 8.5rem - env(safe-area-inset-top) -
+        env(safe-area-inset-bottom)
+    )
+  );
+  align-content: center;
+  row-gap: clamp(0.5rem, 2vh, 1.25rem);
+}
+
+.awake-responsive-action {
+  margin-top: clamp(0.5rem, 1.5vh, 1rem);
+}
+
+.awake-world-count {
+  font-size: clamp(0.75rem, 1.7vw, 0.84rem);
+}
+
+@media (max-width: 419px) {
+  .awake-home-title {
+    font-size: clamp(1.55rem, 7vw, 1.85rem);
+  }
+
+  .awake-responsive-grid {
+    min-height: max(
+      0px,
+      calc(
+        100dvh - 6.75rem - env(safe-area-inset-top) -
+          env(safe-area-inset-bottom)
+      )
+    );
+  }
+
+  .home-foundation-ring .rotating-orb-item.is-centered .ring-orb-label {
+    font-size: 1rem;
+  }
+
+  .home-foundation-ring .rotating-orb-item.is-centered .ring-orb-detail {
+    font-size: 0.8rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .awake-responsive-grid {
+    min-height: max(
+      0px,
+      calc(
+        100dvh - 10rem - env(safe-area-inset-top) -
+          env(safe-area-inset-bottom)
+      )
+    );
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(0.75rem, 2vh, 1.5rem);
+  }
+
+  .awake-responsive-rail {
+    display: contents;
+  }
+
+  .awake-responsive-action {
+    width: min(100%, 17rem);
+    margin-inline: auto;
+  }
+
+  .awake-responsive-supporting,
+  .awake-responsive-leading {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .awake-responsive-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* Homepage foundation world */
 .foundation-expanded {
   animation: foundation-enter 680ms cubic-bezier(0.22, 1, 0.36, 1) both;

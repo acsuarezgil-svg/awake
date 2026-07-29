@@ -6,10 +6,6 @@ import {
   getFoundationHue,
   type AwakeColorPreferences,
 } from "../../colorPalette";
-import {
-  getFoundationLabel,
-  getFoundationSummary,
-} from "../../systemStatus";
 import type { AwakeSystem } from "../../systems";
 import RotatingOrbRing from "../navigation/RotatingOrbRing";
 
@@ -72,24 +68,21 @@ export default function FoundationOrbit({
           preferences.harmony,
           preferences.appearance,
         );
-        const summary = foundation
-          ? getFoundationSummary(foundation)
-          : null;
-
         return item.kind === "breathe" ? (
           <>
             <span
-              className={`breathe-navigation-orb awake-orb flex h-20 w-20 items-center justify-center sm:h-24 sm:w-24 ${
+              className={`foundation-waypoint-orb breathe-navigation-orb awake-orb flex h-20 w-20 items-center justify-center sm:h-24 sm:w-24 ${
                 centered ? "is-centered" : ""
               }`}
             >
-              <span className="breathe-navigation-text">Breathe</span>
+              {centered && (
+                <span className="breathe-navigation-text">Breathe</span>
+              )}
               <span
                 className="breathe-navigation-ripple"
                 aria-hidden="true"
               />
             </span>
-            <span className="ring-orb-label mt-2 font-medium">Breathe</span>
             {centered && (
               <span className="ring-orb-detail awake-supporting mt-1">
                 Tap to enter Practice
@@ -99,7 +92,7 @@ export default function FoundationOrbit({
         ) : (
           <>
             <span
-              className="navigation-foundation-orb relative h-20 w-20 rounded-full sm:h-24 sm:w-24"
+              className="foundation-waypoint-orb navigation-foundation-orb relative h-20 w-20 rounded-full sm:h-24 sm:w-24"
               style={
                 {
                   "--nav-main": orb.main,
@@ -110,13 +103,18 @@ export default function FoundationOrbit({
                 } as CSSProperties
               }
             />
-            <span className="ring-orb-label mt-2 max-w-24 font-medium leading-tight">
-              {item.foundation.title}
-            </span>
             {centered && (
-              <span className="ring-orb-detail awake-supporting mt-1">
-                {summary ? getFoundationLabel(summary) : "Foundation"}
-              </span>
+              <>
+                <span className="ring-orb-label mt-2 max-w-24 font-medium leading-tight">
+                  {item.foundation.title}
+                </span>
+                <span className="ring-orb-detail awake-supporting mt-1">
+                  {item.foundation.focusAreas.length}{" "}
+                  {item.foundation.focusAreas.length === 1
+                    ? "system"
+                    : "systems"}
+                </span>
+              </>
             )}
           </>
         );

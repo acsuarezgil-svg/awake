@@ -2,17 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type {
-  CSSProperties,
-  MouseEvent as ReactMouseEvent,
-  PointerEvent as ReactPointerEvent,
-} from "react";
+import type { MouseEvent as ReactMouseEvent } from "react";
 
 import {
   defaultColorPreferences,
   generateAwakePalette,
-  generateSystemOrbPalette,
-  getFoundationHue,
   loadColorPreferences,
   saveColorPreferences,
   type AwakeColorPreferences,
@@ -23,10 +17,7 @@ import {
   saveFoundationViewPreferences,
   type FoundationViewPreferences,
 } from "../foundationViewPreferences";
-import {
-  getFoundationLabel,
-  getFoundationSummary,
-} from "../systemStatus";
+import { getSystemStatus } from "../systemStatus";
 import {
   createAwakeFocusArea,
   createAwakeSystem,
@@ -38,11 +29,8 @@ import {
 } from "../systemStorage";
 import { getSystemTemplates } from "../systemTemplates";
 import AwakeColorPicker from "./AwakeColorPicker";
-import RotatingOrbRing from "./navigation/RotatingOrbRing";
-import {
-  circularOrbOffset,
-  useOrbCarouselController,
-} from "./navigation/OrbCarousel";
+import FoundationOrbit from "./foundation/FoundationOrbit";
+import ResponsiveLayout from "./layout/ResponsiveLayout";
 import PracticeSpace from "./practice/PracticeSpace";
 import ExpandedFoundationView from "./foundation/LivingFoundationView";
 import type { HomeViewState } from "./foundation/foundationExperience";
@@ -54,12 +42,6 @@ const BREATHE_ID = "awake-breathe";
 type NavigationItem =
   | { id: string; kind: "foundation"; foundation: AwakeSystem }
   | { id: typeof BREATHE_ID; kind: "breathe" };
-
-function offsetTransform(offset: number) {
-  if (offset === 0) return "translateX(-50%) scale(1)";
-  const direction = offset > 0 ? "+" : "-";
-  return `translateX(calc(-50% ${direction} clamp(8rem, 25vw, 12rem))) scale(0.72)`;
-}
 
 function readHiddenFoundations() {
   try {
@@ -129,9 +111,6 @@ export default function SystemsOverview() {
     useState<AwakeSystem | null>(null);
   const [colorPreferences, setColorPreferences] =
     useState<AwakeColorPreferences>(defaultColorPreferences);
-  const longPressTimer = useRef<number | null>(null);
-  const longPressStart = useRef<{ x: number; y: number } | null>(null);
-  const suppressOpen = useRef(false);
   const lastBackgroundTap = useRef(0);
   const returnTimer = useRef<number | null>(null);
 
@@ -171,9 +150,6 @@ export default function SystemsOverview() {
     window.addEventListener("popstate", handlePopState);
     return () => {
       window.removeEventListener("popstate", handlePopState);
-      if (longPressTimer.current !== null) {
-        window.clearTimeout(longPressTimer.current);
-      }
       if (returnTimer.current !== null) {
         window.clearTimeout(returnTimer.current);
       }
@@ -198,14 +174,34 @@ export default function SystemsOverview() {
     ),
     { id: BREATHE_ID, kind: "breathe" },
   ];
+  const systemHighlights = visibleFoundations
+    .flatMap((foundation) =>
+      foundation.focusAreas.map((system) => ({
+        foundation,
+        system,
+        status: getSystemStatus(system),
+      })),
+    )
+    .sort((left, right) => {
+      const priority = {
+        review: 0,
+        active: 1,
+        mine: 2,
+        new: 3,
+        quiet: 4,
+        paused: 5,
+      };
+      const statusOrder =
+        priority[left.status.primary] - priority[right.status.primary];
+      return (
+        statusOrder ||
+        right.system.updatedAt.localeCompare(left.system.updatedAt)
+      );
+    });
+  const totalSystems = systemHighlights.length;
   const selectedIndex = Math.max(
     0,
     items.findIndex((item) => item.id === selectedId),
-  );
-  const homeCarousel = useOrbCarouselController(
-    items,
-    selectedId,
-    setSelectedId,
   );
   function updateColorPreferences(next: AwakeColorPreferences) {
     setColorPreferences(next);
@@ -248,41 +244,6 @@ export default function SystemsOverview() {
       lastBackgroundTap.current = 0;
     } else {
       lastBackgroundTap.current = now;
-    }
-  }
-
-  function beginFoundationHold(
-    event: ReactPointerEvent<HTMLButtonElement>,
-    foundation: AwakeSystem,
-  ) {
-    suppressOpen.current = false;
-    longPressStart.current = { x: event.clientX, y: event.clientY };
-    longPressTimer.current = window.setTimeout(() => {
-      suppressOpen.current = true;
-      setActionFoundation(foundation);
-      if ("vibrate" in navigator) navigator.vibrate(22);
-    }, 650);
-  }
-
-  function trackFoundationHold(
-    event: ReactPointerEvent<HTMLButtonElement>,
-  ) {
-    if (!longPressStart.current) return;
-    if (
-      Math.hypot(
-        event.clientX - longPressStart.current.x,
-        event.clientY - longPressStart.current.y,
-      ) > 9
-    ) {
-      cancelFoundationHold();
-    }
-  }
-
-  function cancelFoundationHold() {
-    longPressStart.current = null;
-    if (longPressTimer.current !== null) {
-      window.clearTimeout(longPressTimer.current);
-      longPressTimer.current = null;
     }
   }
 
@@ -378,19 +339,19 @@ export default function SystemsOverview() {
 
   return (
     <main
-      className="awake-page min-h-screen overflow-hidden px-4 pb-12 pt-8 sm:px-6"
+      className="awake-page awake-home-responsive min-h-screen overflow-hidden"
       onClick={handleBackgroundTap}
     >
-      <div className="mx-auto w-full max-w-4xl">
-        <header className="flex items-start justify-between gap-4">
-          <div>
-            <p className="awake-eyebrow">Awake</p>
-            <h1 className="mt-2">Your world</h1>
-            <p className="awake-supporting mt-2">
-              Move gently between the parts of life that support you.
-            </p>
-          </div>
-          <div className="flex shrink-0 gap-2">
+      <ResponsiveLayout
+        header={
+          <header className="awake-home-header">
+            <div>
+              <p className="awake-eyebrow">Awake</p>
+              <h1 className="awake-home-title">Your world</h1>
+              <p className="awake-home-subtitle awake-supporting">
+                Move gently between the parts of life that support you.
+              </p>
+            </div>
             <button
               type="button"
               onClick={(event) => {
@@ -403,19 +364,99 @@ export default function SystemsOverview() {
             >
               <span aria-hidden="true">◐</span>
             </button>
-            <Link
-              href="/systems"
-              onClick={(event) => event.stopPropagation()}
-              className="awake-button awake-button-primary hidden sm:inline-flex"
-            >
-              Add system
-            </Link>
+          </header>
+        }
+        world={
+          <div className="awake-world-stage">
+            <FoundationOrbit
+              items={items}
+              selectedId={selectedId}
+              preferences={colorPreferences}
+              onSelectedChange={setSelectedId}
+              onEnterBreathe={() => setPracticeOpen(true)}
+              onEnterFoundation={openFoundation}
+              onFoundationLongPress={setActionFoundation}
+            />
+            <p className="awake-world-count" aria-live="polite">
+              {totalSystems} {totalSystems === 1 ? "system" : "systems"} nearby
+            </p>
           </div>
-        </header>
-
+        }
+        leading={
+          <div className="awake-home-panel-stack">
+            <section className="awake-home-panel">
+              <p className="awake-eyebrow">Today&apos;s focus</p>
+              <h2>{systemHighlights[0]?.system.title ?? "A quiet moment"}</h2>
+              <p className="awake-supporting">
+                {systemHighlights[0]?.status.label ??
+                  "Your world is ready when you are."}
+              </p>
+            </section>
+            <section className="awake-home-panel">
+              <p className="awake-eyebrow">Recent systems</p>
+              <div className="awake-home-system-list">
+                {systemHighlights.slice(0, 3).map(({ foundation, system }) => (
+                  <button
+                    type="button"
+                    key={system.id}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      openFoundation(foundation);
+                    }}
+                  >
+                    <span>{system.title}</span>
+                    <small>{foundation.title}</small>
+                  </button>
+                ))}
+              </div>
+            </section>
+          </div>
+        }
+        supporting={
+          <div className="awake-home-panel-stack">
+            <section className="awake-home-panel">
+              <p className="awake-eyebrow">Today&apos;s systems</p>
+              <div className="awake-home-system-list">
+                {systemHighlights.slice(0, 4).map(({ foundation, system, status }) => (
+                  <button
+                    type="button"
+                    key={system.id}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      openFoundation(foundation);
+                    }}
+                  >
+                    <span>{system.title}</span>
+                    <small>{status.label}</small>
+                  </button>
+                ))}
+              </div>
+            </section>
+            <nav className="awake-home-panel awake-home-quick" aria-label="Quick actions">
+              <p className="awake-eyebrow">Quick actions</p>
+              <Link href="/direction" onClick={(event) => event.stopPropagation()}>
+                Journey <span aria-hidden="true">→</span>
+              </Link>
+              <Link href="/insights" onClick={(event) => event.stopPropagation()}>
+                Insights <span aria-hidden="true">→</span>
+              </Link>
+            </nav>
+          </div>
+        }
+        primaryAction={
+          <Link
+            href="/systems"
+            onClick={(event) => event.stopPropagation()}
+            className="awake-button awake-button-primary w-full"
+          >
+            Add system
+          </Link>
+        }
+      />
+      <div className="mx-auto w-full max-w-4xl">
         {appearanceOpen && (
           <section
-            className="awake-card relative z-30 mt-6 max-h-[70vh] overflow-y-auto"
+            className="awake-card awake-appearance-panel relative z-30 max-h-[70vh] overflow-y-auto"
             onClick={(event) => event.stopPropagation()}
           >
             <h2>Appearance</h2>
@@ -525,281 +566,6 @@ export default function SystemsOverview() {
             </div>
           </section>
         )}
-
-        <RotatingOrbRing
-          items={items}
-          selectedId={selectedId}
-          onSelectedChange={setSelectedId}
-          ariaLabel="Foundation world"
-          className="home-foundation-ring mt-5"
-          onActivate={(item) => {
-            if (item.kind === "breathe") setPracticeOpen(true);
-            else openFoundation(item.foundation);
-          }}
-          onLongPress={(item) => {
-            if (item.kind === "foundation") {
-              setActionFoundation(item.foundation);
-            }
-          }}
-          getAriaLabel={(item, centered) =>
-            item.kind === "breathe"
-              ? centered
-                ? "Open breathing practice"
-                : "Bring Breathe to the center"
-              : `${centered ? "Enter" : "Bring to center"} ${
-                  item.foundation.title
-                } foundation, ${item.foundation.focusAreas.length} systems`
-          }
-          renderItem={(item, { centered, index }) => {
-            const foundation =
-              item.kind === "foundation" ? item.foundation : null;
-            const hue = foundation
-              ? getFoundationHue(
-                  foundation.title,
-                  colorPreferences.anchorHue,
-                )
-              : colorPreferences.anchorHue;
-            const orb = generateSystemOrbPalette(
-              hue,
-              colorPreferences.harmony,
-              colorPreferences.appearance,
-            );
-            const summary = foundation
-              ? getFoundationSummary(foundation)
-              : null;
-
-            return item.kind === "breathe" ? (
-              <>
-                <span
-                  className={`breathe-navigation-orb awake-orb flex h-20 w-20 items-center justify-center sm:h-24 sm:w-24 ${
-                    centered ? "is-centered" : ""
-                  }`}
-                >
-                  <span className="breathe-navigation-text">Breathe</span>
-                  <span
-                    className="breathe-navigation-ripple"
-                    aria-hidden="true"
-                  />
-                </span>
-                <span className="mt-2 text-sm font-medium">Breathe</span>
-                {centered && (
-                  <span className="awake-supporting mt-1 text-[0.68rem]">
-                    Tap to enter Practice
-                  </span>
-                )}
-              </>
-            ) : (
-              <>
-                <span
-                  className="navigation-foundation-orb relative h-20 w-20 rounded-full sm:h-24 sm:w-24"
-                  style={
-                    {
-                      "--nav-main": orb.main,
-                      "--nav-highlight": orb.highlight,
-                      "--nav-glow": orb.glow,
-                      "--nav-quiet": orb.quiet,
-                      "--orb-delay": `${-(index % 9) * 0.55}s`,
-                    } as CSSProperties
-                  }
-                />
-                <span className="mt-2 max-w-24 text-sm font-medium leading-tight">
-                  {item.foundation.title}
-                </span>
-                {centered && (
-                  <span className="awake-supporting mt-1 text-[0.68rem]">
-                    {summary ? getFoundationLabel(summary) : "Foundation"}
-                  </span>
-                )}
-              </>
-            );
-          }}
-        />
-
-        <section
-          className="hidden"
-          aria-label="Foundation navigation"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "ArrowLeft") {
-              event.preventDefault();
-              homeCarousel.move(-1);
-            } else if (event.key === "ArrowRight") {
-              event.preventDefault();
-              homeCarousel.move(1);
-            }
-          }}
-        >
-          {items.map((item, index) => {
-            const offset = circularOrbOffset(
-              index,
-              selectedIndex,
-              items.length,
-            );
-            const isCentered = offset === 0;
-            const nearby = Math.abs(offset) <= 1;
-            const visible = Math.abs(offset) <= 2;
-            const foundation =
-              item.kind === "foundation" ? item.foundation : null;
-            const hue = foundation
-              ? getFoundationHue(
-                  foundation.title,
-                  colorPreferences.anchorHue,
-                )
-              : colorPreferences.anchorHue;
-            const orb = generateSystemOrbPalette(
-              hue,
-              colorPreferences.harmony,
-              colorPreferences.appearance,
-            );
-            const summary = foundation
-              ? getFoundationSummary(foundation)
-              : null;
-
-            return (
-              <div
-                key={item.id}
-                data-navigation-orb
-                className="absolute left-1/2 top-12 flex w-36 flex-col items-center text-center transition-all duration-700 ease-out"
-                style={{
-                  transform: offsetTransform(offset),
-                  opacity: visible ? (nearby ? 1 : 0.12) : 0,
-                  pointerEvents: nearby ? "auto" : "none",
-                  zIndex: isCentered ? 10 : 5 - Math.abs(offset),
-                }}
-              >
-                {item.kind === "breathe" ? (
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      if (homeCarousel.didSwipe.current) {
-                        homeCarousel.didSwipe.current = false;
-                        return;
-                      }
-                      if (isCentered) {
-                        setPracticeOpen(true);
-                      }
-                      else setSelectedId(BREATHE_ID);
-                    }}
-                    className="flex flex-col items-center outline-none"
-                    aria-label={
-                      isCentered
-                        ? "Open breathing practice"
-                        : "Move Breathe to the center"
-                    }
-                  >
-                    <span
-                      className={`breathe-navigation-orb awake-orb flex h-32 w-32 items-center justify-center ${
-                        isCentered ? "is-centered" : ""
-                      }`}
-                    >
-                      <span className="breathe-navigation-text">
-                        Breathe
-                      </span>
-                      <span
-                        className="breathe-navigation-ripple"
-                        aria-hidden="true"
-                      />
-                    </span>
-                    <span className="mt-5 text-base font-medium">Breathe</span>
-                    <span className="awake-supporting mt-1 text-xs">
-                      {isCentered ? "Tap to enter Practice" : "Return to yourself"}
-                    </span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onPointerDown={(event) =>
-                      isCentered &&
-                      beginFoundationHold(event, item.foundation)
-                    }
-                    onPointerMove={trackFoundationHold}
-                    onPointerUp={cancelFoundationHold}
-                    onPointerCancel={cancelFoundationHold}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      if (homeCarousel.didSwipe.current) {
-                        homeCarousel.didSwipe.current = false;
-                        return;
-                      }
-                      if (suppressOpen.current) {
-                        suppressOpen.current = false;
-                        return;
-                      }
-                      if (!isCentered) {
-                        setSelectedId(item.id);
-                      } else {
-                        openFoundation(item.foundation);
-                      }
-                    }}
-                    className="flex flex-col items-center outline-none"
-                    aria-label={`${isCentered ? "Open" : "Center"} ${
-                      item.foundation.title
-                    } foundation, ${item.foundation.focusAreas.length} systems`}
-                  >
-                    <span
-                      className="navigation-foundation-orb relative h-32 w-32 rounded-full"
-                      style={
-                        {
-                          "--nav-main": orb.main,
-                          "--nav-highlight": orb.highlight,
-                          "--nav-glow": orb.glow,
-                          "--nav-quiet": orb.quiet,
-                        } as CSSProperties
-                      }
-                    />
-                    <span className="mt-5 text-base font-medium">
-                      {item.foundation.title}
-                    </span>
-                    <span className="awake-supporting mt-1 text-xs">
-                      {summary ? getFoundationLabel(summary) : "Foundation"}
-                    </span>
-                  </button>
-                )}
-              </div>
-            );
-          })}
-
-          <p className="awake-supporting absolute inset-x-0 bottom-16 text-center text-xs">
-            Swipe to move · Double-tap the background to return
-          </p>
-          <div className="absolute inset-x-0 bottom-1 flex justify-center gap-3">
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                homeCarousel.move(-1);
-              }}
-              disabled={items.length < 2}
-              className="awake-button awake-button-secondary h-11 w-11 rounded-full p-0 disabled:opacity-35"
-              aria-label="Previous orb"
-            >
-              ←
-            </button>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                homeCarousel.move(1);
-              }}
-              disabled={items.length < 2}
-              className="awake-button awake-button-secondary h-11 w-11 rounded-full p-0 disabled:opacity-35"
-              aria-label="Next orb"
-            >
-              →
-            </button>
-          </div>
-        </section>
-
-        <div className="flex justify-center sm:hidden">
-          <Link
-            href="/systems"
-            className="awake-button awake-button-primary"
-            onClick={(event) => event.stopPropagation()}
-          >
-            Add system
-          </Link>
-        </div>
       </div>
 
       {actionFoundation && (
@@ -852,7 +618,11 @@ export default function SystemsOverview() {
           background:
             radial-gradient(
               circle at 31% 24%,
-              rgba(255, 255, 255, 0.9),
+              color-mix(
+                in srgb,
+                var(--nav-highlight) 82%,
+                var(--awake-surface-elevated)
+              ),
               transparent 29%
             ),
             radial-gradient(
@@ -869,8 +639,14 @@ export default function SystemsOverview() {
           box-shadow:
             inset -10px -12px 20px
               color-mix(in srgb, var(--nav-main) 28%, transparent),
-            inset 8px 9px 16px rgba(255, 255, 255, 0.48),
-            0 12px 30px rgba(28, 34, 30, 0.1),
+            inset 8px 9px 16px
+              color-mix(
+                in srgb,
+                var(--nav-highlight) 28%,
+                transparent
+              ),
+            0 12px 30px
+              color-mix(in srgb, var(--awake-text) 9%, transparent),
             0 0 38px color-mix(in srgb, var(--nav-glow) 18%, transparent);
         }
 
@@ -880,12 +656,20 @@ export default function SystemsOverview() {
           background:
             radial-gradient(
               circle at 32% 24%,
-              color-mix(in srgb, var(--awake-orb-highlight) 76%, white),
+              color-mix(
+                in srgb,
+                var(--awake-orb-highlight) 82%,
+                var(--awake-surface-elevated)
+              ),
               transparent 30%
             ),
             linear-gradient(
               145deg,
-              color-mix(in srgb, var(--awake-breathe-background) 78%, white),
+              color-mix(
+                in srgb,
+                var(--awake-breathe-background) 82%,
+                var(--awake-orb-highlight)
+              ),
               var(--awake-breathe-background)
             );
           box-shadow:

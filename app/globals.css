@@ -628,6 +628,443 @@ dialog,
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Reusable page composition: compact, phone, expanded, and desktop */
+.awake-home-responsive {
+  position: relative;
+  padding:
+    max(1.25rem, env(safe-area-inset-top))
+    max(0.85rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom))
+    max(0.85rem, env(safe-area-inset-left));
+}
+
+.awake-home-responsive::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      color-mix(in srgb, var(--awake-orb-glow) 10%, transparent),
+      transparent 42%
+    ),
+    radial-gradient(
+      circle at 15% 85%,
+      color-mix(in srgb, var(--awake-secondary-accent) 5%, transparent),
+      transparent 34%
+    );
+  pointer-events: none;
+}
+
+[data-awake-appearance="light"] .awake-home-responsive::before {
+  opacity: 0.82;
+  background:
+    radial-gradient(
+      circle at 50% 34%,
+      color-mix(in srgb, var(--awake-orb-highlight) 22%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 12% 88%,
+      color-mix(in srgb, var(--awake-companion) 8%, transparent),
+      transparent 34%
+    );
+}
+
+[data-awake-appearance="dark"] .awake-home-responsive::before {
+  opacity: 0.9;
+  background:
+    radial-gradient(
+      circle at 50% 36%,
+      color-mix(in srgb, var(--awake-orb-glow) 14%, transparent),
+      transparent 37%
+    ),
+    radial-gradient(
+      circle at 14% 86%,
+      color-mix(in srgb, var(--awake-companion) 7%, transparent),
+      transparent 38%
+    );
+}
+
+.awake-responsive-shell {
+  position: relative;
+}
+
+.awake-responsive-header {
+  position: relative;
+  z-index: 20;
+}
+
+.awake-home-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.awake-home-title {
+  margin-top: 0.3rem;
+  font-size: clamp(1.45rem, 6vw, 2.35rem);
+}
+
+.awake-home-subtitle {
+  margin-top: 0.35rem;
+  max-width: 28rem;
+  font-size: clamp(0.78rem, 2.6vw, 0.95rem);
+}
+
+.awake-responsive-overlay {
+  position: relative;
+  z-index: 30;
+}
+
+.awake-appearance-panel {
+  position: fixed !important;
+  top: max(4.75rem, calc(env(safe-area-inset-top) + 3.75rem));
+  right: max(0.85rem, env(safe-area-inset-right));
+  left: max(0.85rem, env(safe-area-inset-left));
+  z-index: 40 !important;
+  width: auto;
+  max-width: 34rem;
+  margin-left: auto;
+  box-shadow: 0 1.5rem 4rem color-mix(in srgb, var(--awake-text) 14%, transparent);
+}
+
+.awake-responsive-grid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+}
+
+.awake-responsive-world {
+  min-width: 0;
+}
+
+.awake-responsive-leading,
+.awake-responsive-supporting {
+  display: none;
+}
+
+.awake-responsive-rail {
+  display: contents;
+}
+
+.awake-responsive-action {
+  width: min(100%, 17rem);
+  margin: 0.25rem auto 0;
+}
+
+.awake-world-stage {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+}
+
+.awake-world-count {
+  margin-top: -0.25rem;
+  color: var(--awake-muted);
+  font-size: 0.72rem;
+}
+
+.awake-home-panel-stack {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.awake-home-panel {
+  padding: 1rem;
+  border: 1px solid var(--awake-border);
+  border-radius: 1.4rem;
+  background: color-mix(in srgb, var(--awake-surface) 80%, transparent);
+  box-shadow: 0 0.8rem 2rem color-mix(in srgb, var(--awake-text) 5%, transparent);
+}
+
+[data-awake-appearance="light"] .awake-home-panel {
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--awake-surface-elevated) 94%, transparent),
+      color-mix(in srgb, var(--awake-surface) 78%, transparent)
+    );
+  box-shadow:
+    0 1rem 2.4rem color-mix(in srgb, var(--awake-text) 6%, transparent),
+    inset 0 1px rgb(255 255 255 / 55%);
+}
+
+[data-awake-appearance="dark"] .awake-home-panel {
+  border-color: color-mix(in srgb, var(--awake-border) 78%, transparent);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--awake-surface-elevated) 74%, transparent),
+      color-mix(in srgb, var(--awake-surface) 88%, transparent)
+    );
+  box-shadow:
+    0 1rem 2.8rem rgb(0 0 0 / 18%),
+    inset 0 1px color-mix(in srgb, var(--awake-orb-highlight) 7%, transparent);
+}
+
+[data-awake-appearance="dark"] .rotating-orb-track {
+  border-color: color-mix(in srgb, var(--awake-orb-glow) 24%, transparent);
+  box-shadow:
+    inset 0 0 3.5rem color-mix(in srgb, var(--awake-orb-glow) 7%, transparent),
+    0 0 4.5rem color-mix(in srgb, var(--awake-orb-glow) 8%, transparent);
+}
+
+.awake-home-panel h2 {
+  margin-top: 0.55rem;
+  font-size: 1.05rem;
+}
+
+.awake-home-panel .awake-supporting {
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+}
+
+.awake-home-system-list {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.55rem;
+}
+
+.awake-home-system-list button,
+.awake-home-quick a {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-inline: 0.15rem;
+  border-radius: 0.8rem;
+  text-align: left;
+}
+
+.awake-home-system-list button:focus-visible,
+.awake-home-quick a:focus-visible {
+  outline: 2px solid var(--awake-focus-ring);
+  outline-offset: 2px;
+}
+
+.awake-home-system-list small {
+  color: var(--awake-muted);
+  font-size: 0.65rem;
+}
+
+.awake-home-quick a {
+  border-bottom: 1px solid var(--awake-border);
+  font-size: 0.82rem;
+}
+
+/* Compact devices keep the entire World visible above the primary action. */
+@media (max-width: 419px) {
+  .awake-home-responsive {
+    padding-top: max(0.8rem, env(safe-area-inset-top));
+  }
+
+  .awake-home-subtitle {
+    display: none;
+  }
+
+  .awake-home-title {
+    font-size: 1.35rem;
+  }
+
+  .home-foundation-ring {
+    width: min(100%, 16rem);
+    height: 18.25rem;
+    margin-top: 0.1rem;
+  }
+
+  .home-foundation-ring .rotating-orb-track {
+    inset: 10% 4% 19%;
+  }
+
+  .home-foundation-ring .rotating-orb-item {
+    width: 4rem;
+    min-height: 3.75rem;
+  }
+
+  .home-foundation-ring .navigation-foundation-orb,
+  .home-foundation-ring .breathe-navigation-orb {
+    width: 3.15rem !important;
+    height: 3.15rem !important;
+  }
+
+  .home-foundation-ring .rotating-orb-item.is-centered
+    .navigation-foundation-orb,
+  .home-foundation-ring .rotating-orb-item.is-centered
+    .breathe-navigation-orb {
+    width: 5.15rem !important;
+    height: 5.15rem !important;
+  }
+
+  .home-foundation-ring .ring-orb-label {
+    max-width: 4.25rem;
+    margin-top: 0.25rem;
+    font-size: clamp(0.52rem, 2.5vw, 0.65rem);
+  }
+
+  .home-foundation-ring .ring-orb-detail {
+    max-width: 5.5rem;
+    font-size: 0.52rem;
+  }
+
+  .home-foundation-ring .rotating-orb-hint {
+    font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 419px) and (max-height: 720px) {
+  .awake-home-responsive {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .awake-home-header .awake-eyebrow {
+    font-size: 0.62rem;
+  }
+
+  .home-foundation-ring {
+    height: 16.5rem;
+  }
+
+  .awake-world-count {
+    display: none;
+  }
+
+  .rotating-orb-hint {
+    bottom: 0;
+  }
+}
+
+/* Standard phone */
+@media (min-width: 420px) and (max-width: 767px) {
+  .awake-home-responsive {
+    padding-inline:
+      max(1.25rem, env(safe-area-inset-left))
+      max(1.25rem, env(safe-area-inset-right));
+  }
+
+  .home-foundation-ring {
+    width: min(100%, 20rem);
+    height: 22.5rem;
+  }
+
+  .home-foundation-ring .rotating-orb-item {
+    width: 5rem;
+  }
+
+  .home-foundation-ring .navigation-foundation-orb,
+  .home-foundation-ring .breathe-navigation-orb {
+    width: 4.1rem !important;
+    height: 4.1rem !important;
+  }
+
+  .home-foundation-ring .rotating-orb-item.is-centered
+    .navigation-foundation-orb,
+  .home-foundation-ring .rotating-orb-item.is-centered
+    .breathe-navigation-orb {
+    width: 6.2rem !important;
+    height: 6.2rem !important;
+  }
+
+  .home-foundation-ring .ring-orb-label {
+    max-width: 5.25rem;
+    font-size: 0.7rem;
+  }
+}
+
+/* Expanded devices use width for a support rail instead of scaling everything. */
+@media (min-width: 768px) {
+  .awake-home-responsive {
+    padding:
+      max(2rem, env(safe-area-inset-top))
+      max(1.5rem, env(safe-area-inset-right))
+      max(2rem, env(safe-area-inset-bottom))
+      max(1.5rem, env(safe-area-inset-left));
+  }
+
+  .awake-responsive-grid {
+    min-height: calc(100dvh - 9rem);
+    grid-template-columns: minmax(24rem, 1fr) 16.5rem;
+    gap: clamp(1.25rem, 4vw, 3rem);
+  }
+
+  .awake-responsive-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .awake-responsive-action {
+    order: 2;
+    width: 100%;
+    margin: 0;
+  }
+
+  .awake-responsive-supporting {
+    display: block;
+    order: 1;
+  }
+
+  .home-foundation-ring {
+    width: min(100%, 23rem);
+    height: 25.5rem;
+  }
+
+  .home-foundation-ring .ring-orb-label {
+    font-size: 0.76rem;
+  }
+}
+
+/* Desktop dashboard: support appears on both sides; World stays centered. */
+@media (min-width: 1024px) {
+  .awake-home-title {
+    font-size: clamp(2.2rem, 3.2vw, 3.4rem);
+  }
+
+  .awake-responsive-grid {
+    grid-template-columns: 16rem minmax(27rem, 1fr) 18rem;
+    gap: clamp(1.5rem, 3vw, 3.5rem);
+  }
+
+  .awake-responsive-leading {
+    display: block;
+  }
+
+  .home-foundation-ring {
+    width: min(100%, 27rem);
+    height: 29.5rem;
+  }
+
+  .home-foundation-ring .navigation-foundation-orb,
+  .home-foundation-ring .breathe-navigation-orb {
+    width: 5.4rem !important;
+    height: 5.4rem !important;
+  }
+
+  .home-foundation-ring .rotating-orb-item.is-centered
+    .navigation-foundation-orb,
+  .home-foundation-ring .rotating-orb-item.is-centered
+    .breathe-navigation-orb {
+    width: 7.2rem !important;
+    height: 7.2rem !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .awake-home-panel,
+  .rotating-orb-track {
+    border-width: 2px;
+  }
+
+  .rotating-orb-item {
+    opacity: max(0.78, var(--ring-opacity));
+  }
+}
 /* Homepage foundation world */
 .foundation-expanded {
   animation: foundation-enter 680ms cubic-bezier(0.22, 1, 0.36, 1) both;

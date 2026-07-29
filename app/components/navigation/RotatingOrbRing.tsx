@@ -25,6 +25,8 @@ type Props<T extends RingItem> = {
   activateOnlyWhenCentered?: boolean;
   onLongPress?: (item: T) => void;
   centerContent?: ReactNode;
+  depthRange?: { back: number; front: number };
+  opacityRange?: { back: number; front: number };
 };
 
 const DRAG_DEGREES_PER_PIXEL = 0.28;
@@ -46,6 +48,8 @@ export default function RotatingOrbRing<T extends RingItem>({
   activateOnlyWhenCentered = true,
   onLongPress,
   centerContent,
+  depthRange = { back: 0.72, front: 0.88 },
+  opacityRange,
 }: Props<T>) {
   const [dragDegrees, setDragDegrees] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -193,9 +197,17 @@ export default function RotatingOrbRing<T extends RingItem>({
           centered && !fixedCenter ? 50 : 50 + Math.cos(radians) * 42;
         const y =
           centered && !fixedCenter ? 50 : 50 + Math.sin(radians) * 38;
+        const orbitDepth = (Math.sin(radians) + 1) / 2;
         const depth = centered
           ? 1
-          : 0.72 + ((Math.sin(radians) + 1) / 2) * 0.16;
+          : depthRange.back +
+            orbitDepth * (depthRange.front - depthRange.back);
+        const opacity = centered
+          ? 1
+          : opacityRange
+            ? opacityRange.back +
+              orbitDepth * (opacityRange.front - opacityRange.back)
+            : 0.68 + depth * 0.2;
 
         return (
           <button
@@ -214,10 +226,12 @@ export default function RotatingOrbRing<T extends RingItem>({
                     ? 1.05
                     : 1.18
                   : depth,
-                "--ring-opacity": centered ? 1 : 0.68 + depth * 0.2,
+                "--ring-opacity": opacity,
+                "--ring-depth": orbitDepth,
+                "--ring-brightness": 0.78 + orbitDepth * 0.22,
                 "--ring-z": centered
                   ? 20
-                  : Math.round(4 + ((Math.sin(radians) + 1) / 2) * 5),
+                  : Math.round(4 + orbitDepth * 5),
               } as CSSProperties
             }
             aria-label={getAriaLabel(item, centered)}

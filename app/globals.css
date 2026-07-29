@@ -1066,6 +1066,54 @@ dialog,
   }
 }
 
+/* Homepage solar-system polish; center-orb rules remain unchanged. */
+.awake-home-responsive .home-foundation-ring .rotating-orb-track {
+  inset: 10% 5% 16%;
+  border-width: 0.75px;
+  border-color: color-mix(
+    in srgb,
+    var(--awake-orb-glow) 10%,
+    transparent
+  );
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--awake-orb-glow) 4%, transparent),
+    transparent 70%
+  );
+  box-shadow:
+    inset 0 0 2.8rem
+      color-mix(in srgb, var(--awake-orb-glow) 3%, transparent),
+    0 0 3.2rem
+      color-mix(in srgb, var(--awake-orb-glow) 3%, transparent);
+}
+
+.awake-home-responsive .home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .foundation-waypoint-orb {
+  filter:
+    brightness(var(--ring-brightness))
+    saturate(1.2)
+    contrast(1.02);
+  box-shadow:
+    inset -4px -5px 8px
+      color-mix(in srgb, var(--nav-main, var(--awake-orb-glow)) 22%, transparent),
+    inset 3px 3px 6px
+      color-mix(in srgb, var(--nav-highlight, var(--awake-orb-highlight)) 34%, transparent),
+    0 0.5rem 1.15rem
+      color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 24%, transparent),
+    0 0 1rem
+      color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 12%, transparent);
+  transition:
+    filter 620ms ease,
+    box-shadow 620ms ease;
+}
+
+.awake-home-responsive .home-foundation-ring.is-dragging
+  .rotating-orb-item:not(.is-centered)
+  .foundation-waypoint-orb {
+  transition-duration: 180ms;
+}
+
 /* Unfocused foundations are small worlds; their buttons retain larger hit areas. */
 .home-foundation-ring
   .rotating-orb-item:not(.is-centered)

@@ -43,6 +43,9 @@ import {
   useOrbCarouselController,
 } from "./navigation/OrbCarousel";
 import PracticeSpace from "./practice/PracticeSpace";
+import ExpandedFoundationView from "./foundation/ExpandedFoundationView";
+import type { HomeViewState } from "./foundation/foundationExperience";
+import type { Language } from "../translations";
 
 const HIDDEN_FOUNDATIONS_KEY = "awake-hidden-foundations";
 const BREATHE_ID = "awake-breathe";
@@ -113,6 +116,8 @@ export default function SystemsOverview() {
   const [selectedId, setSelectedId] = useState(BREATHE_ID);
   const [loaded, setLoaded] = useState(false);
   const [practiceOpen, setPracticeOpen] = useState(false);
+  const [homeView, setHomeView] = useState<HomeViewState>({ mode: "world" });
+  const [language, setLanguage] = useState<Language>("en");
   const [foundationViewPreferences, setFoundationViewPreferences] =
     useState<FoundationViewPreferences>({
       defaultView: "orb",
@@ -137,8 +142,34 @@ export default function SystemsOverview() {
     setHiddenIds(readHiddenFoundations());
     setColorPreferences(loadColorPreferences());
     setFoundationViewPreferences(loadFoundationViewPreferences());
+    const savedLanguage = localStorage.getItem("awake-language");
+    if (savedLanguage === "en" || savedLanguage === "es") {
+      setLanguage(savedLanguage);
+    }
+    const foundationId = new URL(window.location.href).searchParams.get(
+      "foundation",
+    );
+    if (
+      foundationId &&
+      initialized.some((foundation) => foundation.id === foundationId)
+    ) {
+      setHomeView({ mode: "foundation", foundationId });
+    }
     setLoaded(true);
+    const handlePopState = () => {
+      const nextId = new URL(window.location.href).searchParams.get(
+        "foundation",
+      );
+      setHomeView(
+        nextId &&
+          initialized.some((foundation) => foundation.id === nextId)
+          ? { mode: "foundation", foundationId: nextId }
+          : { mode: "world" },
+      );
+    };
+    window.addEventListener("popstate", handlePopState);
     return () => {
+      window.removeEventListener("popstate", handlePopState);
       if (longPressTimer.current !== null) {
         window.clearTimeout(longPressTimer.current);
       }
@@ -270,6 +301,32 @@ export default function SystemsOverview() {
     }
   }
 
+  function openFoundation(foundation: AwakeSystem) {
+    setHomeView({ mode: "foundation", foundationId: foundation.id });
+    const url = new URL(window.location.href);
+    url.searchParams.set("foundation", foundation.id);
+    window.history.pushState({ foundationId: foundation.id }, "", url);
+  }
+
+  function closeFoundation() {
+    if (window.history.state?.foundationId) {
+      window.history.back();
+      return;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.delete("foundation");
+    window.history.replaceState({}, "", url);
+    setHomeView({ mode: "world" });
+  }
+
+  function updateFoundation(updated: AwakeSystem) {
+    const next = foundations.map((foundation) =>
+      foundation.id === updated.id ? updated : foundation,
+    );
+    setFoundations(next);
+    saveAwakeSystems(next);
+  }
+
   if (!loaded) return null;
 
   if (practiceOpen) {
@@ -282,6 +339,37 @@ export default function SystemsOverview() {
         onFinish={() => setPracticeOpen(false)}
       />
     );
+  }
+
+  if (homeView.mode !== "world") {
+    const foundation = foundations.find(
+      (item) => item.id === homeView.foundationId,
+    );
+    if (foundation) {
+      return (
+        <ExpandedFoundationView
+          foundation={foundation}
+          view={homeView}
+          preferences={colorPreferences}
+          language={language}
+          onBack={closeFoundation}
+          onSelectSystem={(systemId) =>
+            setHomeView({
+              mode: "system-preview",
+              foundationId: foundation.id,
+              systemId,
+            })
+          }
+          onClearPreview={() =>
+            setHomeView({
+              mode: "foundation",
+              foundationId: foundation.id,
+            })
+          }
+          onFoundationChange={updateFoundation}
+        />
+      );
+    }
   }
 
   return (
@@ -549,13 +637,13 @@ export default function SystemsOverview() {
                       if (!isCentered) {
                         setSelectedId(item.id);
                       } else {
-                        window.location.href = `/systems/${item.foundation.id}`;
+                        openFoundation(item.foundation);
                       }
                     }}
                     className="flex flex-col items-center outline-none"
                     aria-label={`${isCentered ? "Open" : "Center"} ${
                       item.foundation.title
-                    } foundation`}
+                    } foundation, ${item.foundation.focusAreas.length} systems`}
                   >
                     <span
                       className="navigation-foundation-orb relative h-32 w-32 rounded-full"

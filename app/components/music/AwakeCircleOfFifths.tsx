@@ -41,6 +41,11 @@ function KeySignatureRings({
   return (
     <span
       className={`awake-key-signature-rings is-${direction}`}
+      style={
+        {
+          "--signature-ring-opacity": (0.16 + count * 0.045).toFixed(3),
+        } as CSSProperties
+      }
       aria-hidden="true"
     >
       {Array.from({ length: count }, (_, index) => (

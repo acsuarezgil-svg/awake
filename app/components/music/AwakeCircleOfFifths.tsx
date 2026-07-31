@@ -8,7 +8,6 @@ import {
 } from "../../colorPalette";
 import {
   getKeySignatureLabel,
-  getStepFromCoreLabel,
   type CircleFoundationMapping,
 } from "../../music/circleOfFifths";
 import type { AwakeSystem } from "../../systems";
@@ -55,7 +54,6 @@ export default function AwakeCircleOfFifths({
           <span className="awake-circle-focus-key">{selected.displayKey}</span>
           <strong>{selected.awakeFoundationName}</strong>
           <span>{getKeySignatureLabel(selected)}</span>
-          <small>{getStepFromCoreLabel(selected)}</small>
         </div>
       }
       onActivate={(item) => onEnterFoundation(item.foundation)}

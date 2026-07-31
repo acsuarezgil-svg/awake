@@ -17,8 +17,14 @@ export default function ResponsiveLayout({
   primaryAction,
   overlay,
 }: Props) {
+  const worldOnly = !leading && !supporting;
+
   return (
-    <div className="awake-responsive-shell mx-auto w-full max-w-[64rem]">
+    <div
+      className={`awake-responsive-shell mx-auto w-full max-w-[64rem] ${
+        worldOnly ? "is-world-only" : ""
+      }`}
+    >
       <div className="awake-responsive-header">{header}</div>
       {overlay && <div className="awake-responsive-overlay">{overlay}</div>}
       <div className="awake-responsive-grid">

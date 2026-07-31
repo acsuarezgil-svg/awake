@@ -2028,6 +2028,146 @@ dialog,
   margin-top: clamp(0.15rem, 0.7vh, 0.4rem);
 }
 
+/* Home navigation — compact support for the World. */
+.awake-home-navigation {
+  position: fixed;
+  right: auto;
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 35;
+  display: grid;
+  width: min(calc(100% - 1rem), 18rem);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.15rem;
+  padding: 0.28rem;
+  border: 1px solid color-mix(in srgb, var(--awake-border) 66%, transparent);
+  border-radius: 1.35rem;
+  background: color-mix(in srgb, var(--awake-surface) 88%, transparent);
+  box-shadow:
+    0 0.8rem 2.2rem color-mix(in srgb, var(--awake-text) 7%, transparent),
+    inset 0 1px color-mix(in srgb, var(--awake-orb-highlight) 28%, transparent);
+  transform: translateX(-50%);
+}
+
+.awake-home-navigation-item {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0.95rem;
+  background: transparent;
+  color: color-mix(in srgb, var(--awake-text-secondary) 92%, var(--awake-text));
+  font: inherit;
+  text-decoration: none;
+}
+
+.awake-home-navigation-item:hover,
+.awake-home-navigation-item[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--awake-accent-soft) 46%, transparent);
+  color: var(--awake-text);
+}
+
+.awake-home-navigation-item:focus-visible {
+  outline: 2px solid var(--awake-focus-ring);
+  outline-offset: 1px;
+}
+
+.awake-home-navigation-item svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: color-mix(in srgb, var(--awake-accent) 76%, var(--awake-text));
+}
+
+.awake-home-navigation-item.is-add {
+  background: color-mix(in srgb, var(--awake-accent-soft) 54%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .awake-home-navigation-item::after {
+    position: absolute;
+    bottom: calc(100% + 0.65rem);
+    left: 50%;
+    padding: 0.32rem 0.48rem;
+    border: 1px solid color-mix(in srgb, var(--awake-border) 72%, transparent);
+    border-radius: 0.55rem;
+    background: color-mix(in srgb, var(--awake-surface-elevated) 96%, transparent);
+    box-shadow: 0 0.45rem 1.2rem
+      color-mix(in srgb, var(--awake-text) 8%, transparent);
+    color: var(--awake-text);
+    content: attr(data-tooltip);
+    font-size: 0.68rem;
+    line-height: 1;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .awake-home-navigation-item:hover::after,
+  .awake-home-navigation-item:focus-visible::after {
+    opacity: 1;
+  }
+}
+
+.awake-responsive-shell.is-world-only .awake-responsive-action {
+  width: min(100%, 18rem);
+  margin-inline: auto;
+}
+
+.awake-responsive-shell.is-world-only .awake-responsive-header {
+  position: absolute;
+  inset: 0 0 auto;
+}
+
+.awake-responsive-shell.is-world-only .awake-responsive-grid {
+  min-height: calc(100dvh - 2.3rem);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+@media (max-width: 374px) {
+  .awake-home-navigation {
+    width: min(calc(100% - 0.75rem), 18rem);
+    gap: 0.05rem;
+    padding-inline: 0.2rem;
+  }
+
+  .awake-home-navigation-item {
+    min-height: 2.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .awake-responsive-shell.is-world-only .awake-responsive-grid {
+    min-height: calc(100dvh - 4rem);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .awake-responsive-shell.is-world-only .awake-responsive-rail {
+    display: block;
+  }
+
+  .awake-responsive-shell.is-world-only .awake-responsive-action {
+    width: min(100%, 18rem);
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .awake-responsive-shell.is-world-only {
+    max-width: 72rem;
+  }
+
+  .awake-responsive-shell.is-world-only .awake-responsive-grid {
+    min-height: calc(100dvh - 4rem);
+  }
+}
+
 .home-foundation-ring {
   height: clamp(29rem, 74vw, 39rem);
 }

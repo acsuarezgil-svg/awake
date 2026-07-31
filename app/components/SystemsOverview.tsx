@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import type { MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import type {
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
+} from "react";
 
 import {
   defaultColorPreferences,
@@ -38,6 +41,63 @@ import type { HomeViewState } from "./foundation/foundationExperience";
 import type { Language } from "../translations";
 
 const HIDDEN_FOUNDATIONS_KEY = "awake-hidden-foundations";
+
+type HomeDockIconName =
+  | "add"
+  | "filters"
+  | "atmosphere"
+  | "privacy"
+  | "about";
+
+function HomeDockIcon({ name }: { name: HomeDockIconName }) {
+  const paths: Record<HomeDockIconName, ReactNode> = {
+    add: <path d="M12 5v14M5 12h14" />,
+    filters: (
+      <>
+        <path d="M4 7h10M18 7h2M4 17h2M10 17h10" />
+        <circle cx="16" cy="7" r="2" />
+        <circle cx="8" cy="17" r="2" />
+      </>
+    ),
+    atmosphere: (
+      <>
+        <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4" />
+        <path d="M15.8 15.8A5.4 5.4 0 1 1 8.2 8.2a4.2 4.2 0 0 0 7.6 7.6Z" />
+      </>
+    ),
+    privacy: (
+      <path d="M12 3 5.5 5.7v5.7c0 4.1 2.7 7.7 6.5 9.1 3.8-1.4 6.5-5 6.5-9.1V5.7L12 3Zm0 5v5" />
+    ),
+    about: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v6M12 7.5v.1" />
+      </>
+    ),
+  };
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.65"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {paths[name]}
+    </svg>
+  );
+}
+
+function handleDockLinkKeyDown(
+  event: ReactKeyboardEvent<HTMLAnchorElement>,
+) {
+  if (event.key !== " ") return;
+  event.preventDefault();
+  event.currentTarget.click();
+}
 
 function readHiddenFoundations() {
   try {
@@ -102,6 +162,9 @@ export default function SystemsOverview() {
       byFoundation: {},
     });
   const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const [appearanceSection, setAppearanceSection] = useState<
+    "appearance" | "filters"
+  >("appearance");
   const [actionFoundation, setActionFoundation] =
     useState<AwakeSystem | null>(null);
   const [colorPreferences, setColorPreferences] =
@@ -270,30 +333,6 @@ export default function SystemsOverview() {
                 Move gently between the parts of life that support you.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                setAppearanceOpen((open) => !open);
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setAppearanceOpen((open) => !open);
-                }
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-              onTouchStart={(event) => event.stopPropagation()}
-              className="awake-button awake-button-secondary h-11 w-11 rounded-full p-0"
-              aria-label="Appearance and navigation settings"
-              aria-expanded={appearanceOpen}
-              aria-controls="awake-appearance-menu"
-              aria-haspopup="dialog"
-              data-appearance-control
-            >
-              <span aria-hidden="true">◐</span>
-            </button>
           </header>
         }
         world={
@@ -325,13 +364,85 @@ export default function SystemsOverview() {
           </div>
         }
         primaryAction={
-          <Link
-            href="/systems"
-            onClick={(event) => event.stopPropagation()}
-            className="awake-button awake-button-primary w-full"
+          <nav
+            className="awake-card awake-home-navigation grid w-full max-w-[26rem] grid-cols-5 gap-1 p-1"
+            aria-label="Home actions"
           >
-            Add system
-          </Link>
+            <Link
+              href="/systems"
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={handleDockLinkKeyDown}
+              className="awake-button awake-button-quiet awake-home-navigation-item is-add"
+              aria-label="Add system"
+              title="Add system"
+              data-tooltip="Add system"
+            >
+              <HomeDockIcon name="add" />
+            </Link>
+            <button
+              type="button"
+              className="awake-button awake-button-quiet awake-home-navigation-item"
+              aria-label="Manage visible foundations"
+              title="Manage visible foundations"
+              data-tooltip="Filters"
+              aria-expanded={
+                appearanceOpen && appearanceSection === "filters"
+              }
+              aria-controls="awake-appearance-menu"
+              onClick={(event) => {
+                event.stopPropagation();
+                setAppearanceSection("filters");
+                setAppearanceOpen(
+                  (open) => !(open && appearanceSection === "filters"),
+                );
+              }}
+            >
+              <HomeDockIcon name="filters" />
+            </button>
+            <button
+              type="button"
+              className="awake-button awake-button-quiet awake-home-navigation-item"
+              aria-label="Change atmosphere"
+              title="Change atmosphere"
+              data-tooltip="Atmosphere"
+              aria-expanded={
+                appearanceOpen && appearanceSection === "appearance"
+              }
+              aria-controls="awake-appearance-menu"
+              aria-haspopup="dialog"
+              onClick={(event) => {
+                event.stopPropagation();
+                setAppearanceSection("appearance");
+                setAppearanceOpen(
+                  (open) => !(open && appearanceSection === "appearance"),
+                );
+              }}
+            >
+              <HomeDockIcon name="atmosphere" />
+            </button>
+            <Link
+              href="/privacy"
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={handleDockLinkKeyDown}
+              className="awake-button awake-button-quiet awake-home-navigation-item"
+              aria-label="Open privacy"
+              title="Open privacy"
+              data-tooltip="Privacy"
+            >
+              <HomeDockIcon name="privacy" />
+            </Link>
+            <Link
+              href="/about"
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={handleDockLinkKeyDown}
+              className="awake-button awake-button-quiet awake-home-navigation-item"
+              aria-label="Open about"
+              title="Open about"
+              data-tooltip="About"
+            >
+              <HomeDockIcon name="about" />
+            </Link>
+          </nav>
         }
       />
       <div className="mx-auto w-full max-w-4xl">
@@ -347,111 +458,107 @@ export default function SystemsOverview() {
             aria-labelledby="awake-appearance-title"
             data-appearance-control
           >
-            <h2 id="awake-appearance-title">Appearance</h2>
+            <h2 id="awake-appearance-title">
+              {appearanceSection === "appearance" ? "Appearance" : "Filters"}
+            </h2>
             <p className="awake-supporting mt-1">
-              Shape the atmosphere and choose which Foundations are nearby.
+              {appearanceSection === "appearance"
+                ? "Shape the atmosphere and choose how Foundations appear."
+                : "Choose which Foundations are nearby."}
             </p>
-            <div className="mt-5">
-              <AwakeColorPicker
-                hue={colorPreferences.anchorHue}
-                harmony={colorPreferences.harmony}
-                appearance={colorPreferences.appearance}
-                onHueChange={(anchorHue) =>
-                  updateColorPreferences({
-                    ...colorPreferences,
-                    anchorHue,
-                  })
-                }
-                onHarmonyChange={(harmony) =>
-                  updateColorPreferences({
-                    ...colorPreferences,
-                    harmony,
-                  })
-                }
-                onAppearanceChange={(appearance) =>
-                  updateColorPreferences({
-                    ...colorPreferences,
-                    appearance,
-                  })
-                }
-                orbMaterial={colorPreferences.orbMaterial}
-                onOrbMaterialChange={(orbMaterial) =>
-                  updateColorPreferences({
-                    ...colorPreferences,
-                    orbMaterial,
-                  })
-                }
-              />
-            </div>
-            <div className="mt-8 border-t pt-6">
-              <h3>Foundation view</h3>
-              <p className="awake-supporting mt-1 text-xs">
-                Used when a Foundation has no individual preference.
-              </p>
-              <div className="mt-3 flex gap-2">
-                {(["orb", "list"] as const).map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => {
-                      const next = {
-                        ...foundationViewPreferences,
-                        defaultView: option,
-                      };
-                      setFoundationViewPreferences(next);
-                      saveFoundationViewPreferences(next);
-                    }}
-                    className={`awake-chip min-h-10 px-4 ${
-                      foundationViewPreferences.defaultView === option
-                        ? "is-selected"
-                        : ""
-                    }`}
-                    aria-pressed={
-                      foundationViewPreferences.defaultView === option
+            {appearanceSection === "appearance" && (
+              <>
+                <div className="mt-5">
+                  <AwakeColorPicker
+                    hue={colorPreferences.anchorHue}
+                    harmony={colorPreferences.harmony}
+                    appearance={colorPreferences.appearance}
+                    onHueChange={(anchorHue) =>
+                      updateColorPreferences({
+                        ...colorPreferences,
+                        anchorHue,
+                      })
                     }
-                  >
-                    {option === "orb" ? "Orb" : "List"}
-                  </button>
-                ))}
+                    onHarmonyChange={(harmony) =>
+                      updateColorPreferences({
+                        ...colorPreferences,
+                        harmony,
+                      })
+                    }
+                    onAppearanceChange={(appearance) =>
+                      updateColorPreferences({
+                        ...colorPreferences,
+                        appearance,
+                      })
+                    }
+                    orbMaterial={colorPreferences.orbMaterial}
+                    onOrbMaterialChange={(orbMaterial) =>
+                      updateColorPreferences({
+                        ...colorPreferences,
+                        orbMaterial,
+                      })
+                    }
+                  />
+                </div>
+                <div className="mt-8 border-t pt-6">
+                  <h3>Foundation view</h3>
+                  <p className="awake-supporting mt-1 text-xs">
+                    Used when a Foundation has no individual preference.
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    {(["orb", "list"] as const).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => {
+                          const next = {
+                            ...foundationViewPreferences,
+                            defaultView: option,
+                          };
+                          setFoundationViewPreferences(next);
+                          saveFoundationViewPreferences(next);
+                        }}
+                        className={`awake-chip min-h-10 px-4 ${
+                          foundationViewPreferences.defaultView === option
+                            ? "is-selected"
+                            : ""
+                        }`}
+                        aria-pressed={
+                          foundationViewPreferences.defaultView === option
+                        }
+                      >
+                        {option === "orb" ? "Orb" : "List"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+            {appearanceSection === "filters" && (
+              <div className="mt-5">
+                <h3 className="sr-only">Navigation orbs</h3>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {foundations.map((foundation) => {
+                    const visible = !hiddenIds.includes(foundation.id);
+                    return (
+                      <label
+                        key={foundation.id}
+                        className="flex min-h-11 items-center justify-between rounded-2xl border px-4 text-sm"
+                      >
+                        {foundation.title}
+                        <input
+                          type="checkbox"
+                          checked={visible}
+                          onChange={() => toggleFoundation(foundation.id)}
+                          aria-label={`Show ${foundation.title} in navigation`}
+                          className="h-5 w-5"
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-            <div className="mt-8 border-t pt-6">
-              <h3>Navigation orbs</h3>
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {foundations.map((foundation) => {
-                  const visible = !hiddenIds.includes(foundation.id);
-                  return (
-                    <label
-                      key={foundation.id}
-                      className="flex min-h-11 items-center justify-between rounded-2xl border px-4 text-sm"
-                    >
-                      {foundation.title}
-                      <input
-                        type="checkbox"
-                        checked={visible}
-                        onChange={() => toggleFoundation(foundation.id)}
-                        aria-label={`Show ${foundation.title} in navigation`}
-                        className="h-5 w-5"
-                      />
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="mt-6 flex justify-center gap-2 border-t pt-5">
-              <Link
-                href="/privacy"
-                className="awake-button awake-button-quiet"
-              >
-                Privacy
-              </Link>
-              <Link
-                href="/about"
-                className="awake-button awake-button-quiet"
-              >
-                About
-              </Link>
-            </div>
+            )}
           </section>
         )}
       </div>

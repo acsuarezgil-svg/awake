@@ -29,6 +29,37 @@ function spokenKey(key: string) {
     .replaceAll(/m\b/g, " minor");
 }
 
+function KeySignatureRings({
+  count,
+  direction,
+}: {
+  count: number;
+  direction: CircleFoundationMapping["direction"];
+}) {
+  if (direction === "core" || count === 0) return null;
+
+  return (
+    <span
+      className={`awake-key-signature-rings is-${direction}`}
+      aria-hidden="true"
+    >
+      {Array.from({ length: count }, (_, index) => (
+        <i
+          key={index}
+          style={
+            {
+              "--signature-ring-inset":
+                direction === "sharp"
+                  ? `${7 + index * 5}%`
+                  : `${-4 - index * 4}%`,
+            } as CSSProperties
+          }
+        />
+      ))}
+    </span>
+  );
+}
+
 export default function AwakeCircleOfFifths({
   items,
   selectedId,
@@ -88,9 +119,14 @@ export default function AwakeCircleOfFifths({
                 } as CSSProperties
               }
             >
+              <KeySignatureRings
+                count={item.accidentalCount}
+                direction={item.direction}
+              />
               <span className="awake-circle-key" aria-hidden="true">
                 {item.displayKey}
               </span>
+              <span className="awake-relative-minor-companion" aria-hidden="true" />
             </span>
             {centered && (
               <>

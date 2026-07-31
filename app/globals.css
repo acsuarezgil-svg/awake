@@ -1063,6 +1063,114 @@ dialog,
   }
 }
 
+/* Circle of Fifths — Phase 2 musical identity */
+.awake-circle-major-orb::before,
+.awake-circle-major-orb::after {
+  position: absolute;
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.awake-circle-major-orb::before {
+  inset: 4%;
+  z-index: 1;
+  background:
+    radial-gradient(
+      circle at 28% 20%,
+      color-mix(in srgb, var(--nav-highlight) 34%, transparent),
+      transparent 27%
+    ),
+    radial-gradient(
+      circle at 72% 76%,
+      color-mix(in srgb, var(--nav-glow) 12%, transparent),
+      transparent 54%
+    );
+  box-shadow:
+    inset 0 1px 1px color-mix(in srgb, var(--nav-highlight) 32%, transparent),
+    inset 0 -3px 8px color-mix(in srgb, var(--nav-main) 14%, transparent);
+}
+
+.awake-circle-major-orb::after {
+  inset: 1px;
+  z-index: 2;
+  border: 0.5px solid
+    color-mix(in srgb, var(--nav-highlight) 44%, transparent);
+  box-shadow:
+    inset 1px 1px 2px color-mix(in srgb, var(--nav-highlight) 18%, transparent),
+    inset -1px -1px 2px color-mix(in srgb, var(--nav-main) 12%, transparent);
+}
+
+.awake-key-signature-rings {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.awake-key-signature-rings > i {
+  position: absolute;
+  inset: var(--signature-ring-inset);
+  display: block;
+  border-radius: 9999px;
+  opacity: 0.52;
+}
+
+.awake-key-signature-rings.is-sharp > i {
+  border: 0.5px solid
+    color-mix(in srgb, var(--awake-accent) 20%, var(--nav-highlight));
+  box-shadow:
+    inset 0 0 2px color-mix(in srgb, var(--nav-main) 16%, transparent),
+    0 0 1px color-mix(in srgb, var(--nav-highlight) 22%, transparent);
+}
+
+.awake-key-signature-rings.is-flat > i {
+  border: 0.5px solid
+    color-mix(in srgb, var(--awake-companion) 18%, var(--nav-glow));
+  opacity: 0.38;
+  box-shadow: 0 0 3px
+    color-mix(in srgb, var(--nav-glow) 12%, transparent);
+}
+
+.awake-circle-major-orb .awake-circle-key {
+  z-index: 4;
+}
+
+.awake-relative-minor-companion {
+  position: absolute;
+  right: -5%;
+  bottom: 2%;
+  z-index: 5;
+  width: 23%;
+  height: 23%;
+  min-width: 0.5rem;
+  min-height: 0.5rem;
+  border: 0.5px solid
+    color-mix(in srgb, var(--nav-highlight) 34%, transparent);
+  border-radius: 9999px;
+  background:
+    radial-gradient(
+      circle at 30% 24%,
+      color-mix(in srgb, var(--nav-highlight) 62%, transparent),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--nav-highlight) 64%, var(--nav-main)),
+      color-mix(in srgb, var(--nav-main) 72%, var(--nav-quiet))
+    );
+  box-shadow:
+    inset -1px -1px 2px color-mix(in srgb, var(--nav-main) 18%, transparent),
+    0 1px 4px color-mix(in srgb, var(--nav-glow) 18%, transparent);
+  opacity: 0.68;
+  pointer-events: none;
+}
+
+.rotating-orb-item.is-centered .awake-relative-minor-companion {
+  opacity: 0.78;
+}
+
 /* Atmospheric homepage finish. Layout and World interaction remain unchanged. */
 .awake-home-responsive {
   isolation: isolate;

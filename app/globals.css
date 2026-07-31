@@ -1778,8 +1778,8 @@ dialog,
 
 .awake-circle-focus {
   display: flex;
-  width: clamp(7rem, 24vw, 9.5rem);
-  min-height: clamp(7rem, 24vw, 9.5rem);
+  width: clamp(7.75rem, 27vw, 10.65rem);
+  min-height: clamp(7.75rem, 27vw, 10.65rem);
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -1825,13 +1825,14 @@ dialog,
 }
 
 .awake-circle-reset {
-  min-height: 2rem;
+  min-height: 1.75rem;
   margin-top: -0.55rem;
-  padding: 0.2rem 0.55rem;
+  padding: 0.1rem 0.45rem;
   border-radius: 9999px;
-  color: color-mix(in srgb, var(--awake-text-secondary) 72%, transparent);
-  font-size: 0.68rem;
+  color: var(--awake-text-secondary);
+  font-size: 0.62rem;
   letter-spacing: 0.01em;
+  opacity: 0.55;
 }
 
 .awake-circle-reset:focus-visible {
@@ -1856,11 +1857,12 @@ dialog,
   .awake-circle-of-fifths.home-foundation-ring {
     width: clamp(17.5rem, 90vw, 18rem) !important;
     height: clamp(20rem, 103vw, 20.25rem) !important;
+    transform: translateY(-1.5rem);
   }
 
   .awake-circle-focus {
-    width: 6.75rem;
-    min-height: 6.75rem;
+    width: 7.55rem;
+    min-height: 7.55rem;
     padding: 0.72rem;
   }
 }
@@ -1869,6 +1871,7 @@ dialog,
   .awake-circle-of-fifths.home-foundation-ring {
     width: clamp(21.5rem, 88vw, 22.5rem) !important;
     height: clamp(24.25rem, 99vw, 25rem) !important;
+    transform: translateY(-1.5rem);
   }
 }
 

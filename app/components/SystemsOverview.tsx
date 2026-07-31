@@ -319,7 +319,8 @@ export default function SystemsOverview() {
               </button>
             )}
             <p className="awake-world-count" aria-live="polite">
-              {totalSystems} {totalSystems === 1 ? "system" : "systems"} nearby
+              {totalSystems} {totalSystems === 1 ? "system" : "systems"} in your
+              world
             </p>
           </div>
         }

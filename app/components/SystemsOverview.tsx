@@ -6,11 +6,14 @@ import type { MouseEvent as ReactMouseEvent } from "react";
 
 import {
   defaultColorPreferences,
-  generateAwakePalette,
   loadColorPreferences,
   saveColorPreferences,
   type AwakeColorPreferences,
 } from "../colorPalette";
+import {
+  CIRCLE_CORE_ID,
+  mapFoundationsToCircle,
+} from "../music/circleOfFifths";
 import { defaultSystems } from "../systemPresets";
 import {
   loadFoundationViewPreferences,
@@ -28,19 +31,13 @@ import {
 } from "../systemStorage";
 import { getSystemTemplates } from "../systemTemplates";
 import AwakeColorPicker from "./AwakeColorPicker";
-import FoundationOrbit from "./foundation/FoundationOrbit";
 import ResponsiveLayout from "./layout/ResponsiveLayout";
-import PracticeSpace from "./practice/PracticeSpace";
+import AwakeCircleOfFifths from "./music/AwakeCircleOfFifths";
 import ExpandedFoundationView from "./foundation/LivingFoundationView";
 import type { HomeViewState } from "./foundation/foundationExperience";
 import type { Language } from "../translations";
 
 const HIDDEN_FOUNDATIONS_KEY = "awake-hidden-foundations";
-const BREATHE_ID = "awake-breathe";
-
-type NavigationItem =
-  | { id: string; kind: "foundation"; foundation: AwakeSystem }
-  | { id: typeof BREATHE_ID; kind: "breathe" };
 
 function readHiddenFoundations() {
   try {
@@ -95,9 +92,8 @@ function initializeFoundations(stored: AwakeSystem[]) {
 export default function SystemsOverview() {
   const [foundations, setFoundations] = useState<AwakeSystem[]>([]);
   const [hiddenIds, setHiddenIds] = useState<string[]>([]);
-  const [selectedId, setSelectedId] = useState(BREATHE_ID);
+  const [selectedId, setSelectedId] = useState(CIRCLE_CORE_ID);
   const [loaded, setLoaded] = useState(false);
-  const [practiceOpen, setPracticeOpen] = useState(false);
   const [homeView, setHomeView] = useState<HomeViewState>({ mode: "world" });
   const [language, setLanguage] = useState<Language>("en");
   const [foundationViewPreferences, setFoundationViewPreferences] =
@@ -111,7 +107,6 @@ export default function SystemsOverview() {
   const [colorPreferences, setColorPreferences] =
     useState<AwakeColorPreferences>(defaultColorPreferences);
   const lastBackgroundTap = useRef(0);
-  const returnTimer = useRef<number | null>(null);
 
   useEffect(() => {
     const initialized = initializeFoundations(loadAwakeSystems());
@@ -149,68 +144,25 @@ export default function SystemsOverview() {
     window.addEventListener("popstate", handlePopState);
     return () => {
       window.removeEventListener("popstate", handlePopState);
-      if (returnTimer.current !== null) {
-        window.clearTimeout(returnTimer.current);
-      }
     };
   }, []);
 
-  const palette = generateAwakePalette(
-    colorPreferences.anchorHue,
-    colorPreferences.harmony,
-    colorPreferences.appearance,
-  );
   const visibleFoundations = foundations.filter(
     (foundation) => !hiddenIds.includes(foundation.id),
   );
-  const items: NavigationItem[] = [
-    ...visibleFoundations.map(
-      (foundation): NavigationItem => ({
-        id: foundation.id,
-        kind: "foundation",
-        foundation,
-      }),
-    ),
-    { id: BREATHE_ID, kind: "breathe" },
-  ];
+  const circleItems = mapFoundationsToCircle(visibleFoundations);
   const totalSystems = visibleFoundations.reduce(
     (total, foundation) => total + foundation.focusAreas.length,
     0,
-  );
-  const selectedIndex = Math.max(
-    0,
-    items.findIndex((item) => item.id === selectedId),
   );
   function updateColorPreferences(next: AwakeColorPreferences) {
     setColorPreferences(next);
     saveColorPreferences(next);
   }
 
-  function animateBreatheHome() {
-    const breatheIndex = items.findIndex((item) => item.id === BREATHE_ID);
-    if (breatheIndex === selectedIndex) return;
-    const forward =
-      (breatheIndex - selectedIndex + items.length) % items.length;
-    const backward =
-      (selectedIndex - breatheIndex + items.length) % items.length;
-    const direction: -1 | 1 = forward <= backward ? 1 : -1;
-    let steps = Math.min(forward, backward);
-    let cursor = selectedIndex;
-
-    const rotate = () => {
-      if (steps <= 0) return;
-      cursor = (cursor + direction + items.length) % items.length;
-      setSelectedId(items[cursor].id);
-      steps -= 1;
-      if (steps > 0) {
-        returnTimer.current = window.setTimeout(rotate, 210);
-      }
-    };
-    rotate();
-  }
-
   function handleBackgroundTap(event: ReactMouseEvent<HTMLElement>) {
     if (
+      (event.target as HTMLElement).closest("[data-appearance-control]") ||
       (event.target as HTMLElement).closest("[data-navigation-orb]") ||
       (event.target as HTMLElement).closest("button, a")
     ) {
@@ -218,7 +170,7 @@ export default function SystemsOverview() {
     }
     const now = Date.now();
     if (now - lastBackgroundTap.current < 330) {
-      animateBreatheHome();
+      setSelectedId(CIRCLE_CORE_ID);
       lastBackgroundTap.current = 0;
     } else {
       lastBackgroundTap.current = now;
@@ -230,7 +182,7 @@ export default function SystemsOverview() {
     setHiddenIds(next);
     localStorage.setItem(HIDDEN_FOUNDATIONS_KEY, JSON.stringify(next));
     setActionFoundation(null);
-    setSelectedId(BREATHE_ID);
+    setSelectedId(CIRCLE_CORE_ID);
   }
 
   function toggleFoundation(foundationId: string) {
@@ -239,8 +191,8 @@ export default function SystemsOverview() {
       : [...hiddenIds, foundationId];
     setHiddenIds(next);
     localStorage.setItem(HIDDEN_FOUNDATIONS_KEY, JSON.stringify(next));
-    if (foundationId === selectedId && next.includes(foundationId)) {
-      setSelectedId(BREATHE_ID);
+    if (next.includes(foundationId)) {
+      setSelectedId(CIRCLE_CORE_ID);
     }
   }
 
@@ -271,18 +223,6 @@ export default function SystemsOverview() {
   }
 
   if (!loaded) return null;
-
-  if (practiceOpen) {
-    return (
-      <PracticeSpace
-        primaryColor={palette.primaryAccent}
-        secondaryColor={palette.companion}
-        pageBackground={palette.pageBackground}
-        isDark={colorPreferences.appearance === "dark"}
-        onFinish={() => setPracticeOpen(false)}
-      />
-    );
-  }
 
   if (homeView.mode !== "world") {
     const foundation = foundations.find(
@@ -336,9 +276,21 @@ export default function SystemsOverview() {
                 event.stopPropagation();
                 setAppearanceOpen((open) => !open);
               }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setAppearanceOpen((open) => !open);
+                }
+              }}
+              onPointerDown={(event) => event.stopPropagation()}
+              onTouchStart={(event) => event.stopPropagation()}
               className="awake-button awake-button-secondary h-11 w-11 rounded-full p-0"
               aria-label="Appearance and navigation settings"
               aria-expanded={appearanceOpen}
+              aria-controls="awake-appearance-menu"
+              aria-haspopup="dialog"
+              data-appearance-control
             >
               <span aria-hidden="true">◐</span>
             </button>
@@ -346,15 +298,26 @@ export default function SystemsOverview() {
         }
         world={
           <div className="awake-world-stage">
-            <FoundationOrbit
-              items={items}
+            <AwakeCircleOfFifths
+              items={circleItems}
               selectedId={selectedId}
               preferences={colorPreferences}
               onSelectedChange={setSelectedId}
-              onEnterBreathe={() => setPracticeOpen(true)}
               onEnterFoundation={openFoundation}
               onFoundationLongPress={setActionFoundation}
             />
+            {selectedId !== CIRCLE_CORE_ID && (
+              <button
+                type="button"
+                className="awake-circle-reset"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setSelectedId(CIRCLE_CORE_ID);
+                }}
+              >
+                Return to C / Core
+              </button>
+            )}
             <p className="awake-world-count" aria-live="polite">
               {totalSystems} {totalSystems === 1 ? "system" : "systems"} nearby
             </p>
@@ -373,10 +336,17 @@ export default function SystemsOverview() {
       <div className="mx-auto w-full max-w-4xl">
         {appearanceOpen && (
           <section
+            id="awake-appearance-menu"
             className="awake-card awake-appearance-panel relative z-30 max-h-[70vh] overflow-y-auto"
             onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+            onTouchStart={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="false"
+            aria-labelledby="awake-appearance-title"
+            data-appearance-control
           >
-            <h2>Appearance</h2>
+            <h2 id="awake-appearance-title">Appearance</h2>
             <p className="awake-supporting mt-1">
               Shape the atmosphere and choose which Foundations are nearby.
             </p>

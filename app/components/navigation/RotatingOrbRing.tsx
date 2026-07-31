@@ -30,6 +30,7 @@ type Props<T extends RingItem> = {
 };
 
 const DRAG_DEGREES_PER_PIXEL = 0.28;
+const DRAG_THRESHOLD_PX = 7;
 const MAX_INERTIA_STEPS = 3;
 
 function wrapIndex(index: number, length: number) {
@@ -100,7 +101,6 @@ export default function RotatingOrbRing<T extends RingItem>({
   }
 
   function beginDrag(event: ReactPointerEvent<HTMLElement>) {
-    event.currentTarget.setPointerCapture(event.pointerId);
     const now = performance.now();
     pointer.current = {
       startX: event.clientX,
@@ -109,7 +109,6 @@ export default function RotatingOrbRing<T extends RingItem>({
       velocity: 0,
     };
     didDrag.current = false;
-    setDragging(true);
   }
 
   function updateDrag(event: ReactPointerEvent<HTMLElement>) {
@@ -122,17 +121,22 @@ export default function RotatingOrbRing<T extends RingItem>({
     pointer.current.lastX = event.clientX;
     pointer.current.lastTime = now;
 
-    if (Math.abs(totalX) > 7) {
+    if (!didDrag.current && Math.abs(totalX) > DRAG_THRESHOLD_PX) {
       didDrag.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+      setDragging(true);
       clearLongPress();
     }
+    if (!didDrag.current) return;
+
     const nextDegrees = totalX * DRAG_DEGREES_PER_PIXEL;
     dragDegreesRef.current = nextDegrees;
     setDragDegrees(nextDegrees);
   }
 
-  function finishDrag() {
+  function finishDrag(event: ReactPointerEvent<HTMLElement>) {
     if (!pointer.current) return;
+    const wasDrag = didDrag.current;
     const projectedDegrees =
       dragDegreesRef.current + pointer.current.velocity * 135;
     const steps = Math.max(
@@ -142,11 +146,15 @@ export default function RotatingOrbRing<T extends RingItem>({
         Math.round(-projectedDegrees / stepAngle),
       ),
     );
-    if (didDrag.current && steps !== 0 && items.length > 1) {
+    if (wasDrag && steps !== 0 && items.length > 1) {
       onSelectedChange(
         items[wrapIndex(selectedIndex + steps, items.length)].id,
       );
-      suppressClick.current = true;
+    }
+    if (wasDrag) suppressClick.current = true;
+    didDrag.current = false;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
     }
     pointer.current = null;
     dragDegreesRef.current = 0;
@@ -156,6 +164,7 @@ export default function RotatingOrbRing<T extends RingItem>({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLElement>) {
+    if (event.target !== event.currentTarget) return;
     if (event.key === "ArrowLeft") {
       event.preventDefault();
       move(-1);
@@ -248,6 +257,17 @@ export default function RotatingOrbRing<T extends RingItem>({
             }}
             onPointerUp={clearLongPress}
             onPointerCancel={clearLongPress}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              event.stopPropagation();
+              if (!centered) {
+                onSelectedChange(item.id);
+                if (!activateOnlyWhenCentered) onActivate(item);
+              } else {
+                onActivate(item);
+              }
+            }}
             onClick={(event) => {
               event.stopPropagation();
               if (suppressClick.current || didDrag.current) {

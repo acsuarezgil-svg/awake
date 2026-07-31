@@ -40,7 +40,7 @@ export default function FoundationOrbit({
       ariaLabel="Foundation world"
       className="home-foundation-ring"
       depthRange={{ back: 0.7, front: 1 }}
-      opacityRange={{ back: 0.56, front: 0.98 }}
+      opacityRange={{ back: 0.72, front: 1 }}
       onActivate={(item) => {
         if (item.kind === "breathe") onEnterBreathe();
         else onEnterFoundation(item.foundation);

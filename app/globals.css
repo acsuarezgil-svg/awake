@@ -659,17 +659,14 @@ dialog,
 }
 
 [data-awake-appearance="light"] .awake-home-responsive::before {
-  opacity: 0.82;
+  opacity: 1;
   background:
     radial-gradient(
-      circle at 50% 34%,
-      color-mix(in srgb, var(--awake-orb-highlight) 22%, transparent),
-      transparent 34%
-    ),
-    radial-gradient(
-      circle at 12% 88%,
-      color-mix(in srgb, var(--awake-companion) 8%, transparent),
-      transparent 34%
+      ellipse 38% 32% at 50% 46%,
+      color-mix(in srgb, hsl(42 34% 97%) 42%, transparent) 0%,
+      color-mix(in srgb, var(--awake-orb-highlight) 18%, transparent) 38%,
+      color-mix(in srgb, var(--awake-accent-soft) 8%, transparent) 62%,
+      transparent 100%
     );
 }
 
@@ -1064,6 +1061,199 @@ dialog,
   .rotating-orb-item {
     opacity: max(0.78, var(--ring-opacity));
   }
+}
+
+/* Atmospheric homepage finish. Layout and World interaction remain unchanged. */
+.awake-home-responsive {
+  isolation: isolate;
+}
+
+.awake-home-responsive::after {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  opacity: 0.24;
+  background:
+    repeating-radial-gradient(
+      circle at 28% 32%,
+      color-mix(in srgb, var(--awake-text) 2%, transparent) 0 0.45px,
+      transparent 0.7px 4px
+    ),
+    radial-gradient(
+      circle at 78% 12%,
+      color-mix(in srgb, var(--awake-companion) 8%, transparent),
+      transparent 30%
+    );
+  pointer-events: none;
+}
+
+[data-awake-appearance="light"] .awake-home-responsive {
+  background:
+    radial-gradient(
+      ellipse 46% 39% at 50% 47%,
+      color-mix(in srgb, var(--awake-orb-highlight) 22%, transparent) 0%,
+      transparent 76%
+    ),
+    radial-gradient(
+      ellipse 54% 48% at 8% 14%,
+      color-mix(in srgb, var(--awake-companion) 4%, transparent) 0%,
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse 48% 42% at 92% 88%,
+      color-mix(in srgb, var(--awake-inactive) 7%, transparent) 0%,
+      transparent 82%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--awake-surface) 72%, hsl(42 32% 94%)),
+      color-mix(in srgb, var(--awake-page-tint) 78%, hsl(38 28% 93%)) 54%,
+      color-mix(in srgb, var(--awake-surface) 82%, hsl(30 24% 94%))
+    ) !important;
+}
+
+[data-awake-appearance="light"] .awake-home-responsive::after {
+  opacity: 1;
+  background: radial-gradient(
+    ellipse 82% 78% at 50% 46%,
+    transparent 58%,
+    color-mix(in srgb, var(--awake-text) 3%, transparent) 100%
+  );
+}
+
+[data-awake-appearance="dark"] .awake-home-responsive {
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      color-mix(in srgb, var(--awake-orb-glow) 16%, transparent),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 82% 10%,
+      color-mix(in srgb, var(--awake-companion) 8%, transparent),
+      transparent 28%
+    ),
+    var(--awake-page-background) !important;
+}
+
+.awake-home-responsive .awake-home-title {
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  text-shadow: 0 0.65rem 2rem
+    color-mix(in srgb, var(--awake-orb-glow) 7%, transparent);
+}
+
+.awake-home-responsive .awake-eyebrow {
+  color: color-mix(in srgb, var(--awake-text-secondary) 84%, var(--awake-accent));
+  font-weight: 650;
+  letter-spacing: 0.22em;
+}
+
+.awake-home-responsive .awake-home-subtitle {
+  color: color-mix(in srgb, var(--awake-text-secondary) 91%, var(--awake-text));
+}
+
+.awake-home-responsive .awake-home-header .awake-button-secondary {
+  border-color: color-mix(in srgb, var(--awake-border) 68%, transparent);
+  background:
+    radial-gradient(
+      circle at 32% 24%,
+      color-mix(in srgb, var(--awake-surface-elevated) 90%, transparent),
+      transparent 58%
+    ),
+    color-mix(in srgb, var(--awake-surface) 86%, transparent);
+  box-shadow:
+    0 0.55rem 1.5rem color-mix(in srgb, var(--awake-text) 6%, transparent),
+    inset 0 1px color-mix(in srgb, white 62%, transparent);
+}
+
+[data-awake-appearance="dark"]
+  .awake-home-responsive
+  .awake-home-header
+  .awake-button-secondary {
+  box-shadow:
+    0 0.6rem 1.6rem rgb(0 0 0 / 18%),
+    inset 0 1px color-mix(in srgb, var(--awake-orb-highlight) 14%, transparent);
+}
+
+.awake-home-responsive .awake-button-primary {
+  border-color: color-mix(in srgb, var(--awake-orb-highlight) 12%, transparent);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--awake-accent) 88%, var(--awake-orb-highlight)),
+    color-mix(in srgb, var(--awake-accent) 90%, var(--awake-text))
+  );
+  box-shadow:
+    0 0.7rem 1.8rem color-mix(in srgb, var(--awake-accent) 18%, transparent),
+    inset 0 1px color-mix(in srgb, white 18%, transparent);
+}
+
+.awake-home-responsive .awake-world-count,
+.awake-home-responsive .rotating-orb-hint {
+  color: color-mix(in srgb, var(--awake-text-secondary) 84%, transparent);
+  letter-spacing: 0.015em;
+}
+
+.awake-home-responsive .home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .foundation-waypoint-orb {
+  background:
+    radial-gradient(
+      circle at 29% 22%,
+      color-mix(in srgb, var(--nav-highlight, white) 92%, white),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 68% 70%,
+      color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 38%, transparent),
+      transparent 58%
+    ),
+    linear-gradient(
+      145deg,
+      var(--nav-highlight, var(--awake-orb-highlight)),
+      var(--nav-main, var(--awake-accent)) 56%,
+      var(--nav-quiet, var(--awake-accent))
+    );
+  filter:
+    brightness(calc(0.98 + var(--ring-depth) * 0.16))
+    saturate(1.48)
+    contrast(1.07);
+  box-shadow:
+    inset -5px -6px 9px
+      color-mix(in srgb, var(--nav-main, var(--awake-accent)) 28%, transparent),
+    inset 3px 3px 6px
+      color-mix(in srgb, var(--nav-highlight, white) 48%, transparent),
+    0 0.55rem 1.35rem
+      color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 30%, transparent),
+    0 0 1.35rem
+      color-mix(in srgb, var(--nav-main, var(--awake-accent)) 16%, transparent);
+}
+
+[data-awake-appearance="dark"]
+  .awake-home-responsive
+  .home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .foundation-waypoint-orb {
+  filter:
+    brightness(calc(0.98 + var(--ring-depth) * 0.22))
+    saturate(1.52)
+    contrast(1.06);
+  box-shadow:
+    inset -5px -6px 9px rgb(0 0 0 / 18%),
+    inset 3px 3px 7px
+      color-mix(in srgb, var(--nav-highlight, white) 36%, transparent),
+    0 0.55rem 1.5rem rgb(0 0 0 / 22%),
+    0 0 1.5rem
+      color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 38%, transparent);
+}
+
+.awake-home-responsive .awake-appearance-panel {
+  border-color: color-mix(in srgb, var(--awake-border) 70%, transparent);
+  background: color-mix(in srgb, var(--awake-surface) 94%, transparent);
+  box-shadow:
+    0 1.5rem 4rem color-mix(in srgb, var(--awake-text) 12%, transparent),
+    inset 0 1px color-mix(in srgb, white 36%, transparent);
 }
 
 /* Homepage solar-system polish; center-orb rules remain unchanged. */
@@ -1535,6 +1725,167 @@ dialog,
   z-index: 12;
   pointer-events: none;
   transform: translate(-50%, -50%);
+}
+
+/* Homepage Circle of Fifths prototype — Phase 1 */
+.awake-circle-of-fifths .rotating-orb-track {
+  background:
+    radial-gradient(
+      circle,
+      transparent 0 42%,
+      color-mix(in srgb, var(--awake-orb-glow) 5%, transparent) 42.3% 42.7%,
+      transparent 43% 100%
+    ),
+    radial-gradient(
+      circle,
+      color-mix(in srgb, var(--awake-orb-highlight) 8%, transparent),
+      transparent 70%
+    );
+}
+
+.awake-circle-major-orb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid
+    color-mix(in srgb, var(--nav-main) 32%, var(--awake-border));
+}
+
+.awake-circle-major-orb.is-sharp {
+  border-color: color-mix(in srgb, var(--awake-accent) 26%, var(--awake-border));
+}
+
+.awake-circle-major-orb.is-flat {
+  border-color: color-mix(in srgb, var(--awake-companion) 26%, var(--awake-border));
+}
+
+.awake-circle-key {
+  position: relative;
+  z-index: 2;
+  color: color-mix(in srgb, var(--awake-text) 92%, var(--nav-main));
+  font-size: clamp(0.78rem, 2.4vw, 1.05rem);
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-shadow: 0 1px 0 color-mix(in srgb, var(--nav-highlight) 52%, transparent);
+}
+
+.awake-circle-of-fifths
+  .rotating-orb-item.is-centered
+  .awake-circle-key {
+  font-size: clamp(1.25rem, 4vw, 1.75rem);
+}
+
+.awake-circle-focus {
+  display: flex;
+  width: clamp(7rem, 24vw, 9.5rem);
+  min-height: clamp(7rem, 24vw, 9.5rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--awake-border) 74%, transparent);
+  border-radius: 9999px;
+  background:
+    radial-gradient(
+      circle at 34% 26%,
+      color-mix(in srgb, var(--awake-orb-highlight) 42%, transparent),
+      transparent 34%
+    ),
+    color-mix(in srgb, var(--awake-surface) 76%, transparent);
+  box-shadow:
+    inset 0 0 1.8rem color-mix(in srgb, var(--awake-orb-highlight) 12%, transparent),
+    0 0 2.8rem color-mix(in srgb, var(--awake-orb-glow) 10%, transparent);
+  color: var(--awake-text);
+  text-align: center;
+}
+
+.awake-circle-focus-key {
+  font-size: clamp(1.8rem, 6vw, 2.7rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.awake-circle-focus strong {
+  margin-top: 0.32rem;
+  font-size: clamp(0.78rem, 2.3vw, 1rem);
+  line-height: 1.2;
+}
+
+.awake-circle-focus > span:not(.awake-circle-focus-key) {
+  margin-top: 0.28rem;
+  color: var(--awake-text-secondary);
+  font-size: clamp(0.6rem, 1.8vw, 0.75rem);
+}
+
+.awake-circle-focus small {
+  max-width: 7rem;
+  margin-top: 0.28rem;
+  color: var(--awake-text-muted);
+  font-size: clamp(0.5rem, 1.55vw, 0.65rem);
+  line-height: 1.25;
+}
+
+.awake-circle-orb-label {
+  margin-top: 0.38rem !important;
+  font-size: clamp(0.65rem, 1.8vw, 0.82rem) !important;
+}
+
+.awake-circle-reset {
+  min-height: 2.75rem;
+  margin-top: -0.15rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 9999px;
+  color: var(--awake-text-secondary);
+  font-size: 0.75rem;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+  text-underline-offset: 0.22rem;
+}
+
+.awake-circle-reset:focus-visible {
+  outline: 2px solid var(--awake-focus-ring);
+  outline-offset: 2px;
+}
+
+[data-awake-appearance="dark"] .awake-circle-focus {
+  background:
+    radial-gradient(
+      circle at 34% 26%,
+      color-mix(in srgb, var(--awake-orb-highlight) 18%, transparent),
+      transparent 36%
+    ),
+    color-mix(in srgb, var(--awake-surface) 86%, transparent);
+  box-shadow:
+    inset 0 0 2rem color-mix(in srgb, var(--awake-orb-glow) 12%, transparent),
+    0 0 3rem color-mix(in srgb, var(--awake-orb-glow) 16%, transparent);
+}
+
+@media (max-width: 419px) {
+  .awake-circle-focus {
+    width: 6.75rem;
+    min-height: 6.75rem;
+    padding: 0.72rem;
+  }
+
+  .awake-circle-focus small {
+    max-width: 5.8rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .awake-circle-of-fifths {
+    width: min(100%, 24rem) !important;
+    height: 25.5rem !important;
+  }
+
+  .awake-circle-of-fifths.home-foundation-ring
+    .rotating-orb-item.is-centered
+    .awake-circle-major-orb {
+    width: 5.75rem !important;
+    height: 5.75rem !important;
+  }
 }
 
 .home-foundation-ring {

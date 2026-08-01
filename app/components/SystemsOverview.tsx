@@ -214,6 +214,8 @@ export default function SystemsOverview() {
     (foundation) => !hiddenIds.includes(foundation.id),
   );
   const circleItems = mapFoundationsToCircle(visibleFoundations);
+  const selectedCircleItem =
+    circleItems.find((item) => item.id === selectedId) ?? circleItems[0];
   const totalSystems = visibleFoundations.reduce(
     (total, foundation) => total + foundation.focusAreas.length,
     0,
@@ -325,10 +327,22 @@ export default function SystemsOverview() {
     >
       <ResponsiveLayout
         header={
-          <header className="awake-home-header">
-            <div>
+          <header className="awake-home-header awake-musical-hero">
+            <div className="awake-musical-hero-inner">
               <p className="awake-eyebrow">Awake</p>
-              <h1 className="awake-home-title">Your world</h1>
+              <h1 className="awake-home-title">Your Key</h1>
+              {selectedCircleItem && (
+                <div className="awake-musical-key-summary">
+                  <span>{selectedCircleItem.displayKey}</span>
+                  <strong>{selectedCircleItem.awakeFoundationName}</strong>
+                  {selectedCircleItem.direction !== "core" && (
+                    <small>
+                      {selectedCircleItem.accidentalCount}
+                      {selectedCircleItem.direction === "sharp" ? "♯" : "♭"}
+                    </small>
+                  )}
+                </div>
+              )}
             </div>
           </header>
         }

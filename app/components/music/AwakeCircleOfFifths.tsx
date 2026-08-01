@@ -132,7 +132,14 @@ export default function AwakeCircleOfFifths({
               <span className="awake-circle-key" aria-hidden="true">
                 {item.displayKey}
               </span>
-              <span className="awake-relative-minor-companion" aria-hidden="true" />
+              <span
+                className={`awake-relative-minor-companion ${
+                  centered ? "is-active" : ""
+                }`}
+                data-major-key={item.majorKey}
+                data-relative-minor={item.relativeMinor}
+                aria-hidden="true"
+              />
             </span>
             {centered && (
               <>

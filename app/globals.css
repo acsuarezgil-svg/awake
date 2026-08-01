@@ -701,6 +701,53 @@ dialog,
   gap: 1rem;
 }
 
+.awake-musical-hero {
+  display: block;
+  text-align: center;
+}
+
+.awake-musical-hero-inner {
+  width: min(100%, 22rem);
+  margin-inline: auto;
+}
+
+.awake-home-responsive .awake-musical-hero .awake-home-title {
+  margin-top: 0.2rem;
+  font-size: clamp(1.2rem, 4vw, 1.7rem);
+  letter-spacing: -0.035em;
+}
+
+.awake-musical-key-summary {
+  display: flex;
+  min-height: 3.75rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin-top: 0.7rem;
+  color: var(--awake-text);
+  line-height: 1;
+}
+
+.awake-musical-key-summary > span {
+  font-size: clamp(1.55rem, 5vw, 2rem);
+  font-weight: 420;
+  letter-spacing: -0.04em;
+}
+
+.awake-musical-key-summary > strong {
+  margin-top: 0.25rem;
+  color: color-mix(in srgb, var(--awake-text) 88%, var(--awake-accent));
+  font-size: 0.7rem;
+  font-weight: 620;
+}
+
+.awake-musical-key-summary > small {
+  margin-top: 0.22rem;
+  color: var(--awake-muted);
+  font-size: 0.63rem;
+  font-weight: 560;
+}
+
 .awake-home-title {
   margin-top: 0.3rem;
   font-size: clamp(1.45rem, 6vw, 2.35rem);
@@ -1182,10 +1229,44 @@ dialog,
     0 1px 3px color-mix(in srgb, var(--nav-glow) 12%, transparent);
   opacity: 0.5;
   pointer-events: none;
+  transform: translate(0, 0);
+  transition:
+    opacity 620ms ease,
+    transform 620ms ease,
+    border-color 620ms ease,
+    box-shadow 620ms ease;
 }
 
-.rotating-orb-item.is-centered .awake-relative-minor-companion {
-  opacity: 0.58;
+.awake-relative-minor-companion.is-active {
+  border-color: color-mix(in srgb, var(--nav-highlight) 38%, transparent);
+  box-shadow:
+    inset -1px -1px 2px color-mix(in srgb, var(--nav-main) 14%, transparent),
+    0 1px 4px color-mix(in srgb, var(--nav-glow) 18%, transparent);
+  opacity: 0.64;
+  animation: awake-relative-minor-breathe var(--awake-motion-breathe) ease-in-out
+    infinite;
+}
+
+@keyframes awake-relative-minor-breathe {
+  0%,
+  100% {
+    transform: translate(-2px, -1px);
+  }
+
+  50% {
+    transform: translate(-4px, -3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awake-relative-minor-companion {
+    transition: none;
+  }
+
+  .awake-relative-minor-companion.is-active {
+    animation: none;
+    transform: translate(-3px, -2px);
+  }
 }
 
 /* Atmospheric homepage finish. Layout and World interaction remain unchanged. */

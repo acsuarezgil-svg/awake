@@ -2017,11 +2017,11 @@ dialog,
 }
 
 .awake-home-responsive .awake-circle-of-fifths + .awake-world-count {
-  margin-top: -0.45rem;
+  margin-top: 0.15rem;
 }
 
 .awake-home-responsive .awake-circle-reset + .awake-world-count {
-  margin-top: -0.1rem;
+  margin-top: 0.2rem;
 }
 
 .awake-home-responsive .awake-responsive-action {
@@ -2036,12 +2036,12 @@ dialog,
   left: 50%;
   z-index: 35;
   display: grid;
-  width: min(calc(100% - 1rem), 18rem);
+  width: min(calc(100% - 1rem), 15rem);
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.15rem;
-  padding: 0.28rem;
+  gap: 0.08rem;
+  padding: 0.16rem;
   border: 1px solid color-mix(in srgb, var(--awake-border) 66%, transparent);
-  border-radius: 1.35rem;
+  border-radius: 1.2rem;
   background: color-mix(in srgb, var(--awake-surface) 88%, transparent);
   box-shadow:
     0 0.8rem 2.2rem color-mix(in srgb, var(--awake-text) 7%, transparent),
@@ -2083,7 +2083,7 @@ dialog,
 }
 
 .awake-home-navigation-item.is-add {
-  background: color-mix(in srgb, var(--awake-accent-soft) 54%, transparent);
+  background: transparent;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -2114,7 +2114,7 @@ dialog,
 }
 
 .awake-responsive-shell.is-world-only .awake-responsive-action {
-  width: min(100%, 18rem);
+  width: min(100%, 15rem);
   margin-inline: auto;
 }
 
@@ -2131,9 +2131,9 @@ dialog,
 
 @media (max-width: 374px) {
   .awake-home-navigation {
-    width: min(calc(100% - 0.75rem), 18rem);
-    gap: 0.05rem;
-    padding-inline: 0.2rem;
+    width: min(calc(100% - 0.75rem), 15rem);
+    gap: 0.04rem;
+    padding-inline: 0.12rem;
   }
 
   .awake-home-navigation-item {
@@ -2153,7 +2153,7 @@ dialog,
   }
 
   .awake-responsive-shell.is-world-only .awake-responsive-action {
-    width: min(100%, 18rem);
+    width: min(100%, 15rem);
     margin-top: 0;
   }
 }

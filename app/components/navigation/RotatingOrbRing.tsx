@@ -27,6 +27,7 @@ type Props<T extends RingItem> = {
   centerContent?: ReactNode;
   depthRange?: { back: number; front: number };
   opacityRange?: { back: number; front: number };
+  showHint?: boolean;
 };
 
 const DRAG_DEGREES_PER_PIXEL = 0.28;
@@ -51,6 +52,7 @@ export default function RotatingOrbRing<T extends RingItem>({
   centerContent,
   depthRange = { back: 0.72, front: 0.88 },
   opacityRange,
+  showHint = true,
 }: Props<T>) {
   const [dragDegrees, setDragDegrees] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -290,9 +292,11 @@ export default function RotatingOrbRing<T extends RingItem>({
       {centerContent && (
         <div className="rotating-orb-fixed-center">{centerContent}</div>
       )}
-      <p className="rotating-orb-hint">
-        Drag to turn · Use arrow keys to explore
-      </p>
+      {showHint && (
+        <p className="rotating-orb-hint">
+          Drag to turn · Use arrow keys to explore
+        </p>
+      )}
     </section>
   );
 }

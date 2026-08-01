@@ -329,9 +329,6 @@ export default function SystemsOverview() {
             <div>
               <p className="awake-eyebrow">Awake</p>
               <h1 className="awake-home-title">Your world</h1>
-              <p className="awake-home-subtitle awake-supporting">
-                Move gently between the parts of life that support you.
-              </p>
             </div>
           </header>
         }

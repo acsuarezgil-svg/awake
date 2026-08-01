@@ -85,6 +85,7 @@ export default function AwakeCircleOfFifths({
       className="home-foundation-ring awake-circle-of-fifths"
       depthRange={{ back: 0.82, front: 1 }}
       opacityRange={{ back: 0.82, front: 1 }}
+      showHint={false}
       centerContent={
         <div className="awake-circle-focus" aria-live="polite">
           <span className="awake-circle-focus-key">{selected.displayKey}</span>

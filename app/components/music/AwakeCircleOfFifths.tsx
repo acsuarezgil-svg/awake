@@ -138,6 +138,26 @@ export default function AwakeCircleOfFifths({
               >
                 {item.relativeMinor.split(" / ")[0]}
               </span>
+              {centered && item.direction !== "core" && (
+                <span
+                  className={`awake-key-signature-progress is-${item.direction}`}
+                  aria-hidden="true"
+                >
+                  {Array.from(
+                    { length: item.accidentalCount },
+                    (_, progressIndex) => (
+                      <i
+                        key={progressIndex}
+                        style={
+                          {
+                            "--signature-progress-index": progressIndex,
+                          } as CSSProperties
+                        }
+                      />
+                    ),
+                  )}
+                </span>
+              )}
             </span>
             {centered && item.direction !== "core" && (
               <span className="ring-orb-detail awake-supporting">

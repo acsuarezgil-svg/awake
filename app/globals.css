@@ -1136,6 +1136,8 @@ dialog,
   box-shadow:
     inset 0 1px 1px color-mix(in srgb, var(--nav-highlight) 30%, transparent),
     inset 0 -4px 9px color-mix(in srgb, var(--nav-main) 16%, transparent);
+  animation: awake-glass-reflection-drift 16s ease-in-out infinite;
+  animation-delay: var(--orb-delay, 0s);
 }
 
 .awake-circle-major-orb::after {
@@ -1146,6 +1148,8 @@ dialog,
   box-shadow:
     inset 1px 1px 2px color-mix(in srgb, var(--nav-highlight) 20%, transparent),
     inset -1px -1px 3px color-mix(in srgb, var(--nav-main) 14%, transparent);
+  animation: awake-glass-rim-drift 18s ease-in-out infinite;
+  animation-delay: var(--orb-delay, 0s);
 }
 
 .rotating-orb-item.is-centered .awake-circle-major-orb::before {
@@ -1199,6 +1203,32 @@ dialog,
 
 .awake-circle-major-orb .awake-circle-key {
   z-index: 4;
+}
+
+@keyframes awake-glass-reflection-drift {
+  0%,
+  100% {
+    opacity: 0.82;
+    transform: translate3d(-0.5%, -0.35%, 0) rotate(-0.25deg);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: translate3d(0.65%, 0.45%, 0) rotate(0.35deg);
+  }
+}
+
+@keyframes awake-glass-rim-drift {
+  0%,
+  100% {
+    opacity: 0.76;
+    transform: rotate(-0.35deg);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: rotate(0.45deg);
+  }
 }
 
 .awake-relative-minor-companion {
@@ -1285,16 +1315,71 @@ dialog,
   opacity: 0.64;
   animation: awake-relative-minor-breathe var(--awake-motion-breathe) ease-in-out
     infinite;
+  animation-delay: 0.45s;
 }
 
 @keyframes awake-relative-minor-breathe {
   0%,
   100% {
+    scale: 0.909;
     transform: translate(-2px, -1px);
   }
 
   50% {
+    scale: 0.931;
     transform: translate(-4px, -3px);
+  }
+}
+
+.awake-key-signature-progress {
+  position: absolute;
+  top: 50%;
+  bottom: auto;
+  left: -10%;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.12rem, 0.45vw, 0.2rem);
+  pointer-events: none;
+  transform: translate(-100%, -50%);
+}
+
+.awake-key-signature-progress > i {
+  display: block;
+  width: clamp(0.3rem, 1vw, 0.38rem);
+  height: clamp(0.3rem, 1vw, 0.38rem);
+  border: 0.5px solid
+    color-mix(in srgb, var(--nav-highlight, white) 48%, transparent);
+  border-radius: 9999px;
+  background:
+    radial-gradient(
+      circle at 30% 24%,
+      color-mix(in srgb, var(--nav-highlight, white) 70%, transparent),
+      transparent 44%
+    ),
+    color-mix(in srgb, var(--nav-main, var(--awake-accent)) 66%, transparent);
+  box-shadow:
+    inset -1px -1px 2px color-mix(in srgb, var(--nav-main) 28%, transparent),
+    0 0 0.55rem color-mix(in srgb, var(--nav-glow) 18%, transparent);
+  opacity: 0.5;
+  animation: awake-signature-progress 7.5s ease-in-out infinite;
+  animation-delay: calc(var(--signature-progress-index) * 140ms);
+}
+
+@keyframes awake-signature-progress {
+  0%,
+  18%,
+  82%,
+  100% {
+    opacity: 0.48;
+    filter: brightness(0.96);
+  }
+
+  42%,
+  58% {
+    opacity: 0.8;
+    filter: brightness(1.08);
   }
 }
 
@@ -1305,7 +1390,14 @@ dialog,
 
   .awake-relative-minor-companion.is-active {
     animation: none;
+    scale: 0.909;
     transform: translate(-3px, -2px);
+  }
+
+  .awake-circle-major-orb::before,
+  .awake-circle-major-orb::after,
+  .awake-key-signature-progress > i {
+    animation: none;
   }
 }
 
@@ -1661,6 +1753,7 @@ dialog,
     scale 760ms cubic-bezier(0.22, 1, 0.36, 1),
     border-color 620ms ease,
     box-shadow 620ms ease;
+  animation: awake-selected-glass-breathe 7.5s ease-in-out infinite;
 }
 
 .home-foundation-ring
@@ -1680,6 +1773,7 @@ dialog,
   box-shadow:
     inset 0 2px 2px color-mix(in srgb, var(--nav-highlight, white) 44%, transparent),
     inset 0 -7px 14px color-mix(in srgb, var(--nav-main) 32%, transparent);
+  animation: awake-selected-reflection-drift 7.5s ease-in-out infinite;
 }
 
 .home-foundation-ring
@@ -1690,21 +1784,83 @@ dialog,
     inset 1px 1px 3px color-mix(in srgb, var(--nav-highlight, white) 38%, transparent),
     inset -2px -2px 5px color-mix(in srgb, var(--nav-main) 24%, transparent),
     0 0 0 1px color-mix(in srgb, var(--nav-highlight, white) 14%, transparent);
+  animation: awake-selected-rim-drift 7.5s ease-in-out infinite;
 }
 
 .home-foundation-ring
   .rotating-orb-item.is-centered
   .awake-circle-key {
   color: color-mix(in srgb, white 88%, var(--awake-text));
+  font-weight: 720;
   text-shadow:
-    0 1px 0 color-mix(in srgb, var(--nav-highlight, white) 58%, transparent),
-    0 0 0.65rem color-mix(in srgb, var(--nav-highlight, white) 18%, transparent);
+    0 -0.5px 0 color-mix(in srgb, var(--nav-highlight, white) 66%, transparent),
+    0 1px 1px color-mix(in srgb, black 30%, transparent),
+    0 0 0.45rem color-mix(in srgb, var(--nav-highlight, white) 12%, transparent);
 }
 
 .home-foundation-ring
   .rotating-orb-item.is-centered
   .awake-relative-minor-companion {
   scale: 0.909;
+}
+
+@keyframes awake-selected-glass-breathe {
+  0%,
+  14%,
+  86%,
+  100% {
+    scale: 1.1;
+    filter: brightness(1) saturate(1.04);
+  }
+
+  44%,
+  60% {
+    scale: 1.166;
+    filter: brightness(1.045) saturate(1.07);
+  }
+}
+
+@keyframes awake-selected-reflection-drift {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: translate3d(-1.4%, -0.8%, 0) rotate(-0.8deg);
+  }
+
+  50% {
+    opacity: 0.96;
+    transform: translate3d(1.6%, 1%, 0) rotate(0.9deg);
+  }
+}
+
+@keyframes awake-selected-rim-drift {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: rotate(-0.7deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: rotate(0.85deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-foundation-ring
+    .rotating-orb-item.is-centered
+    .navigation-foundation-orb,
+  .home-foundation-ring
+    .rotating-orb-item.is-centered
+    .breathe-navigation-orb,
+  .home-foundation-ring
+    .rotating-orb-item.is-centered
+    .awake-circle-major-orb::before,
+  .home-foundation-ring
+    .rotating-orb-item.is-centered
+    .awake-circle-major-orb::after {
+    animation: none;
+  }
 }
 
 .awake-responsive-grid {

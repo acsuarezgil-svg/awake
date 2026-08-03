@@ -2717,3 +2717,209 @@ dialog,
     transform: translate(-50%, -50%) scale(1.15);
   }
 }
+
+/* Phase 6 — procedural living atmosphere. */
+.awake-home-responsive::before {
+  animation: awake-atmosphere-breathe 7.5s ease-in-out infinite;
+}
+
+.awake-responsive-shell {
+  isolation: isolate;
+}
+
+.awake-responsive-shell::before,
+.awake-responsive-shell::after {
+  position: fixed;
+  z-index: -1;
+  content: "";
+  pointer-events: none;
+}
+
+.awake-responsive-shell::before {
+  inset: -8%;
+  background:
+    radial-gradient(circle at 11% 18%, color-mix(in srgb, var(--awake-text) 15%, transparent) 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 24% 72%, color-mix(in srgb, var(--awake-orb-highlight) 18%, transparent) 0 0.65px, transparent 1.15px),
+    radial-gradient(circle at 38% 29%, color-mix(in srgb, var(--awake-text) 11%, transparent) 0 0.55px, transparent 1px),
+    radial-gradient(circle at 57% 14%, color-mix(in srgb, var(--awake-orb-highlight) 14%, transparent) 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 72% 67%, color-mix(in srgb, var(--awake-text) 13%, transparent) 0 0.6px, transparent 1.1px),
+    radial-gradient(circle at 88% 36%, color-mix(in srgb, var(--awake-orb-highlight) 16%, transparent) 0 0.65px, transparent 1.15px),
+    radial-gradient(circle at 50% 46%, color-mix(in srgb, hsl(278 44% 58%) 7%, transparent), transparent 38%),
+    radial-gradient(ellipse 46% 32% at 18% 82%, color-mix(in srgb, var(--awake-companion) 5%, transparent), transparent 72%),
+    radial-gradient(ellipse 42% 36% at 86% 12%, color-mix(in srgb, var(--awake-orb-glow) 5%, transparent), transparent 74%);
+  opacity: 0.5;
+  animation: awake-star-drift 46s ease-in-out infinite alternate;
+}
+
+.awake-responsive-shell::after {
+  inset: -14%;
+  background:
+    radial-gradient(ellipse 38% 18% at 26% 35%, color-mix(in srgb, var(--awake-orb-highlight) 4%, transparent), transparent 72%),
+    radial-gradient(ellipse 34% 22% at 72% 64%, color-mix(in srgb, hsl(276 46% 62%) 5%, transparent), transparent 74%),
+    repeating-radial-gradient(circle at 48% 52%, transparent 0 4.5rem, color-mix(in srgb, var(--awake-text) 1.2%, transparent) 4.7rem 4.76rem, transparent 4.95rem 7.8rem);
+  filter: blur(16px);
+  opacity: 0.42;
+  animation: awake-cosmic-dust-drift 58s ease-in-out infinite alternate;
+}
+
+.awake-circle-of-fifths .rotating-orb-track::before {
+  position: absolute;
+  inset: -14%;
+  border-radius: inherit;
+  content: "";
+  background:
+    radial-gradient(circle at 17% 31%, color-mix(in srgb, var(--awake-orb-highlight) 16%, transparent) 0 0.55px, transparent 1px),
+    radial-gradient(circle at 78% 24%, color-mix(in srgb, var(--awake-text) 10%, transparent) 0 0.5px, transparent 0.95px),
+    radial-gradient(circle at 68% 82%, color-mix(in srgb, var(--awake-orb-highlight) 12%, transparent) 0 0.6px, transparent 1.05px),
+    radial-gradient(ellipse 58% 42% at 50% 52%, color-mix(in srgb, var(--awake-orb-glow) 5%, transparent), transparent 72%);
+  opacity: 0.48;
+  animation: awake-orbit-light-drift 34s ease-in-out infinite alternate;
+}
+
+.awake-circle-focus {
+  animation-duration: 7.5s;
+}
+
+.awake-circle-focus::before {
+  position: absolute;
+  inset: -28%;
+  z-index: -2;
+  border-radius: 46%;
+  content: "";
+  background:
+    repeating-conic-gradient(from 18deg, color-mix(in srgb, hsl(278 52% 62%) 7%, transparent) 0 3deg, transparent 5deg 29deg),
+    radial-gradient(circle, color-mix(in srgb, hsl(276 48% 58%) 13%, transparent), transparent 66%);
+  filter: blur(13px);
+  opacity: 0.44;
+  pointer-events: none;
+  animation: awake-foundation-nebula 48s linear infinite;
+}
+
+.awake-circle-focus::after {
+  animation-duration: 7.5s;
+}
+
+.awake-relative-minor-companion.is-active {
+  border-color: color-mix(in srgb, var(--nav-highlight) 48%, transparent);
+  box-shadow:
+    inset -1px -1px 2px color-mix(in srgb, var(--nav-main) 16%, transparent),
+    0 1px 5px color-mix(in srgb, var(--nav-glow) 24%, transparent),
+    0 0 0.7rem color-mix(in srgb, var(--nav-glow) 12%, transparent);
+  font-weight: 680;
+  opacity: 0.72;
+  animation-delay: 0.2s;
+}
+
+.awake-relative-minor-companion.is-active::before {
+  position: absolute;
+  top: 68%;
+  right: 72%;
+  z-index: -1;
+  width: 145%;
+  height: 0.28rem;
+  border-radius: 9999px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--nav-glow) 22%, transparent) 42%,
+    color-mix(in srgb, var(--nav-highlight) 28%, transparent) 72%,
+    transparent
+  );
+  filter: blur(1.4px);
+  opacity: 0.32;
+  pointer-events: none;
+  transform: rotate(38deg);
+  transform-origin: right center;
+  animation: awake-relative-light-bridge 7.5s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+.home-foundation-ring
+  .rotating-orb-item.is-centered
+  .awake-circle-major-orb::after {
+  filter: drop-shadow(
+    0 0 0.85rem color-mix(in srgb, var(--nav-glow) 14%, transparent)
+  );
+}
+
+@keyframes awake-atmosphere-breathe {
+  0%,
+  14%,
+  86%,
+  100% {
+    filter: brightness(1);
+  }
+
+  44%,
+  60% {
+    filter: brightness(1.025);
+  }
+}
+
+@keyframes awake-star-drift {
+  from {
+    transform: translate3d(-0.35%, -0.2%, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(0.45%, 0.35%, 0) scale(1.006);
+  }
+}
+
+@keyframes awake-cosmic-dust-drift {
+  from {
+    transform: translate3d(0.4%, -0.3%, 0) rotate(-0.2deg);
+  }
+
+  to {
+    transform: translate3d(-0.45%, 0.35%, 0) rotate(0.25deg);
+  }
+}
+
+@keyframes awake-orbit-light-drift {
+  from {
+    transform: translate3d(-0.6%, 0.2%, 0);
+    opacity: 0.4;
+  }
+
+  to {
+    transform: translate3d(0.7%, -0.35%, 0);
+    opacity: 0.52;
+  }
+}
+
+@keyframes awake-foundation-nebula {
+  from {
+    transform: rotate(0deg) scale(0.99);
+  }
+
+  to {
+    transform: rotate(360deg) scale(1.01);
+  }
+}
+
+@keyframes awake-relative-light-bridge {
+  0%,
+  14%,
+  86%,
+  100% {
+    opacity: 0.22;
+  }
+
+  44%,
+  60% {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awake-home-responsive::before,
+  .awake-responsive-shell::before,
+  .awake-responsive-shell::after,
+  .awake-circle-of-fifths .rotating-orb-track::before,
+  .awake-circle-focus::before,
+  .awake-relative-minor-companion.is-active::before {
+    animation: none;
+  }
+}

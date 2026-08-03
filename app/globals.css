@@ -1203,13 +1203,16 @@ dialog,
 
 .awake-relative-minor-companion {
   position: absolute;
-  right: -5%;
-  bottom: 2%;
+  right: -29%;
+  bottom: -19%;
   z-index: 5;
-  width: 23%;
-  height: 23%;
+  display: flex;
+  width: 38%;
+  height: 38%;
   min-width: 0.5rem;
   min-height: 0.5rem;
+  align-items: center;
+  justify-content: center;
   border: 0.5px solid
     color-mix(in srgb, var(--nav-highlight) 26%, transparent);
   border-radius: 9999px;
@@ -1227,14 +1230,51 @@ dialog,
   box-shadow:
     inset -1px -1px 2px color-mix(in srgb, var(--nav-main) 16%, transparent),
     0 1px 3px color-mix(in srgb, var(--nav-glow) 12%, transparent);
+  font-size: 0.34rem;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.08em;
   opacity: 0.5;
   pointer-events: none;
+  white-space: nowrap;
   transform: translate(0, 0);
   transition:
     opacity 620ms ease,
     transform 620ms ease,
     border-color 620ms ease,
     box-shadow 620ms ease;
+}
+
+.rotating-orb-item.is-centered .awake-relative-minor-companion {
+  top: -19%;
+  bottom: auto;
+  font-size: clamp(0.56rem, 1.6vw, 0.68rem);
+}
+
+@media (min-width: 420px) {
+  .rotating-orb-item:not(.is-centered) .awake-relative-minor-companion {
+    font-size: 0.36rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .rotating-orb-item:not(.is-centered) .awake-relative-minor-companion {
+    font-size: 0.4rem;
+  }
+
+  .rotating-orb-item.is-centered .awake-relative-minor-companion {
+    font-size: 0.34rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .rotating-orb-item:not(.is-centered) .awake-relative-minor-companion {
+    font-size: 0.5rem;
+  }
+
+  .rotating-orb-item.is-centered .awake-relative-minor-companion {
+    font-size: clamp(0.56rem, 1.6vw, 0.68rem);
+  }
 }
 
 .awake-relative-minor-companion.is-active {
@@ -2063,7 +2103,7 @@ dialog,
   .awake-circle-of-fifths.home-foundation-ring {
     width: clamp(17.5rem, 90vw, 18rem) !important;
     height: clamp(20rem, 103vw, 20.25rem) !important;
-    transform: translateY(-1.5rem);
+    transform: translateY(-1.5rem) scale(1.09);
   }
 
   .awake-circle-focus {
@@ -2077,7 +2117,7 @@ dialog,
   .awake-circle-of-fifths.home-foundation-ring {
     width: clamp(21.5rem, 88vw, 22.5rem) !important;
     height: clamp(24.25rem, 99vw, 25rem) !important;
-    transform: translateY(-1.5rem);
+    transform: translateY(-1.5rem) scale(1.09);
   }
 }
 

@@ -214,12 +214,6 @@ export default function SystemsOverview() {
     (foundation) => !hiddenIds.includes(foundation.id),
   );
   const circleItems = mapFoundationsToCircle(visibleFoundations);
-  const selectedCircleItem =
-    circleItems.find((item) => item.id === selectedId) ?? circleItems[0];
-  const totalSystems = visibleFoundations.reduce(
-    (total, foundation) => total + foundation.focusAreas.length,
-    0,
-  );
   function updateColorPreferences(next: AwakeColorPreferences) {
     setColorPreferences(next);
     saveColorPreferences(next);
@@ -331,18 +325,6 @@ export default function SystemsOverview() {
             <div className="awake-musical-hero-inner">
               <p className="awake-eyebrow">Awake</p>
               <h1 className="awake-home-title">Your Key</h1>
-              {selectedCircleItem && (
-                <div className="awake-musical-key-summary">
-                  <span>{selectedCircleItem.displayKey}</span>
-                  <strong>{selectedCircleItem.awakeFoundationName}</strong>
-                  {selectedCircleItem.direction !== "core" && (
-                    <small>
-                      {selectedCircleItem.accidentalCount}
-                      {selectedCircleItem.direction === "sharp" ? "♯" : "♭"}
-                    </small>
-                  )}
-                </div>
-              )}
             </div>
           </header>
         }
@@ -356,22 +338,6 @@ export default function SystemsOverview() {
               onEnterFoundation={openFoundation}
               onFoundationLongPress={setActionFoundation}
             />
-            {selectedId !== CIRCLE_CORE_ID && (
-              <button
-                type="button"
-                className="awake-circle-reset"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setSelectedId(CIRCLE_CORE_ID);
-                }}
-              >
-                Return to C / Core
-              </button>
-            )}
-            <p className="awake-world-count" aria-live="polite">
-              {totalSystems} {totalSystems === 1 ? "system" : "systems"} in your
-              world
-            </p>
           </div>
         }
         primaryAction={

@@ -88,11 +88,7 @@ export default function AwakeCircleOfFifths({
       showHint={false}
       centerContent={
         <div className="awake-circle-focus" aria-live="polite">
-          <span className="awake-circle-focus-key">{selected.displayKey}</span>
           <strong>{selected.awakeFoundationName}</strong>
-          {selected.direction !== "core" && (
-            <span>{getKeySignatureLabel(selected)}</span>
-          )}
         </div>
       }
       onActivate={(item) => onEnterFoundation(item.foundation)}
@@ -139,19 +135,15 @@ export default function AwakeCircleOfFifths({
                 data-major-key={item.majorKey}
                 data-relative-minor={item.relativeMinor}
                 aria-hidden="true"
-              />
+              >
+                {item.relativeMinor.split(" / ")[0]}
+              </span>
             </span>
-            {centered && (
-              <>
-                <span className="ring-orb-label awake-circle-orb-label">
-                  {item.awakeFoundationName}
-                </span>
-                {item.direction !== "core" && (
-                  <span className="ring-orb-detail awake-supporting">
-                    {getKeySignatureLabel(item)}
-                  </span>
-                )}
-              </>
+            {centered && item.direction !== "core" && (
+              <span className="ring-orb-detail awake-supporting">
+                {item.accidentalCount}
+                {item.direction === "sharp" ? "♯" : "♭"}
+              </span>
             )}
           </>
         );

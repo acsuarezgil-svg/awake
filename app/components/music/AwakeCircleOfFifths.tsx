@@ -29,6 +29,14 @@ function spokenKey(key: string) {
     .replaceAll(/m\b/g, " minor");
 }
 
+function musicalGlyphs(key: string) {
+  return key.replaceAll("#", "♯").replaceAll("b", "♭");
+}
+
+function minorName(key: string) {
+  return musicalGlyphs(key.split(" / ")[0].replace(/m$/, ""));
+}
+
 function KeySignatureRings({
   count,
   direction,
@@ -77,7 +85,8 @@ export default function AwakeCircleOfFifths({
   if (!selected) return null;
 
   return (
-    <RotatingOrbRing
+    <>
+      <RotatingOrbRing
       items={items}
       selectedId={selected.id}
       onSelectedChange={onSelectedChange}
@@ -88,7 +97,10 @@ export default function AwakeCircleOfFifths({
       showHint={false}
       centerContent={
         <div className="awake-circle-focus" aria-live="polite">
-          <strong>{selected.awakeFoundationName}</strong>
+          <strong className="awake-circle-focus-key">
+            {musicalGlyphs(selected.displayKey)}
+          </strong>
+          <small>{selected.awakeFoundationName}</small>
         </div>
       }
       onActivate={(item) => onEnterFoundation(item.foundation)}
@@ -96,7 +108,7 @@ export default function AwakeCircleOfFifths({
       getAriaLabel={(item, centered) =>
         `${spokenKey(item.majorKey)} Major, ${item.awakeFoundationName}, ${getKeySignatureLabel(item)}, relative minor ${spokenKey(item.relativeMinor)}. ${centered ? "Open mapped foundation" : "Bring to focus"}`
       }
-      renderItem={(item, { centered, index }) => {
+      renderItem={(item, { centered, index, angle }) => {
         const hue = getFoundationHue(
           item.foundation.title,
           preferences.anchorHue,
@@ -126,17 +138,22 @@ export default function AwakeCircleOfFifths({
                 direction={item.direction}
               />
               <span className="awake-circle-key" aria-hidden="true">
-                {item.displayKey}
+                {musicalGlyphs(item.displayKey)}
               </span>
               <span
                 className={`awake-relative-minor-companion ${
                   centered ? "is-active" : ""
                 }`}
+                style={
+                  {
+                    "--minor-angle": `${angle}deg`,
+                  } as CSSProperties
+                }
                 data-major-key={item.majorKey}
                 data-relative-minor={item.relativeMinor}
                 aria-hidden="true"
               >
-                {item.relativeMinor.split(" / ")[0]}
+                {minorName(item.relativeMinor)}
               </span>
               {centered && item.direction !== "core" && (
                 <span
@@ -168,6 +185,14 @@ export default function AwakeCircleOfFifths({
           </>
         );
       }}
-    />
+      />
+      <p className="awake-circle-relationship" aria-live="polite">
+        <strong>{musicalGlyphs(selected.displayKey)} major</strong>
+        <span aria-hidden="true">•</span>
+        <span>{minorName(selected.relativeMinor)} minor</span>
+        <span aria-hidden="true">•</span>
+        <span>companion</span>
+      </p>
+    </>
   );
 }

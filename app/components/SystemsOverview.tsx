@@ -15,6 +15,7 @@ import {
 } from "../colorPalette";
 import {
   CIRCLE_CORE_ID,
+  CIRCLE_OF_FIFTHS,
   mapFoundationsToCircle,
 } from "../music/circleOfFifths";
 import { defaultSystems } from "../systemPresets";
@@ -41,6 +42,25 @@ import type { HomeViewState } from "./foundation/foundationExperience";
 import type { Language } from "../translations";
 
 const HIDDEN_FOUNDATIONS_KEY = "awake-hidden-foundations";
+const SELECTED_KEY_STORAGE_KEY = "awake-circle-selected-key";
+
+function musicalGlyphs(key: string) {
+  return key.replaceAll("#", "♯").replaceAll("b", "♭");
+}
+
+const SHARP_SIGNATURE = ["F♯", "C♯", "G♯", "D♯", "A♯", "E♯", "B♯"];
+const FLAT_SIGNATURE = ["B♭", "E♭", "A♭", "D♭", "G♭", "C♭", "F♭"];
+
+function keySignatureNotes(
+  direction: "core" | "sharp" | "flat",
+  count: number,
+) {
+  if (direction === "core" || count === 0) return [];
+  return (direction === "sharp" ? SHARP_SIGNATURE : FLAT_SIGNATURE).slice(
+    0,
+    count,
+  );
+}
 
 type HomeDockIconName =
   | "add"
@@ -183,6 +203,10 @@ export default function SystemsOverview() {
     if (savedLanguage === "en" || savedLanguage === "es") {
       setLanguage(savedLanguage);
     }
+    const savedKey = localStorage.getItem(SELECTED_KEY_STORAGE_KEY);
+    if (savedKey && CIRCLE_OF_FIFTHS.some((key) => key.id === savedKey)) {
+      setSelectedId(savedKey);
+    }
     const foundationId = new URL(window.location.href).searchParams.get(
       "foundation",
     );
@@ -214,6 +238,24 @@ export default function SystemsOverview() {
     (foundation) => !hiddenIds.includes(foundation.id),
   );
   const circleItems = mapFoundationsToCircle(visibleFoundations);
+  const selectedCircleItem =
+    circleItems.find((item) => item.id === selectedId) ?? circleItems[0];
+
+  function selectCircleKey(id: string) {
+    setSelectedId(id);
+    localStorage.setItem(SELECTED_KEY_STORAGE_KEY, id);
+  }
+
+  function selectAdjacentKey(direction: -1 | 1) {
+    if (!circleItems.length) return;
+    const currentIndex = Math.max(
+      0,
+      circleItems.findIndex((item) => item.id === selectedCircleItem?.id),
+    );
+    const nextIndex =
+      (currentIndex + direction + circleItems.length) % circleItems.length;
+    selectCircleKey(circleItems[nextIndex].id);
+  }
   function updateColorPreferences(next: AwakeColorPreferences) {
     setColorPreferences(next);
     saveColorPreferences(next);
@@ -322,9 +364,12 @@ export default function SystemsOverview() {
       <ResponsiveLayout
         header={
           <header className="awake-home-header awake-musical-hero">
+            <span className="awake-home-brand">Awake</span>
             <div className="awake-musical-hero-inner">
-              <p className="awake-eyebrow">Awake</p>
-              <h1 className="awake-home-title">Your Key</h1>
+              <p className="awake-eyebrow">Your Foundation</p>
+              <h1 className="awake-home-title">
+                The Key of {musicalGlyphs(selectedCircleItem?.displayKey ?? "C")}
+              </h1>
             </div>
           </header>
         }
@@ -334,10 +379,45 @@ export default function SystemsOverview() {
               items={circleItems}
               selectedId={selectedId}
               preferences={colorPreferences}
-              onSelectedChange={setSelectedId}
+              onSelectedChange={selectCircleKey}
               onEnterFoundation={openFoundation}
               onFoundationLongPress={setActionFoundation}
             />
+            {selectedCircleItem && (
+              <div className="awake-key-selector" aria-label="Selected major key">
+                <div className="awake-key-selector-main">
+                  <button
+                    type="button"
+                    onClick={() => selectAdjacentKey(-1)}
+                    aria-label="Select previous key"
+                  >
+                    ←
+                  </button>
+                  <span aria-live="polite">
+                    <i aria-hidden="true" />
+                    {musicalGlyphs(selectedCircleItem.displayKey)} major
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => selectAdjacentKey(1)}
+                    aria-label="Select next key"
+                  >
+                    →
+                  </button>
+                </div>
+                <p className="awake-key-signature" aria-live="polite">
+                  {keySignatureNotes(
+                    selectedCircleItem.direction,
+                    selectedCircleItem.accidentalCount,
+                  ).length > 0
+                    ? keySignatureNotes(
+                        selectedCircleItem.direction,
+                        selectedCircleItem.accidentalCount,
+                      ).map((note) => <span key={note}>{note}</span>)
+                    : <span>No sharps or flats</span>}
+                </p>
+              </div>
+            )}
           </div>
         }
         primaryAction={

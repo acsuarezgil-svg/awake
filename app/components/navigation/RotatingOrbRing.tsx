@@ -17,7 +17,7 @@ type Props<T extends RingItem> = {
   onActivate: (item: T) => void;
   renderItem: (
     item: T,
-    state: { centered: boolean; index: number },
+    state: { centered: boolean; index: number; angle: number },
   ) => ReactNode;
   getAriaLabel: (item: T, centered: boolean) => string;
   ariaLabel: string;
@@ -285,7 +285,7 @@ export default function RotatingOrbRing<T extends RingItem>({
               }
             }}
           >
-            {renderItem(item, { centered, index })}
+            {renderItem(item, { centered, index, angle })}
           </button>
         );
       })}

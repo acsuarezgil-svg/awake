@@ -2923,3 +2923,702 @@ dialog,
     animation: none;
   }
 }
+
+/* Home redesign — compact Foundation / selected-key composition. */
+.awake-home-responsive {
+  min-height: 100dvh;
+  background:
+    radial-gradient(
+      ellipse 72% 46% at 50% 42%,
+      color-mix(in srgb, var(--awake-orb-glow) 13%, transparent),
+      transparent 72%
+    ),
+    var(--awake-page-background) !important;
+}
+
+[data-awake-appearance="dark"] .awake-home-responsive {
+  background:
+    radial-gradient(ellipse 76% 48% at 50% 41%, hsl(268 42% 18% / 55%), transparent 72%),
+    linear-gradient(180deg, hsl(252 35% 5%), hsl(254 30% 3%)) !important;
+}
+
+.awake-responsive-shell.is-world-only {
+  width: 100%;
+  max-width: 46rem;
+  padding-inline: clamp(0.6rem, 3vw, 1.25rem);
+}
+
+.awake-responsive-shell.is-world-only .awake-responsive-header {
+  position: relative;
+  z-index: 20;
+}
+
+.awake-responsive-shell.is-world-only .awake-responsive-grid {
+  min-height: auto;
+  display: block;
+}
+
+.awake-home-header {
+  position: relative;
+  min-height: 8.75rem;
+  padding: 0;
+  border-bottom: 0;
+}
+
+.awake-home-header::after {
+  position: absolute;
+  top: 3.9rem;
+  right: calc(50% - 50vw);
+  left: calc(50% - 50vw);
+  height: 1px;
+  content: "";
+  background: color-mix(in srgb, var(--awake-border) 24%, transparent);
+}
+
+.awake-home-brand {
+  position: absolute;
+  top: 1.15rem;
+  left: 0.15rem;
+  color: var(--awake-text);
+  font-size: clamp(1.15rem, 5vw, 1.4rem);
+  font-weight: 720;
+  letter-spacing: -0.045em;
+}
+
+.awake-musical-hero-inner {
+  padding-top: 5.25rem;
+  text-align: center;
+}
+
+.awake-home-responsive .awake-eyebrow {
+  margin: 0;
+  color: color-mix(in srgb, var(--awake-companion) 56%, var(--awake-text));
+  font-size: clamp(0.58rem, 2.5vw, 0.68rem);
+  font-weight: 670;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.awake-home-responsive .awake-home-title {
+  margin-top: 0.52rem;
+  color: var(--awake-text);
+  font-size: clamp(1.55rem, 7.3vw, 2.15rem);
+  font-weight: 520;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.awake-world-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.awake-circle-of-fifths.home-foundation-ring {
+  width: min(91vw, 24.5rem) !important;
+  height: min(99vw, 26.5rem) !important;
+  margin-top: -0.3rem;
+  transform: none;
+}
+
+.awake-circle-of-fifths .rotating-orb-track {
+  inset: 9% 5% 13%;
+  border-width: 0.5px;
+  border-color: color-mix(in srgb, var(--awake-orb-highlight) 12%, transparent);
+  background:
+    repeating-radial-gradient(
+      circle,
+      transparent 0 19.6%,
+      color-mix(in srgb, var(--awake-orb-highlight) 4%, transparent) 19.9% 20%,
+      transparent 20.2% 32%
+    ),
+    radial-gradient(circle, color-mix(in srgb, var(--awake-orb-glow) 8%, transparent), transparent 67%);
+  box-shadow: inset 0 0 2.5rem color-mix(in srgb, var(--awake-orb-glow) 4%, transparent);
+}
+
+.awake-circle-of-fifths .rotating-orb-item {
+  width: clamp(3.4rem, 16vw, 4.35rem);
+  min-height: clamp(3.4rem, 16vw, 4.35rem);
+}
+
+.home-foundation-ring .rotating-orb-item:not(.is-centered) .foundation-waypoint-orb {
+  width: clamp(2.8rem, 13vw, 3.55rem) !important;
+  height: clamp(2.8rem, 13vw, 3.55rem) !important;
+  border-color: color-mix(in srgb, var(--awake-orb-highlight) 14%, transparent);
+  background:
+    radial-gradient(circle at 29% 22%, color-mix(in srgb, white 20%, transparent), transparent 27%),
+    radial-gradient(circle at 68% 72%, color-mix(in srgb, var(--nav-glow) 10%, transparent), transparent 60%),
+    color-mix(in srgb, var(--awake-surface) 70%, transparent);
+  box-shadow:
+    inset -6px -7px 12px color-mix(in srgb, black 30%, transparent),
+    inset 3px 3px 7px color-mix(in srgb, white 8%, transparent),
+    0 0.45rem 1rem rgb(0 0 0 / 22%);
+  filter: saturate(0.55) brightness(0.78);
+}
+
+[data-awake-appearance="light"]
+  .home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .foundation-waypoint-orb {
+  filter: saturate(0.68) brightness(1.02);
+  background:
+    radial-gradient(circle at 29% 22%, rgb(255 255 255 / 66%), transparent 28%),
+    color-mix(in srgb, var(--awake-surface-elevated) 72%, var(--nav-main));
+}
+
+.home-foundation-ring .rotating-orb-item.is-centered .awake-circle-major-orb {
+  width: clamp(3.9rem, 17vw, 4.8rem) !important;
+  height: clamp(3.9rem, 17vw, 4.8rem) !important;
+  scale: 1;
+  filter: saturate(0.82);
+  box-shadow:
+    inset -10px -12px 20px rgb(0 0 0 / 48%),
+    inset 6px 7px 13px color-mix(in srgb, white 20%, transparent),
+    0 0 0 0.24rem color-mix(in srgb, var(--nav-glow) 9%, transparent),
+    0 0 1.55rem color-mix(in srgb, var(--nav-glow) 34%, transparent);
+  animation-name: awake-home-selected-breathe;
+  animation-duration: 9s;
+}
+
+.awake-circle-key {
+  color: color-mix(in srgb, var(--awake-text) 78%, transparent);
+  font-size: clamp(0.82rem, 4.3vw, 1.05rem);
+  font-weight: 620;
+  text-shadow: 0 -0.5px color-mix(in srgb, white 24%, transparent), 0 1px 2px rgb(0 0 0 / 52%);
+}
+
+.awake-circle-of-fifths .rotating-orb-item.is-centered .awake-circle-key {
+  color: white;
+  font-size: clamp(1.15rem, 5.6vw, 1.55rem);
+  font-weight: 740;
+}
+
+.awake-relative-minor-companion {
+  right: -14%;
+  bottom: -10%;
+  width: 40%;
+  height: 40%;
+  color: color-mix(in srgb, var(--awake-text) 62%, transparent);
+  font-size: clamp(0.48rem, 2.4vw, 0.62rem) !important;
+  opacity: 0.6;
+}
+
+.rotating-orb-item.is-centered .awake-relative-minor-companion {
+  top: auto;
+  right: -25%;
+  bottom: -10%;
+  width: 44%;
+  height: 44%;
+  color: white;
+  opacity: 0.82;
+}
+
+.awake-circle-of-fifths .ring-orb-detail,
+.awake-key-signature-progress,
+.awake-key-signature-rings {
+  display: none;
+}
+
+.awake-circle-focus {
+  width: clamp(5.25rem, 24vw, 6.7rem);
+  min-height: clamp(5.25rem, 24vw, 6.7rem);
+  padding: 0.65rem;
+  border-color: color-mix(in srgb, var(--awake-orb-highlight) 28%, transparent);
+  background:
+    radial-gradient(circle at 34% 24%, color-mix(in srgb, white 24%, transparent), transparent 28%),
+    radial-gradient(circle at 66% 72%, color-mix(in srgb, var(--awake-orb-glow) 20%, transparent), transparent 62%),
+    color-mix(in srgb, var(--awake-surface) 86%, black);
+  box-shadow:
+    inset -11px -13px 22px rgb(0 0 0 / 52%),
+    inset 6px 7px 13px color-mix(in srgb, white 12%, transparent),
+    0 0 1.8rem color-mix(in srgb, var(--awake-orb-glow) 24%, transparent);
+  animation-duration: 9s;
+}
+
+.awake-circle-focus > span:not(.awake-circle-focus-key) {
+  margin: 0 0 0.3rem;
+  color: color-mix(in srgb, var(--awake-text) 62%, transparent);
+  font-size: clamp(0.42rem, 1.8vw, 0.52rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.awake-circle-focus .awake-circle-focus-key {
+  color: white;
+  font-size: clamp(1.75rem, 8vw, 2.35rem);
+  font-weight: 690;
+  text-shadow: 0 -1px rgb(255 255 255 / 28%), 0 2px 3px rgb(0 0 0 / 56%);
+}
+
+.awake-circle-focus small {
+  margin-top: 0.22rem;
+  color: color-mix(in srgb, var(--awake-text) 64%, transparent);
+  font-size: clamp(0.48rem, 2vw, 0.58rem);
+}
+
+.awake-circle-relationship {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.4rem, 2.2vw, 0.65rem);
+  margin: -1.2rem 0 0;
+  color: color-mix(in srgb, var(--awake-text-secondary) 72%, transparent);
+  font-size: clamp(0.68rem, 3vw, 0.82rem);
+  white-space: nowrap;
+}
+
+.awake-circle-relationship strong {
+  color: color-mix(in srgb, var(--awake-text) 90%, var(--awake-companion));
+  font-weight: 570;
+}
+
+.awake-key-selector {
+  display: grid;
+  width: min(calc(100% - 2.6rem), 14.75rem);
+  min-height: 3.7rem;
+  grid-template-columns: 3.3rem 1fr 3.3rem;
+  align-items: center;
+  margin: clamp(3.4rem, 8vh, 5.4rem) auto 4.6rem;
+  border: 1px solid color-mix(in srgb, var(--awake-border) 48%, transparent);
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--awake-surface) 78%, transparent);
+  box-shadow: inset 0 1px color-mix(in srgb, var(--awake-orb-highlight) 12%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.awake-key-selector button {
+  height: 100%;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  color: var(--awake-text-secondary);
+  cursor: pointer;
+}
+
+.awake-key-selector button:hover {
+  color: var(--awake-text);
+}
+
+.awake-key-selector button:focus-visible {
+  outline: 2px solid var(--awake-focus-ring);
+  outline-offset: -3px;
+}
+
+.awake-key-selector span {
+  color: color-mix(in srgb, var(--awake-text) 86%, transparent);
+  font-size: 0.74rem;
+  text-align: center;
+}
+
+.awake-key-selector i {
+  display: inline-block;
+  width: 0.35rem;
+  height: 0.35rem;
+  margin-right: 0.55rem;
+  border-radius: 50%;
+  background: var(--awake-companion);
+  box-shadow: 0 0 0.5rem color-mix(in srgb, var(--awake-companion) 48%, transparent);
+}
+
+.awake-home-navigation {
+  width: min(calc(100% - 2rem), 13rem);
+  opacity: 0.72;
+}
+
+.awake-home-navigation:focus-within,
+.awake-home-navigation:hover {
+  opacity: 1;
+}
+
+@keyframes awake-home-selected-breathe {
+  0%, 100% { scale: 1; filter: brightness(1) saturate(0.82); }
+  50% { scale: 1.035; filter: brightness(1.07) saturate(0.88); }
+}
+
+@media (max-width: 359px) {
+  .awake-responsive-shell.is-world-only { padding-inline: 0.2rem; }
+  .awake-home-header { min-height: 8.1rem; padding-inline: 0.45rem; }
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: min(94vw, 20rem) !important;
+    height: min(99vw, 21.2rem) !important;
+  }
+  .awake-circle-relationship { margin-top: -0.7rem; font-size: 0.62rem; }
+  .awake-key-selector { margin-top: 2.8rem; }
+}
+
+@media (min-width: 600px) {
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: min(67vw, 25.5rem) !important;
+    height: min(71vw, 27rem) !important;
+  }
+  .awake-key-selector { margin-top: 4rem; }
+}
+
+@media (min-width: 900px) {
+  .awake-home-header { min-height: 9.4rem; }
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: 26rem !important;
+    height: 27.5rem !important;
+  }
+  .awake-key-selector { margin-top: 3.7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-foundation-ring .rotating-orb-item.is-centered .awake-circle-major-orb {
+    animation: none !important;
+  }
+}
+
+[data-awake-appearance="dark"]
+  .awake-home-responsive
+  .home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .foundation-waypoint-orb {
+  border-color: rgb(224 211 245 / 12%);
+  background:
+    radial-gradient(circle at 29% 22%, rgb(255 255 255 / 17%), transparent 27%),
+    radial-gradient(circle at 68% 72%, rgb(123 91 161 / 12%), transparent 60%),
+    linear-gradient(145deg, rgb(53 48 62 / 82%), rgb(18 16 24 / 94%));
+  box-shadow:
+    inset -6px -7px 12px rgb(0 0 0 / 38%),
+    inset 3px 3px 7px rgb(255 255 255 / 7%),
+    0 0.45rem 1rem rgb(0 0 0 / 28%);
+  filter: saturate(0.18) brightness(0.84) !important;
+}
+
+[data-awake-appearance="dark"]
+  .awake-home-responsive
+  .home-foundation-ring
+  .rotating-orb-item.is-centered
+  .awake-circle-major-orb {
+  border-color: rgb(224 207 249 / 42%);
+  background:
+    radial-gradient(circle at 28% 20%, rgb(255 255 255 / 42%), transparent 25%),
+    radial-gradient(circle at 69% 74%, rgb(139 98 181 / 28%), transparent 59%),
+    linear-gradient(145deg, rgb(86 73 103 / 92%), rgb(30 23 38 / 97%) 58%, rgb(10 8 13));
+  filter: saturate(0.58);
+}
+
+[data-awake-appearance="dark"] .awake-home-navigation,
+[data-awake-appearance="dark"] .awake-key-selector {
+  border-color: rgb(220 204 242 / 11%);
+  background: rgb(18 15 24 / 88%);
+  box-shadow: inset 0 1px rgb(255 255 255 / 5%);
+}
+
+[data-awake-appearance="dark"] .awake-home-navigation-item svg {
+  color: rgb(174 157 194 / 72%);
+}
+
+/* Separate relative-minor inner ring and reference-matched stellar clarity. */
+.awake-circle-major-orb .awake-relative-minor-companion,
+.rotating-orb-item.is-centered .awake-relative-minor-companion {
+  top: calc(50% - sin(var(--minor-angle)) * clamp(2.35rem, 11vw, 3rem));
+  right: auto;
+  bottom: auto;
+  left: calc(50% - cos(var(--minor-angle)) * clamp(2.35rem, 11vw, 3rem));
+  width: clamp(1.25rem, 5.8vw, 1.55rem);
+  height: clamp(1.25rem, 5.8vw, 1.55rem);
+  border-color: color-mix(in srgb, var(--awake-orb-highlight) 16%, transparent);
+  background:
+    radial-gradient(circle at 32% 24%, rgb(255 255 255 / 13%), transparent 32%),
+    color-mix(in srgb, var(--awake-surface) 84%, black);
+  box-shadow:
+    inset -3px -4px 7px rgb(0 0 0 / 32%),
+    inset 2px 2px 4px rgb(255 255 255 / 5%);
+  color: color-mix(in srgb, var(--awake-text) 56%, transparent);
+  opacity: 0.62;
+  transform: translate(-50%, -50%);
+}
+
+.rotating-orb-item.is-centered .awake-relative-minor-companion.is-active {
+  width: clamp(1.45rem, 6.8vw, 1.8rem);
+  height: clamp(1.45rem, 6.8vw, 1.8rem);
+  border-color: color-mix(in srgb, var(--awake-orb-highlight) 36%, transparent);
+  background:
+    radial-gradient(circle at 31% 23%, rgb(255 255 255 / 28%), transparent 32%),
+    color-mix(in srgb, var(--awake-surface) 74%, var(--awake-companion));
+  box-shadow:
+    inset -3px -4px 7px rgb(0 0 0 / 28%),
+    inset 2px 2px 4px rgb(255 255 255 / 10%),
+    0 0 0.85rem color-mix(in srgb, var(--awake-companion) 20%, transparent);
+  color: white;
+  font-weight: 680;
+  opacity: 0.88;
+  animation: awake-inner-minor-breathe 9s 210ms ease-in-out infinite;
+}
+
+.awake-relative-minor-companion.is-active::before {
+  top: 50%;
+  right: auto;
+  left: 50%;
+  width: clamp(2.2rem, 10vw, 2.8rem);
+  transform: translate(-50%, -50%) rotate(var(--minor-angle));
+  transform-origin: center;
+  opacity: 0.22;
+}
+
+.awake-responsive-shell::before {
+  background:
+    radial-gradient(circle at 7% 14%, color-mix(in srgb, var(--awake-text) 26%, transparent) 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 18% 61%, color-mix(in srgb, var(--awake-orb-highlight) 24%, transparent) 0 0.55px, transparent 1.05px),
+    radial-gradient(circle at 29% 34%, color-mix(in srgb, var(--awake-text) 18%, transparent) 0 0.55px, transparent 1px),
+    radial-gradient(circle at 43% 78%, color-mix(in srgb, var(--awake-orb-highlight) 18%, transparent) 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 58% 12%, color-mix(in srgb, var(--awake-text) 22%, transparent) 0 0.6px, transparent 1.1px),
+    radial-gradient(circle at 72% 67%, color-mix(in srgb, var(--awake-text) 22%, transparent) 0 0.65px, transparent 1.1px),
+    radial-gradient(circle at 87% 26%, color-mix(in srgb, var(--awake-orb-highlight) 24%, transparent) 0 0.7px, transparent 1.2px),
+    radial-gradient(circle at 94% 82%, color-mix(in srgb, var(--awake-text) 20%, transparent) 0 0.55px, transparent 1px),
+    radial-gradient(circle at 50% 43%, color-mix(in srgb, hsl(278 44% 58%) 10%, transparent), transparent 39%),
+    radial-gradient(ellipse 46% 32% at 18% 82%, color-mix(in srgb, var(--awake-companion) 6%, transparent), transparent 72%);
+  opacity: 0.68;
+  animation-duration: 180s;
+}
+
+.awake-home-responsive,
+.awake-home-responsive button {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.awake-circle-key,
+.awake-circle-focus-key,
+.awake-circle-relationship,
+.awake-key-selector {
+  text-shadow:
+    0 -0.5px rgb(255 255 255 / 18%),
+    0 1px 1px rgb(0 0 0 / 48%);
+}
+
+@keyframes awake-inner-minor-breathe {
+  0%, 100% {
+    opacity: 0.82;
+    scale: 0.98;
+  }
+  50% {
+    opacity: 0.94;
+    scale: 1.025;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rotating-orb-item.is-centered .awake-relative-minor-companion.is-active {
+    animation: none !important;
+  }
+}
+
+/* Phase 8 — Foundation home hierarchy and living star field. */
+.awake-home-header {
+  min-height: 10.25rem;
+}
+
+.awake-home-brand {
+  top: 1rem;
+  right: 0;
+  left: 0;
+  font-size: clamp(1.05rem, 4.5vw, 1.3rem);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.awake-musical-hero-inner {
+  padding-top: 5.65rem;
+}
+
+.awake-home-responsive .awake-home-title {
+  margin-top: 0.62rem;
+}
+
+.awake-circle-of-fifths.home-foundation-ring {
+  margin-top: 0.15rem;
+}
+
+.awake-responsive-shell::before {
+  inset: -12%;
+  background-image:
+    radial-gradient(circle, rgb(255 255 255 / 42%) 0 0.55px, transparent 0.9px),
+    radial-gradient(circle, color-mix(in srgb, var(--awake-orb-highlight) 42%, transparent) 0 0.7px, transparent 1.1px),
+    radial-gradient(circle, rgb(255 255 255 / 24%) 0 0.45px, transparent 0.8px),
+    radial-gradient(circle, color-mix(in srgb, var(--awake-companion) 28%, transparent) 0 0.65px, transparent 1px),
+    radial-gradient(ellipse 36% 24% at 32% 42%, color-mix(in srgb, var(--awake-orb-glow) 9%, transparent), transparent 72%),
+    radial-gradient(ellipse 42% 28% at 74% 62%, color-mix(in srgb, var(--awake-companion) 6%, transparent), transparent 74%);
+  background-position:
+    7px 13px,
+    41px 67px,
+    83px 29px,
+    119px 101px,
+    center,
+    center;
+  background-size:
+    79px 83px,
+    131px 127px,
+    53px 59px,
+    173px 167px,
+    100% 100%,
+    100% 100%;
+  opacity: 0.72;
+  animation:
+    awake-phase-eight-star-drift 268s ease-in-out infinite alternate,
+    awake-phase-eight-twinkle 157s ease-in-out infinite;
+}
+
+.awake-responsive-shell::after {
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 38% 20% at 28% 38%, color-mix(in srgb, var(--awake-orb-glow) 8%, transparent), transparent 74%),
+    radial-gradient(ellipse 34% 22% at 72% 66%, color-mix(in srgb, var(--awake-companion) 7%, transparent), transparent 76%);
+  filter: blur(28px);
+  opacity: 0.48;
+  animation: awake-phase-eight-nebula 331s ease-in-out infinite alternate;
+}
+
+.home-foundation-ring .rotating-orb-item.is-centered .awake-circle-major-orb {
+  box-shadow:
+    inset -12px -15px 24px rgb(0 0 0 / 48%),
+    inset 7px 8px 15px color-mix(in srgb, white 22%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, white 12%, transparent),
+    0 0 0 0.3rem color-mix(in srgb, var(--nav-glow) 10%, transparent),
+    0 0 1.9rem color-mix(in srgb, var(--nav-glow) 42%, transparent);
+}
+
+.home-foundation-ring
+  .rotating-orb-item.is-centered
+  .awake-circle-major-orb::before {
+  background:
+    radial-gradient(ellipse 48% 30% at 25% 17%, rgb(255 255 255 / 52%), transparent 70%),
+    radial-gradient(circle at 74% 78%, color-mix(in srgb, var(--nav-glow) 24%, transparent), transparent 62%);
+}
+
+.awake-circle-of-fifths .rotating-orb-item.is-centered .awake-circle-key {
+  color: white;
+  font-weight: 760;
+  text-shadow:
+    0 -1px rgb(255 255 255 / 54%),
+    0 1.5px 2px rgb(0 0 0 / 68%),
+    0 0 0.65rem color-mix(in srgb, var(--nav-glow) 24%, transparent);
+}
+
+.awake-circle-focus small {
+  max-width: 90%;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--awake-text) 82%, var(--awake-companion));
+  font-weight: 620;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awake-circle-relationship {
+  margin-top: -0.7rem;
+}
+
+.awake-circle-relationship > span:nth-of-type(2) {
+  color: var(--awake-companion);
+  font-weight: 620;
+}
+
+.awake-key-selector {
+  display: block;
+  min-height: 5rem;
+  margin-top: clamp(2.5rem, 6vh, 4rem);
+  padding: 0.18rem 0.28rem 0.5rem;
+}
+
+.awake-key-selector-main {
+  display: grid;
+  min-height: 3.35rem;
+  grid-template-columns: 3.1rem 1fr 3.1rem;
+  align-items: center;
+}
+
+.awake-key-selector-main button {
+  min-height: 3rem;
+}
+
+.awake-key-signature {
+  display: flex;
+  min-height: 1rem;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.55rem, 3vw, 0.85rem);
+  margin: -0.15rem 0 0;
+  color: color-mix(in srgb, var(--awake-text-secondary) 78%, transparent);
+  font-size: clamp(0.58rem, 2.5vw, 0.68rem);
+  letter-spacing: 0.02em;
+}
+
+.awake-key-signature span {
+  color: inherit;
+  font-size: inherit;
+}
+
+@keyframes awake-phase-eight-star-drift {
+  from { transform: translate3d(-0.8%, -0.45%, 0) scale(1); }
+  to { transform: translate3d(0.9%, 0.65%, 0) scale(1.008); }
+}
+
+@keyframes awake-phase-eight-twinkle {
+  0%, 100% { filter: brightness(0.9); }
+  50% { filter: brightness(1.08); }
+}
+
+@keyframes awake-phase-eight-nebula {
+  from { transform: translate3d(0.6%, -0.5%, 0) rotate(-0.3deg); }
+  to { transform: translate3d(-0.7%, 0.55%, 0) rotate(0.35deg); }
+}
+
+@media (max-width: 359px) {
+  .awake-home-header { min-height: 9.45rem; }
+  .awake-musical-hero-inner { padding-top: 5.15rem; }
+  .awake-key-selector { margin-top: 2rem; }
+}
+
+@media (min-width: 600px) {
+  .awake-home-header { min-height: 10.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awake-responsive-shell::before,
+  .awake-responsive-shell::after {
+    animation: none !important;
+  }
+}
+
+/* Phase 8 readability refinement. */
+.awake-circle-key {
+  color: color-mix(in srgb, var(--awake-text) 92%, white);
+  font-weight: 690;
+  text-shadow:
+    0 -1px rgb(255 255 255 / 34%),
+    0 1.5px 2px rgb(0 0 0 / 72%),
+    0 0 0.42rem color-mix(in srgb, var(--nav-glow) 12%, transparent);
+}
+
+[data-awake-appearance="dark"]
+  .awake-home-responsive
+  .home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .awake-circle-key {
+  color: rgb(248 244 255 / 92%);
+}
+
+.awake-circle-major-orb .awake-relative-minor-companion {
+  color: color-mix(in srgb, var(--awake-text) 78%, white);
+  font-weight: 650;
+  text-shadow:
+    0 -0.5px rgb(255 255 255 / 28%),
+    0 1px 1px rgb(0 0 0 / 72%);
+}
+
+.awake-circle-focus .awake-circle-focus-key {
+  color: white;
+  font-weight: 740;
+  text-shadow:
+    0 -1px rgb(255 255 255 / 58%),
+    0 2px 3px rgb(0 0 0 / 72%),
+    0 0 0.7rem color-mix(in srgb, var(--awake-orb-glow) 24%, transparent);
+}
+
+.awake-circle-focus small {
+  color: color-mix(in srgb, var(--awake-text) 92%, var(--awake-companion));
+  font-weight: 680;
+}

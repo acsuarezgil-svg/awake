@@ -3622,3 +3622,216 @@ dialog,
   color: color-mix(in srgb, var(--awake-text) 92%, var(--awake-companion));
   font-weight: 680;
 }
+
+/* Responsive composition and persistent Display Scale. */
+:root {
+  --awake-display-title: clamp(1.55rem, 6vw, 2.25rem);
+  --awake-display-label: 0.68rem;
+  --awake-display-body: 0.78rem;
+  --awake-display-control: 2.75rem;
+  --awake-display-dock-icon: 1.15rem;
+  --awake-display-spacing: 1;
+}
+
+[data-awake-display-scale="compact"] {
+  --awake-display-title: clamp(1.35rem, 5.4vw, 1.95rem);
+  --awake-display-label: 0.6rem;
+  --awake-display-body: 0.7rem;
+  --awake-display-control: 2.5rem;
+  --awake-display-dock-icon: 1rem;
+  --awake-display-spacing: 0.88;
+}
+
+[data-awake-display-scale="large"] {
+  --awake-display-title: clamp(1.8rem, 6.8vw, 2.6rem);
+  --awake-display-label: 0.76rem;
+  --awake-display-body: 0.88rem;
+  --awake-display-control: 3rem;
+  --awake-display-dock-icon: 1.28rem;
+  --awake-display-spacing: 1.08;
+}
+
+[data-awake-display-scale="extraLarge"] {
+  --awake-display-title: clamp(2rem, 7.6vw, 2.95rem);
+  --awake-display-label: 0.84rem;
+  --awake-display-body: 0.98rem;
+  --awake-display-control: 3.3rem;
+  --awake-display-dock-icon: 1.4rem;
+  --awake-display-spacing: 1.16;
+}
+
+.awake-home-responsive .awake-home-title {
+  font-size: var(--awake-display-title);
+}
+
+.awake-home-responsive .awake-eyebrow,
+.awake-circle-focus small {
+  font-size: var(--awake-display-label);
+}
+
+.awake-circle-relationship,
+.awake-key-selector span,
+.awake-key-signature {
+  font-size: var(--awake-display-body);
+}
+
+.awake-home-navigation-item,
+.awake-key-selector-main button {
+  min-height: var(--awake-display-control);
+}
+
+.awake-home-navigation-item svg {
+  width: var(--awake-display-dock-icon);
+  height: var(--awake-display-dock-icon);
+}
+
+.awake-home-header {
+  min-height: clamp(8.25rem, 17dvh, 9.75rem);
+}
+
+.awake-musical-hero-inner {
+  padding-top: clamp(4.85rem, 9.5dvh, 5.7rem);
+}
+
+.awake-circle-of-fifths.home-foundation-ring {
+  width: clamp(20rem, min(94vw, 62dvh), 38rem) !important;
+  height: clamp(21.5rem, min(101vw, 67dvh), 41rem) !important;
+  margin-top: 0;
+}
+
+.awake-circle-of-fifths .rotating-orb-item {
+  width: clamp(3.6rem, min(16vw, 9dvh), 5.75rem);
+  min-height: clamp(3.6rem, min(16vw, 9dvh), 5.75rem);
+}
+
+.home-foundation-ring .rotating-orb-item:not(.is-centered) .foundation-waypoint-orb {
+  width: clamp(3rem, min(13.5vw, 7.7dvh), 4.8rem) !important;
+  height: clamp(3rem, min(13.5vw, 7.7dvh), 4.8rem) !important;
+}
+
+.home-foundation-ring .rotating-orb-item.is-centered .awake-circle-major-orb {
+  width: clamp(4.25rem, min(18vw, 10dvh), 6.25rem) !important;
+  height: clamp(4.25rem, min(18vw, 10dvh), 6.25rem) !important;
+}
+
+.awake-circle-focus {
+  width: clamp(6rem, min(26vw, 14dvh), 8.9rem);
+  min-height: clamp(6rem, min(26vw, 14dvh), 8.9rem);
+}
+
+.awake-circle-major-orb .awake-relative-minor-companion,
+.rotating-orb-item.is-centered .awake-relative-minor-companion {
+  top: calc(50% - sin(var(--minor-angle)) * clamp(2.7rem, min(12vw, 7dvh), 4.3rem));
+  left: calc(50% - cos(var(--minor-angle)) * clamp(2.7rem, min(12vw, 7dvh), 4.3rem));
+}
+
+.awake-circle-relationship {
+  margin-top: clamp(-0.55rem, -0.8dvh, -0.2rem);
+}
+
+.awake-key-selector {
+  margin-top: clamp(0.75rem, 2.2dvh, 1.5rem);
+  margin-bottom: 4.4rem;
+}
+
+@media (min-width: 600px) {
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: clamp(27rem, min(76vw, 67dvh), 42rem) !important;
+    height: clamp(29rem, min(81vw, 71dvh), 45rem) !important;
+  }
+}
+
+@media (min-width: 1100px) {
+  .awake-responsive-shell.is-world-only {
+    max-width: 54rem;
+  }
+
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: clamp(34rem, 65dvh, 44rem) !important;
+    height: clamp(36rem, 69dvh, 47rem) !important;
+  }
+}
+
+@media (max-height: 700px) {
+  .awake-home-header { min-height: 7.4rem; }
+  .awake-musical-hero-inner { padding-top: 4.45rem; }
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: clamp(18rem, min(88vw, 57dvh), 30rem) !important;
+    height: clamp(19.5rem, min(94vw, 61dvh), 32rem) !important;
+  }
+  .awake-key-selector { margin-top: 0.35rem; }
+}
+
+/* Reference refinement: dominant wheel and deeper restrained glass. */
+.awake-home-header {
+  min-height: clamp(7.75rem, 15dvh, 9rem);
+}
+
+.awake-musical-hero-inner {
+  padding-top: clamp(4.5rem, 8.5dvh, 5.25rem);
+}
+
+.awake-circle-of-fifths.home-foundation-ring {
+  width: clamp(21rem, min(96vw, 68dvh), 41rem) !important;
+  height: clamp(22.75rem, min(103vw, 73dvh), 44rem) !important;
+}
+
+.awake-circle-of-fifths .rotating-orb-track {
+  border-color: color-mix(in srgb, var(--awake-orb-highlight) 20%, transparent);
+  box-shadow:
+    inset 0 0 3.2rem color-mix(in srgb, var(--awake-orb-glow) 7%, transparent),
+    0 0 2.8rem color-mix(in srgb, var(--awake-orb-glow) 8%, transparent);
+}
+
+.home-foundation-ring .rotating-orb-item:not(.is-centered) .foundation-waypoint-orb {
+  border-color: color-mix(in srgb, var(--awake-orb-highlight) 24%, transparent);
+  box-shadow:
+    inset -8px -10px 16px rgb(0 0 0 / 42%),
+    inset 4px 5px 9px color-mix(in srgb, white 12%, transparent),
+    inset 0 0 0 0.5px color-mix(in srgb, white 9%, transparent),
+    0 0.65rem 1.3rem rgb(0 0 0 / 28%),
+    0 0 0.85rem color-mix(in srgb, var(--nav-glow) 12%, transparent);
+}
+
+.home-foundation-ring .rotating-orb-item.is-centered .awake-circle-major-orb {
+  border-width: 1.25px;
+  box-shadow:
+    inset -14px -17px 27px rgb(0 0 0 / 54%),
+    inset 9px 10px 18px color-mix(in srgb, white 27%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, white 15%, transparent),
+    0 0 0 0.34rem color-mix(in srgb, var(--nav-glow) 13%, transparent),
+    0 0 2.25rem color-mix(in srgb, var(--nav-glow) 48%, transparent);
+}
+
+.awake-circle-focus {
+  width: clamp(6.6rem, min(29vw, 16dvh), 10rem);
+  min-height: clamp(6.6rem, min(29vw, 16dvh), 10rem);
+  border-width: 1.15px;
+  box-shadow:
+    inset -16px -19px 30px rgb(0 0 0 / 58%),
+    inset 9px 10px 18px color-mix(in srgb, white 16%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, white 8%, transparent),
+    0 0 2.5rem color-mix(in srgb, var(--awake-orb-glow) 34%, transparent);
+}
+
+.awake-circle-relationship {
+  margin-top: -0.35rem;
+}
+
+.awake-key-selector {
+  margin-top: clamp(0.4rem, 1.2dvh, 0.85rem);
+}
+
+@media (min-width: 600px) {
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: clamp(29rem, min(82vw, 70dvh), 45rem) !important;
+    height: clamp(31rem, min(88vw, 75dvh), 48rem) !important;
+  }
+}
+
+@media (max-height: 700px) {
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: clamp(18rem, min(92vw, 61dvh), 31rem) !important;
+    height: clamp(19.5rem, min(98vw, 65dvh), 33rem) !important;
+  }
+}

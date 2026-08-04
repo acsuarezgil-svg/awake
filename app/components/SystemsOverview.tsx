@@ -555,6 +555,13 @@ export default function SystemsOverview() {
                         orbMaterial,
                       })
                     }
+                    displayScale={colorPreferences.displayScale}
+                    onDisplayScaleChange={(displayScale) =>
+                      updateColorPreferences({
+                        ...colorPreferences,
+                        displayScale,
+                      })
+                    }
                   />
                 </div>
                 <div className="mt-8 border-t pt-6">

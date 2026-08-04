@@ -10,6 +10,7 @@ import {
   generateAwakePalette,
   generateSystemOrbPalette,
   type AwakeAppearance,
+  type AwakeDisplayScale,
   type AwakeHarmony,
   type AwakeOrbMaterial,
 } from "../colorPalette";
@@ -25,6 +26,8 @@ type AwakeColorPickerProps = {
   ) => void;
   orbMaterial?: AwakeOrbMaterial;
   onOrbMaterialChange?: (material: AwakeOrbMaterial) => void;
+  displayScale?: AwakeDisplayScale;
+  onDisplayScaleChange?: (scale: AwakeDisplayScale) => void;
   showPreview?: boolean;
 };
 
@@ -46,6 +49,8 @@ export default function AwakeColorPicker({
   onAppearanceChange,
   orbMaterial = "glass",
   onOrbMaterialChange,
+  displayScale = "default",
+  onDisplayScaleChange,
   showPreview = true,
 }: AwakeColorPickerProps) {
   const wheelRef = useRef<HTMLDivElement | null>(null);
@@ -249,6 +254,51 @@ export default function AwakeColorPicker({
             ))}
           </div>
         </div>
+      )}
+
+      {onDisplayScaleChange && (
+        <fieldset className="mt-5">
+          <legend
+            className="text-xs font-medium uppercase tracking-[0.16em]"
+            style={{ color: palette.secondaryText }}
+          >
+            Display scale
+          </legend>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            {(
+              [
+                ["compact", "Compact"],
+                ["default", "Default"],
+                ["large", "Large"],
+                ["extraLarge", "Extra Large"],
+              ] as const
+            ).map(([scale, label]) => (
+              <button
+                key={scale}
+                type="button"
+                onClick={() => onDisplayScaleChange(scale)}
+                className="min-h-11 rounded-2xl border px-3 text-sm"
+                style={{
+                  borderColor:
+                    displayScale === scale
+                      ? palette.primaryAccent
+                      : palette.border,
+                  background:
+                    displayScale === scale
+                      ? palette.primaryAccent
+                      : palette.mutedSurface,
+                  color:
+                    displayScale === scale
+                      ? palette.buttonText
+                      : palette.secondaryText,
+                }}
+                aria-pressed={displayScale === scale}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </fieldset>
       )}
 
       {showPreview && (

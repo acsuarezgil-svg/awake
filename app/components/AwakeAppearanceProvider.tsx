@@ -21,6 +21,7 @@ function applyAppearance() {
 
   root.dataset.awakeAppearance = preferences.appearance;
   root.dataset.awakeOrbMaterial = preferences.orbMaterial;
+  root.dataset.awakeDisplayScale = preferences.displayScale;
   root.style.colorScheme = preferences.appearance;
   root.style.setProperty(
     "--awake-page-background",

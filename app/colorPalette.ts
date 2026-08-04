@@ -4,6 +4,7 @@ export type AwakeHarmony =
   | "closeHarmony";
 
 export type AwakeAppearance = "light" | "dark";
+export type AwakeDisplayScale = "compact" | "default" | "large" | "extraLarge";
 export type AwakeOrbMaterial =
   | "glass"
   | "pearl"
@@ -18,6 +19,7 @@ export type AwakeColorPreferences = {
   harmony: AwakeHarmony;
   appearance: AwakeAppearance;
   orbMaterial: AwakeOrbMaterial;
+  displayScale: AwakeDisplayScale;
 };
 
 export type AwakePalette = {
@@ -60,6 +62,7 @@ export const defaultColorPreferences: AwakeColorPreferences = {
   harmony: "softContrast",
   appearance: "light",
   orbMaterial: "glass",
+  displayScale: "default",
 };
 
 const legacyThemePreferences: Record<
@@ -295,6 +298,12 @@ export function loadColorPreferences(): AwakeColorPreferences {
           parsed.orbMaterial === "matte"
             ? parsed.orbMaterial
             : "glass",
+        displayScale:
+          parsed.displayScale === "compact" ||
+          parsed.displayScale === "large" ||
+          parsed.displayScale === "extraLarge"
+            ? parsed.displayScale
+            : "default",
       };
     }
 

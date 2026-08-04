@@ -3829,6 +3829,290 @@ dialog,
   }
 }
 
+/* Single centered homepage axis. */
+.awake-home-responsive,
+.awake-responsive-shell.is-world-only,
+.awake-responsive-shell.is-world-only .awake-responsive-header,
+.awake-responsive-shell.is-world-only .awake-responsive-grid,
+.awake-responsive-shell.is-world-only .awake-responsive-world,
+.awake-responsive-shell.is-world-only .awake-responsive-rail,
+.awake-world-stage {
+  width: 100%;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.awake-responsive-shell.is-world-only .awake-responsive-header,
+.awake-responsive-shell.is-world-only .awake-responsive-world,
+.awake-responsive-shell.is-world-only .awake-responsive-rail,
+.awake-world-stage {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.awake-home-header,
+.awake-musical-hero-inner,
+.awake-circle-of-fifths,
+.awake-circle-relationship,
+.awake-key-selector,
+.awake-responsive-action,
+.awake-home-navigation {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.awake-home-brand {
+  right: 50%;
+  left: auto;
+  width: max-content;
+  transform: translateX(50%);
+}
+
+.awake-circle-relationship,
+.awake-key-selector-main,
+.awake-key-signature,
+.awake-home-navigation {
+  justify-content: center;
+}
+
+.awake-home-navigation {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Light appearance: crisp ink, clearer glass, and less atmospheric haze. */
+[data-awake-appearance="light"] {
+  --awake-text: hsl(154 22% 11%);
+  --awake-text-secondary: hsl(154 15% 28%);
+  --awake-text-muted: hsl(154 11% 39%);
+  --awake-border: hsl(154 18% 72%);
+  --awake-border-strong: hsl(154 18% 45%);
+}
+
+[data-awake-appearance="light"] .awake-home-responsive {
+  background:
+    radial-gradient(circle at 50% 35%, rgb(255 255 255 / 78%), transparent 46%),
+    linear-gradient(180deg, hsl(150 24% 98%), hsl(150 20% 96%));
+}
+
+[data-awake-appearance="light"] .awake-responsive-shell::before {
+  opacity: 0.34;
+  filter: contrast(1.12);
+}
+
+[data-awake-appearance="light"] .awake-responsive-shell::after {
+  opacity: 0.2;
+  filter: blur(38px);
+}
+
+[data-awake-appearance="light"] .awake-home-brand,
+[data-awake-appearance="light"] .awake-home-eyebrow,
+[data-awake-appearance="light"] .awake-home-title,
+[data-awake-appearance="light"] .awake-circle-relationship,
+[data-awake-appearance="light"] .awake-key-selector,
+[data-awake-appearance="light"] .awake-home-navigation {
+  -webkit-font-smoothing: antialiased;
+  text-shadow: none;
+}
+
+[data-awake-appearance="light"] .awake-home-brand,
+[data-awake-appearance="light"] .awake-home-title {
+  color: var(--awake-text);
+  font-weight: 680;
+}
+
+[data-awake-appearance="light"] .awake-home-eyebrow {
+  color: color-mix(in srgb, var(--awake-companion) 72%, var(--awake-text));
+  font-weight: 760;
+}
+
+[data-awake-appearance="light"]
+  .home-foundation-ring
+  .rotating-orb-item:not(.is-centered)
+  .foundation-waypoint-orb {
+  border-color: color-mix(in srgb, var(--nav-main) 42%, var(--awake-border));
+  filter: saturate(0.78) brightness(0.98) contrast(1.1);
+  box-shadow:
+    inset -6px -7px 11px rgb(35 52 43 / 22%),
+    inset 3px 3px 7px rgb(255 255 255 / 82%),
+    0 0 0 1px rgb(255 255 255 / 72%),
+    0 0.42rem 0.85rem rgb(27 45 35 / 15%);
+}
+
+[data-awake-appearance="light"] .awake-circle-key {
+  color: hsl(154 20% 13%);
+  font-weight: 780;
+  text-shadow:
+    0 -1px rgb(255 255 255 / 88%),
+    0 1px 1px rgb(11 24 17 / 24%);
+}
+
+[data-awake-appearance="light"] .awake-circle-major-orb .awake-relative-minor-companion {
+  color: hsl(154 16% 22%);
+  border-color: color-mix(in srgb, var(--nav-main) 36%, var(--awake-border));
+  font-weight: 720;
+  opacity: 0.82;
+  text-shadow: 0 -1px rgb(255 255 255 / 72%);
+}
+
+[data-awake-appearance="light"] .awake-circle-focus {
+  border-color: color-mix(in srgb, var(--awake-companion) 38%, var(--awake-border));
+  filter: contrast(1.08) saturate(0.88);
+  box-shadow:
+    inset -11px -13px 20px rgb(20 25 23 / 42%),
+    inset 6px 7px 13px rgb(255 255 255 / 48%),
+    0 0 0 1px rgb(255 255 255 / 74%),
+    0 0 1.35rem color-mix(in srgb, var(--awake-orb-glow) 24%, transparent);
+}
+
+[data-awake-appearance="light"] .awake-circle-focus .awake-circle-focus-key {
+  color: white;
+  font-weight: 800;
+  text-shadow: 0 2px 3px rgb(16 19 18 / 62%);
+}
+
+[data-awake-appearance="light"] .awake-circle-focus small {
+  color: hsl(154 20% 12%);
+  font-weight: 760;
+  text-shadow: 0 1px rgb(255 255 255 / 45%);
+}
+
+[data-awake-appearance="light"] .awake-circle-relationship {
+  color: var(--awake-text-secondary);
+  font-weight: 620;
+}
+
+[data-awake-appearance="light"] .awake-circle-relationship strong {
+  color: var(--awake-text);
+  font-weight: 760;
+}
+
+[data-awake-appearance="light"] .awake-circle-relationship > span:nth-of-type(2) {
+  color: color-mix(in srgb, var(--awake-companion) 88%, hsl(304 45% 30%));
+  font-weight: 760;
+}
+
+[data-awake-appearance="light"] .awake-key-selector,
+[data-awake-appearance="light"] .awake-home-navigation {
+  border-color: color-mix(in srgb, var(--awake-accent) 24%, var(--awake-border));
+  background: rgb(255 255 255 / 86%);
+  opacity: 1;
+  box-shadow:
+    inset 0 1px rgb(255 255 255 / 96%),
+    0 0.35rem 1.1rem rgb(30 53 40 / 9%);
+  backdrop-filter: blur(10px);
+}
+
+[data-awake-appearance="light"] .awake-key-selector span,
+[data-awake-appearance="light"] .awake-key-selector button,
+[data-awake-appearance="light"] .awake-key-signature {
+  color: var(--awake-text-secondary);
+  font-weight: 650;
+}
+
+[data-awake-appearance="light"] .awake-home-navigation-item svg {
+  color: color-mix(in srgb, var(--awake-accent) 86%, var(--awake-text));
+  opacity: 1;
+}
+
+/* Make the seven orb materials visibly distinct across the Foundation wheel. */
+[data-awake-orb-material="glass"]
+  :where(.awake-orb, .foundation-waypoint-orb, .awake-circle-focus) {
+  border-color: color-mix(in srgb, white 58%, var(--nav-main, var(--awake-accent))) !important;
+  background:
+    radial-gradient(ellipse 46% 27% at 28% 18%, rgb(255 255 255 / 82%), transparent 64%),
+    radial-gradient(circle at 69% 76%, color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 34%, transparent), transparent 58%),
+    linear-gradient(145deg, color-mix(in srgb, var(--nav-highlight, white) 44%, transparent), color-mix(in srgb, var(--nav-main, var(--awake-accent)) 58%, transparent) 48%, color-mix(in srgb, var(--awake-text) 74%, transparent)) !important;
+  box-shadow:
+    inset -12px -15px 22px rgb(0 0 0 / 42%),
+    inset 7px 8px 13px rgb(255 255 255 / 48%),
+    inset 0 0 0 1px rgb(255 255 255 / 32%),
+    0 0.55rem 1.2rem rgb(18 27 23 / 20%) !important;
+  filter: contrast(1.12) saturate(0.95) !important;
+}
+
+[data-awake-orb-material="pearl"]
+  :where(.awake-orb, .foundation-waypoint-orb, .awake-circle-focus) {
+  border-color: color-mix(in srgb, white 72%, var(--awake-companion)) !important;
+  background:
+    radial-gradient(circle at 34% 29%, rgb(255 255 255 / 88%), transparent 34%),
+    radial-gradient(circle at 68% 72%, color-mix(in srgb, var(--awake-companion) 28%, white), transparent 69%),
+    linear-gradient(145deg, color-mix(in srgb, white 78%, var(--nav-highlight, var(--awake-orb-highlight))), color-mix(in srgb, var(--nav-main, var(--awake-accent)) 38%, white) 58%, color-mix(in srgb, var(--awake-companion) 38%, white)) !important;
+  box-shadow:
+    inset -9px -11px 20px color-mix(in srgb, var(--awake-companion) 22%, transparent),
+    inset 8px 9px 18px rgb(255 255 255 / 72%),
+    0 0.55rem 1.35rem color-mix(in srgb, var(--awake-orb-glow) 17%, transparent) !important;
+  filter: saturate(0.7) brightness(1.09) !important;
+}
+
+[data-awake-orb-material="mist"]
+  :where(.awake-orb, .foundation-waypoint-orb, .awake-circle-focus) {
+  border-color: color-mix(in srgb, var(--nav-main, var(--awake-accent)) 18%, transparent) !important;
+  background:
+    radial-gradient(ellipse 72% 48% at 34% 30%, rgb(255 255 255 / 42%), transparent 72%),
+    linear-gradient(160deg, color-mix(in srgb, var(--nav-highlight, white) 38%, transparent), color-mix(in srgb, var(--nav-main, var(--awake-accent)) 24%, transparent)) !important;
+  box-shadow:
+    inset 0 0 1.25rem rgb(255 255 255 / 18%),
+    0 0 1.7rem color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 18%, transparent) !important;
+  filter: saturate(0.38) contrast(0.82) brightness(1.08) !important;
+  opacity: 0.72;
+  backdrop-filter: blur(8px);
+}
+
+[data-awake-orb-material="frost"]
+  :where(.awake-orb, .foundation-waypoint-orb, .awake-circle-focus) {
+  border: 2px solid rgb(255 255 255 / 82%) !important;
+  background:
+    repeating-linear-gradient(128deg, rgb(255 255 255 / 25%) 0 1px, transparent 1px 7px),
+    radial-gradient(circle at 30% 22%, rgb(255 255 255 / 94%), transparent 31%),
+    linear-gradient(145deg, color-mix(in srgb, white 72%, var(--nav-highlight, var(--awake-orb-highlight))), color-mix(in srgb, var(--nav-main, var(--awake-accent)) 36%, white)) !important;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 72%),
+    inset -9px -11px 18px color-mix(in srgb, var(--nav-main, var(--awake-accent)) 18%, transparent),
+    0 0 1.1rem color-mix(in srgb, var(--awake-orb-glow) 18%, transparent) !important;
+  filter: saturate(0.42) brightness(1.13) contrast(1.04) !important;
+}
+
+[data-awake-orb-material="glow"]
+  :where(.awake-orb, .foundation-waypoint-orb, .awake-circle-focus) {
+  border-color: color-mix(in srgb, white 52%, var(--nav-glow, var(--awake-orb-glow))) !important;
+  background:
+    radial-gradient(circle, rgb(255 255 255 / 40%), transparent 24%),
+    radial-gradient(circle, color-mix(in srgb, var(--nav-main, var(--awake-accent)) 84%, white), color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 78%, black)) !important;
+  box-shadow:
+    inset 0 0 1.6rem rgb(255 255 255 / 34%),
+    0 0 0.75rem color-mix(in srgb, var(--nav-main, var(--awake-accent)) 58%, transparent),
+    0 0 2.4rem color-mix(in srgb, var(--nav-glow, var(--awake-orb-glow)) 62%, transparent) !important;
+  filter: saturate(1.3) brightness(1.08) !important;
+}
+
+[data-awake-orb-material="aurora"]
+  :where(.awake-orb, .foundation-waypoint-orb, .awake-circle-focus) {
+  border-color: color-mix(in srgb, white 46%, var(--awake-companion)) !important;
+  background:
+    radial-gradient(ellipse 44% 28% at 28% 18%, rgb(255 255 255 / 68%), transparent 66%),
+    radial-gradient(circle at 25% 78%, color-mix(in srgb, var(--awake-companion) 76%, transparent), transparent 50%),
+    radial-gradient(circle at 78% 28%, color-mix(in srgb, var(--nav-highlight, var(--awake-orb-highlight)) 74%, transparent), transparent 54%),
+    linear-gradient(135deg, var(--nav-main, var(--awake-accent)), var(--awake-companion)) !important;
+  box-shadow:
+    inset -11px -12px 20px color-mix(in srgb, var(--awake-companion) 34%, transparent),
+    inset 7px 8px 15px color-mix(in srgb, var(--awake-orb-highlight) 58%, transparent),
+    0 0 1.8rem color-mix(in srgb, var(--awake-orb-glow) 44%, transparent) !important;
+  filter: saturate(1.35) contrast(1.08) !important;
+}
+
+[data-awake-orb-material="matte"]
+  :where(.awake-orb, .foundation-waypoint-orb, .awake-circle-focus) {
+  border-color: color-mix(in srgb, var(--nav-main, var(--awake-accent)) 55%, var(--awake-text)) !important;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--nav-main, var(--awake-accent)) 76%, white), color-mix(in srgb, var(--nav-main, var(--awake-accent)) 72%, var(--awake-text))) !important;
+  box-shadow:
+    inset -4px -5px 9px rgb(0 0 0 / 13%),
+    0 0.28rem 0.55rem rgb(18 28 22 / 14%) !important;
+  filter: saturate(0.62) contrast(1.1) !important;
+}
+
 @media (max-height: 700px) {
   .awake-circle-of-fifths.home-foundation-ring {
     width: clamp(18rem, min(92vw, 61dvh), 31rem) !important;

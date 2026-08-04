@@ -4113,6 +4113,63 @@ dialog,
   filter: saturate(0.62) contrast(1.1) !important;
 }
 
+/* Phone composition: center the complete musical stack between header and dock. */
+@media (max-width: 599px) {
+  .awake-responsive-shell.is-world-only,
+  .awake-responsive-shell.is-world-only .awake-responsive-grid,
+  .awake-responsive-shell.is-world-only .awake-responsive-world {
+    min-height: 100dvh;
+  }
+
+  .awake-responsive-shell.is-world-only .awake-responsive-grid,
+  .awake-responsive-shell.is-world-only .awake-responsive-world {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .awake-world-stage {
+    min-height: 100dvh;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: clamp(7.6rem, 17dvh, 9rem) 0 clamp(4.8rem, 10dvh, 5.8rem);
+  }
+
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: clamp(19rem, min(94vw, 57dvh), 26rem) !important;
+    height: clamp(20.5rem, min(101vw, 61dvh), 28rem) !important;
+    flex: 0 0 auto;
+  }
+
+  .awake-circle-relationship {
+    flex: 0 0 auto;
+    margin-top: -0.25rem;
+  }
+
+  .awake-key-selector {
+    flex: 0 0 auto;
+    margin-top: clamp(0.45rem, 1.4dvh, 0.8rem);
+    margin-bottom: 0;
+  }
+
+  .awake-key-signature:empty {
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 599px) and (max-height: 700px) {
+  .awake-world-stage {
+    padding-top: 6.7rem;
+    padding-bottom: 4.25rem;
+  }
+
+  .awake-circle-of-fifths.home-foundation-ring {
+    width: clamp(17.75rem, min(90vw, 54dvh), 23rem) !important;
+    height: clamp(19rem, min(96vw, 58dvh), 24.5rem) !important;
+  }
+}
+
 @media (max-height: 700px) {
   .awake-circle-of-fifths.home-foundation-ring {
     width: clamp(18rem, min(92vw, 61dvh), 31rem) !important;

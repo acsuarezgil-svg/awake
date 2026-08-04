@@ -414,7 +414,7 @@ export default function SystemsOverview() {
                         selectedCircleItem.direction,
                         selectedCircleItem.accidentalCount,
                       ).map((note) => <span key={note}>{note}</span>)
-                    : <span>No sharps or flats</span>}
+                    : null}
                 </p>
               </div>
             )}

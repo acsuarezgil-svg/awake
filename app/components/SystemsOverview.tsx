@@ -342,13 +342,6 @@ export default function SystemsOverview() {
     }
   }
 
-  function openFoundation(foundation: AwakeSystem) {
-    setHomeView({ mode: "foundation", foundationId: foundation.id });
-    const url = new URL(window.location.href);
-    url.searchParams.set("foundation", foundation.id);
-    window.history.pushState({ foundationId: foundation.id }, "", url);
-  }
-
   function closeFoundation() {
     if (window.history.state?.foundationId) {
       window.history.back();
@@ -464,8 +457,6 @@ export default function SystemsOverview() {
               selectedId={selectedId}
               preferences={colorPreferences}
               onSelectedChange={selectCircleKey}
-              onEnterFoundation={openFoundation}
-              onFoundationLongPress={setActionFoundation}
               onOpenCompanion={openCompanion}
               onCenterLongPress={() => setPracticeOpen(true)}
             />
@@ -606,10 +597,10 @@ export default function SystemsOverview() {
                   href="/learn/piano"
                   className="awake-companion-choice"
                 >
-                  Music
+                  <span aria-hidden="true">🎼</span> Music
                 </Link>
                 <p className="mt-4 text-sm text-[var(--awake-text-secondary)]">
-                  More paths coming soon.
+                  More learning journeys are coming soon.
                 </p>
               </div>
             </div>

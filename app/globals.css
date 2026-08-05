@@ -631,12 +631,17 @@ dialog,
 
 /* Reusable page composition: compact, phone, expanded, and desktop */
 .awake-home-responsive {
+  --awake-home-inline-gutter: max(
+    0.85rem,
+    env(safe-area-inset-left),
+    env(safe-area-inset-right)
+  );
   position: relative;
   padding:
     max(1.25rem, env(safe-area-inset-top))
-    max(0.85rem, env(safe-area-inset-right))
+    var(--awake-home-inline-gutter)
     max(1.5rem, env(safe-area-inset-bottom))
-    max(0.85rem, env(safe-area-inset-left));
+    var(--awake-home-inline-gutter);
 }
 
 .awake-home-responsive::before {
@@ -987,9 +992,11 @@ dialog,
 /* Standard phone */
 @media (min-width: 420px) and (max-width: 767px) {
   .awake-home-responsive {
-    padding-inline:
-      max(1.25rem, env(safe-area-inset-left))
-      max(1.25rem, env(safe-area-inset-right));
+    --awake-home-inline-gutter: max(
+      1.25rem,
+      env(safe-area-inset-left),
+      env(safe-area-inset-right)
+    );
   }
 
   .home-foundation-ring {
@@ -1024,11 +1031,16 @@ dialog,
 /* Expanded devices use width for a support rail instead of scaling everything. */
 @media (min-width: 768px) {
   .awake-home-responsive {
+    --awake-home-inline-gutter: max(
+      1.5rem,
+      env(safe-area-inset-left),
+      env(safe-area-inset-right)
+    );
     padding:
       max(2rem, env(safe-area-inset-top))
-      max(1.5rem, env(safe-area-inset-right))
+      var(--awake-home-inline-gutter)
       max(2rem, env(safe-area-inset-bottom))
-      max(1.5rem, env(safe-area-inset-left));
+      var(--awake-home-inline-gutter);
   }
 
   .awake-responsive-grid {
@@ -3026,6 +3038,7 @@ button.awake-circle-focus:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
+  translate: clamp(-0.45rem, calc(1.6vw - 0.72rem), 0rem) 0;
 }
 
 .awake-circle-of-fifths.home-foundation-ring {

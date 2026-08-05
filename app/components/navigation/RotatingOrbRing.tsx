@@ -14,18 +14,19 @@ type Props<T extends RingItem> = {
   items: T[];
   selectedId: string | null;
   onSelectedChange: (id: string) => void;
-  onActivate: (item: T) => void;
+  onActivate?: (item: T) => void;
   renderItem: (
     item: T,
     state: { centered: boolean; index: number; angle: number },
   ) => ReactNode;
-  getAriaLabel: (item: T, centered: boolean) => string;
+  getAriaLabel?: (item: T, centered: boolean) => string;
   ariaLabel: string;
   className?: string;
   activateOnlyWhenCentered?: boolean;
   onLongPress?: (item: T) => void;
   centerContent?: ReactNode;
   centerInteractive?: boolean;
+  itemsInteractive?: boolean;
   depthRange?: { back: number; front: number };
   opacityRange?: { back: number; front: number };
   showHint?: boolean;
@@ -52,6 +53,7 @@ export default function RotatingOrbRing<T extends RingItem>({
   onLongPress,
   centerContent,
   centerInteractive = false,
+  itemsInteractive = true,
   depthRange = { back: 0.72, front: 0.88 },
   opacityRange,
   showHint = true,
@@ -179,7 +181,7 @@ export default function RotatingOrbRing<T extends RingItem>({
       const selected = items[selectedIndex];
       if (selected) {
         event.preventDefault();
-        onActivate(selected);
+        onActivate?.(selected);
       }
     }
   }
@@ -188,8 +190,8 @@ export default function RotatingOrbRing<T extends RingItem>({
     <section
       className={`rotating-orb-ring ${dragging ? "is-dragging" : ""} ${className}`}
       aria-label={ariaLabel}
-      tabIndex={0}
-      onKeyDown={handleKeyDown}
+      tabIndex={itemsInteractive ? 0 : -1}
+      onKeyDown={itemsInteractive ? handleKeyDown : undefined}
       onPointerDown={beginDrag}
       onPointerMove={updateDrag}
       onPointerUp={finishDrag}
@@ -222,32 +224,48 @@ export default function RotatingOrbRing<T extends RingItem>({
               orbitDepth * (opacityRange.front - opacityRange.back)
             : 0.68 + depth * 0.2;
 
+        const itemClassName = `rotating-orb-item ${
+          centered ? "is-centered" : ""
+        }`;
+        const itemStyle = {
+          "--ring-x": `${x}%`,
+          "--ring-y": `${y}%`,
+          "--ring-scale": centered
+            ? fixedCenter
+              ? 1.05
+              : 1.18
+            : depth,
+          "--ring-opacity": opacity,
+          "--ring-depth": orbitDepth,
+          "--ring-brightness": 0.78 + orbitDepth * 0.22,
+          "--ring-z": centered
+            ? 20
+            : Math.round(4 + orbitDepth * 5),
+        } as CSSProperties;
+        const content = renderItem(item, { centered, index, angle });
+
+        if (!itemsInteractive) {
+          return (
+            <div
+              key={item.id}
+              data-rotating-orb
+              className={itemClassName}
+              style={itemStyle}
+              aria-hidden="true"
+            >
+              {content}
+            </div>
+          );
+        }
+
         return (
           <button
             key={item.id}
             type="button"
             data-rotating-orb
-            className={`rotating-orb-item ${
-              centered ? "is-centered" : ""
-            }`}
-            style={
-              {
-                "--ring-x": `${x}%`,
-                "--ring-y": `${y}%`,
-                "--ring-scale": centered
-                  ? fixedCenter
-                    ? 1.05
-                    : 1.18
-                  : depth,
-                "--ring-opacity": opacity,
-                "--ring-depth": orbitDepth,
-                "--ring-brightness": 0.78 + orbitDepth * 0.22,
-                "--ring-z": centered
-                  ? 20
-                  : Math.round(4 + orbitDepth * 5),
-              } as CSSProperties
-            }
-            aria-label={getAriaLabel(item, centered)}
+            className={itemClassName}
+            style={itemStyle}
+            aria-label={getAriaLabel?.(item, centered)}
             aria-current={centered ? "true" : undefined}
             onPointerDown={() => {
               suppressClick.current = false;
@@ -267,9 +285,9 @@ export default function RotatingOrbRing<T extends RingItem>({
               event.stopPropagation();
               if (!centered) {
                 onSelectedChange(item.id);
-                if (!activateOnlyWhenCentered) onActivate(item);
+                if (!activateOnlyWhenCentered) onActivate?.(item);
               } else {
-                onActivate(item);
+                onActivate?.(item);
               }
             }}
             onClick={(event) => {
@@ -281,13 +299,13 @@ export default function RotatingOrbRing<T extends RingItem>({
               }
               if (!centered) {
                 onSelectedChange(item.id);
-                if (!activateOnlyWhenCentered) onActivate(item);
+                if (!activateOnlyWhenCentered) onActivate?.(item);
               } else {
-                onActivate(item);
+                onActivate?.(item);
               }
             }}
           >
-            {renderItem(item, { centered, index, angle })}
+            {content}
           </button>
         );
       })}

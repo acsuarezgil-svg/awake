@@ -11,11 +11,7 @@ import {
   getFoundationHue,
   type AwakeColorPreferences,
 } from "../../colorPalette";
-import {
-  getKeySignatureLabel,
-  type CircleFoundationMapping,
-} from "../../music/circleOfFifths";
-import type { AwakeSystem } from "../../systems";
+import type { CircleFoundationMapping } from "../../music/circleOfFifths";
 import RotatingOrbRing from "../navigation/RotatingOrbRing";
 
 type Props = {
@@ -23,21 +19,12 @@ type Props = {
   selectedId: string;
   preferences: AwakeColorPreferences;
   onSelectedChange: (id: string) => void;
-  onEnterFoundation: (foundation: AwakeSystem) => void;
-  onFoundationLongPress: (foundation: AwakeSystem) => void;
   onOpenCompanion: () => void;
   onCenterLongPress: () => void;
 };
 
 const CENTER_MOVE_THRESHOLD_PX = 7;
 const CENTER_LONG_PRESS_MS = 650;
-
-function spokenKey(key: string) {
-  return key
-    .replaceAll("#", "-sharp")
-    .replaceAll("b", "-flat")
-    .replaceAll(/m\b/g, " minor");
-}
 
 function musicalGlyphs(key: string) {
   return key.replaceAll("#", "♯").replaceAll("b", "♭");
@@ -88,8 +75,6 @@ export default function AwakeCircleOfFifths({
   selectedId,
   preferences,
   onSelectedChange,
-  onEnterFoundation,
-  onFoundationLongPress,
   onOpenCompanion,
   onCenterLongPress,
 }: Props) {
@@ -191,6 +176,7 @@ export default function AwakeCircleOfFifths({
       opacityRange={{ back: 0.82, front: 1 }}
       showHint={false}
       centerInteractive
+      itemsInteractive={false}
       centerContent={
         <button
           type="button"
@@ -211,11 +197,6 @@ export default function AwakeCircleOfFifths({
           </strong>
           <small>{selected.awakeFoundationName}</small>
         </button>
-      }
-      onActivate={(item) => onEnterFoundation(item.foundation)}
-      onLongPress={(item) => onFoundationLongPress(item.foundation)}
-      getAriaLabel={(item, centered) =>
-        `${spokenKey(item.majorKey)} Major, ${item.awakeFoundationName}, ${getKeySignatureLabel(item)}, relative minor ${spokenKey(item.relativeMinor)}. ${centered ? "Open mapped foundation" : "Bring to focus"}`
       }
       renderItem={(item, { centered, index, angle }) => {
         const hue = getFoundationHue(

@@ -25,6 +25,7 @@ type Props<T extends RingItem> = {
   activateOnlyWhenCentered?: boolean;
   onLongPress?: (item: T) => void;
   centerContent?: ReactNode;
+  centerInteractive?: boolean;
   depthRange?: { back: number; front: number };
   opacityRange?: { back: number; front: number };
   showHint?: boolean;
@@ -50,6 +51,7 @@ export default function RotatingOrbRing<T extends RingItem>({
   activateOnlyWhenCentered = true,
   onLongPress,
   centerContent,
+  centerInteractive = false,
   depthRange = { back: 0.72, front: 0.88 },
   opacityRange,
   showHint = true,
@@ -290,7 +292,13 @@ export default function RotatingOrbRing<T extends RingItem>({
         );
       })}
       {centerContent && (
-        <div className="rotating-orb-fixed-center">{centerContent}</div>
+        <div
+          className={`rotating-orb-fixed-center ${
+            centerInteractive ? "is-interactive" : ""
+          }`}
+        >
+          {centerContent}
+        </div>
       )}
       {showHint && (
         <p className="rotating-orb-hint">

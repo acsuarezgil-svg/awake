@@ -37,6 +37,7 @@ import { getSystemTemplates } from "../systemTemplates";
 import AwakeColorPicker from "./AwakeColorPicker";
 import ResponsiveLayout from "./layout/ResponsiveLayout";
 import AwakeCircleOfFifths from "./music/AwakeCircleOfFifths";
+import PracticeSpace from "./practice/PracticeSpace";
 import ExpandedFoundationView from "./foundation/LivingFoundationView";
 import type { HomeViewState } from "./foundation/foundationExperience";
 import type { Language } from "../translations";
@@ -187,9 +188,13 @@ export default function SystemsOverview() {
   >("appearance");
   const [actionFoundation, setActionFoundation] =
     useState<AwakeSystem | null>(null);
+  const [companionOpen, setCompanionOpen] = useState(false);
+  const [practiceOpen, setPracticeOpen] = useState(false);
   const [colorPreferences, setColorPreferences] =
     useState<AwakeColorPreferences>(defaultColorPreferences);
   const lastBackgroundTap = useRef(0);
+  const companionChoiceRef = useRef<HTMLAnchorElement>(null);
+  const companionWasOpen = useRef(false);
 
   useEffect(() => {
     const initialized = initializeFoundations(loadAwakeSystems());
@@ -210,17 +215,25 @@ export default function SystemsOverview() {
     const foundationId = new URL(window.location.href).searchParams.get(
       "foundation",
     );
+    const companion = new URL(window.location.href).searchParams.get(
+      "companion",
+    );
     if (
       foundationId &&
       initialized.some((foundation) => foundation.id === foundationId)
     ) {
       setHomeView({ mode: "foundation", foundationId });
     }
+    setCompanionOpen(companion === "learning");
     setLoaded(true);
     const handlePopState = () => {
       const nextId = new URL(window.location.href).searchParams.get(
         "foundation",
       );
+      const nextCompanion = new URL(
+        window.location.href,
+      ).searchParams.get("companion");
+      setCompanionOpen(nextCompanion === "learning");
       setHomeView(
         nextId &&
           initialized.some((foundation) => foundation.id === nextId)
@@ -233,6 +246,38 @@ export default function SystemsOverview() {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
+
+  useEffect(() => {
+    if (!companionOpen) return;
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (window.history.state?.awakeCompanion) {
+        window.history.back();
+        return;
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.delete("companion");
+      window.history.replaceState({}, "", url);
+      setCompanionOpen(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [companionOpen]);
+
+  useEffect(() => {
+    if (companionOpen) {
+      companionWasOpen.current = true;
+      companionChoiceRef.current?.focus();
+      return;
+    }
+    if (!companionWasOpen.current) return;
+    companionWasOpen.current = false;
+    document
+      .querySelector<HTMLButtonElement>(
+        '[aria-label="Open learning companion"]',
+      )
+      ?.focus();
+  }, [companionOpen]);
 
   const visibleFoundations = foundations.filter(
     (foundation) => !hiddenIds.includes(foundation.id),
@@ -315,6 +360,30 @@ export default function SystemsOverview() {
     setHomeView({ mode: "world" });
   }
 
+  function openCompanion() {
+    if (companionOpen) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("foundation");
+    url.searchParams.set("companion", "learning");
+    window.history.pushState(
+      { ...window.history.state, awakeCompanion: true },
+      "",
+      url,
+    );
+    setCompanionOpen(true);
+  }
+
+  function closeCompanion() {
+    if (window.history.state?.awakeCompanion) {
+      window.history.back();
+      return;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.delete("companion");
+    window.history.replaceState({}, "", url);
+    setCompanionOpen(false);
+  }
+
   function updateFoundation(updated: AwakeSystem) {
     const next = foundations.map((foundation) =>
       foundation.id === updated.id ? updated : foundation,
@@ -324,6 +393,19 @@ export default function SystemsOverview() {
   }
 
   if (!loaded) return null;
+
+  if (practiceOpen) {
+    return (
+      <PracticeSpace
+        primaryColor="var(--awake-accent)"
+        secondaryColor="var(--awake-orb-glow)"
+        pageBackground="var(--awake-page-background)"
+        isDark={colorPreferences.appearance === "dark"}
+        onFinish={() => setPracticeOpen(false)}
+        initialMode="breath"
+      />
+    );
+  }
 
   if (homeView.mode !== "world") {
     const foundation = foundations.find(
@@ -358,7 +440,9 @@ export default function SystemsOverview() {
 
   return (
     <main
-      className="awake-page awake-home-responsive min-h-screen overflow-x-hidden"
+      className={`awake-page awake-home-responsive min-h-screen overflow-x-hidden ${
+        companionOpen ? "is-companion-open" : ""
+      }`}
       onClick={handleBackgroundTap}
     >
       <ResponsiveLayout
@@ -382,6 +466,8 @@ export default function SystemsOverview() {
               onSelectedChange={selectCircleKey}
               onEnterFoundation={openFoundation}
               onFoundationLongPress={setActionFoundation}
+              onOpenCompanion={openCompanion}
+              onCenterLongPress={() => setPracticeOpen(true)}
             />
             {selectedCircleItem && (
               <div className="awake-key-selector" aria-label="Selected major key">
@@ -502,6 +588,41 @@ export default function SystemsOverview() {
           </nav>
         }
       />
+      {companionOpen && (
+        <section
+          className="awake-companion-screen"
+          aria-labelledby="awake-companion-question"
+        >
+          <div className="awake-companion-surface" aria-hidden="true" />
+          <div className="awake-companion-content">
+            <div>
+              <p className="awake-eyebrow">Awake</p>
+              <h1 id="awake-companion-question" className="mt-4">
+                Where would you like to begin?
+              </h1>
+              <div className="mt-10">
+                <Link
+                  ref={companionChoiceRef}
+                  href="/learn/piano"
+                  className="awake-companion-choice"
+                >
+                  Music
+                </Link>
+                <p className="mt-4 text-sm text-[var(--awake-text-secondary)]">
+                  More paths coming soon.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={closeCompanion}
+              className="awake-button awake-button-quiet mt-12"
+            >
+              Return to your world
+            </button>
+          </div>
+        </section>
+      )}
       <div className="mx-auto w-full max-w-4xl">
         {appearanceOpen && (
           <section

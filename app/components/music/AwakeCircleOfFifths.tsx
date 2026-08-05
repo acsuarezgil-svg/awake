@@ -1,6 +1,11 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect, useRef } from "react";
+import type {
+  CSSProperties,
+  KeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
 import {
   generateSystemOrbPalette,
   getFoundationHue,
@@ -20,7 +25,12 @@ type Props = {
   onSelectedChange: (id: string) => void;
   onEnterFoundation: (foundation: AwakeSystem) => void;
   onFoundationLongPress: (foundation: AwakeSystem) => void;
+  onOpenCompanion: () => void;
+  onCenterLongPress: () => void;
 };
+
+const CENTER_MOVE_THRESHOLD_PX = 7;
+const CENTER_LONG_PRESS_MS = 650;
 
 function spokenKey(key: string) {
   return key
@@ -80,8 +90,93 @@ export default function AwakeCircleOfFifths({
   onSelectedChange,
   onEnterFoundation,
   onFoundationLongPress,
+  onOpenCompanion,
+  onCenterLongPress,
 }: Props) {
+  const holdTimer = useRef<number | null>(null);
+  const centerPointer = useRef<{
+    id: number;
+    startX: number;
+    startY: number;
+    moved: boolean;
+    held: boolean;
+  } | null>(null);
   const selected = items.find((item) => item.id === selectedId) ?? items[0];
+
+  useEffect(
+    () => () => {
+      if (holdTimer.current !== null) {
+        window.clearTimeout(holdTimer.current);
+      }
+    },
+    [],
+  );
+
+  function clearCenterHold() {
+    if (holdTimer.current !== null) {
+      window.clearTimeout(holdTimer.current);
+      holdTimer.current = null;
+    }
+  }
+
+  function beginCenterPress(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    centerPointer.current = {
+      id: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false,
+      held: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    clearCenterHold();
+    holdTimer.current = window.setTimeout(() => {
+      if (!centerPointer.current || centerPointer.current.moved) return;
+      centerPointer.current.held = true;
+      onCenterLongPress();
+      if ("vibrate" in navigator) navigator.vibrate(22);
+      holdTimer.current = null;
+    }, CENTER_LONG_PRESS_MS);
+  }
+
+  function moveCenterPress(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    const active = centerPointer.current;
+    if (!active || active.id !== event.pointerId) return;
+    const distance = Math.hypot(
+      event.clientX - active.startX,
+      event.clientY - active.startY,
+    );
+    if (distance > CENTER_MOVE_THRESHOLD_PX) {
+      active.moved = true;
+      clearCenterHold();
+    }
+  }
+
+  function finishCenterPress(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    const active = centerPointer.current;
+    clearCenterHold();
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    centerPointer.current = null;
+    if (active && !active.moved && !active.held) onOpenCompanion();
+  }
+
+  function cancelCenterPress(event: ReactPointerEvent<HTMLButtonElement>) {
+    event.stopPropagation();
+    clearCenterHold();
+    centerPointer.current = null;
+  }
+
+  function handleCenterKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    event.stopPropagation();
+    onOpenCompanion();
+  }
+
   if (!selected) return null;
 
   return (
@@ -95,13 +190,27 @@ export default function AwakeCircleOfFifths({
       depthRange={{ back: 0.82, front: 1 }}
       opacityRange={{ back: 0.82, front: 1 }}
       showHint={false}
+      centerInteractive
       centerContent={
-        <div className="awake-circle-focus" aria-live="polite">
+        <button
+          type="button"
+          className="awake-circle-focus"
+          aria-label="Open learning companion"
+          onPointerDown={beginCenterPress}
+          onPointerMove={moveCenterPress}
+          onPointerUp={finishCenterPress}
+          onPointerCancel={cancelCenterPress}
+          onKeyDown={handleCenterKeyDown}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+        >
           <strong className="awake-circle-focus-key">
             {musicalGlyphs(selected.displayKey)}
           </strong>
           <small>{selected.awakeFoundationName}</small>
-        </div>
+        </button>
       }
       onActivate={(item) => onEnterFoundation(item.foundation)}
       onLongPress={(item) => onFoundationLongPress(item.foundation)}

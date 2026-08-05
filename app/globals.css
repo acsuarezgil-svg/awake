@@ -2202,6 +2202,10 @@ dialog,
   transform: translate(-50%, -50%);
 }
 
+.rotating-orb-fixed-center.is-interactive {
+  pointer-events: auto;
+}
+
 /* Homepage Circle of Fifths prototype — Phase 1 */
 .awake-circle-of-fifths .rotating-orb-track {
   background:
@@ -2276,6 +2280,16 @@ dialog,
   color: var(--awake-text);
   text-align: center;
   animation: awake-focus-breathe 9s ease-in-out infinite;
+}
+
+button.awake-circle-focus {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button.awake-circle-focus:focus-visible {
+  outline: 3px solid var(--awake-focus) !important;
+  outline-offset: 5px;
 }
 
 .awake-circle-focus::after {
@@ -4111,6 +4125,143 @@ dialog,
     inset -4px -5px 9px rgb(0 0 0 / 13%),
     0 0.28rem 0.55rem rgb(18 28 22 / 14%) !important;
   filter: saturate(0.62) contrast(1.1) !important;
+}
+
+/* Full-screen learning companion grown from the homepage center. */
+.awake-home-responsive .awake-responsive-shell,
+.awake-home-responsive > .mx-auto {
+  transition:
+    opacity 320ms var(--awake-ease-settle),
+    visibility 0ms linear 320ms;
+}
+
+.awake-home-responsive.is-companion-open .awake-responsive-shell,
+.awake-home-responsive.is-companion-open > .mx-auto {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.awake-companion-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--awake-page-tint);
+  color: var(--awake-text);
+}
+
+.awake-companion-surface {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: max(100vw, 100vh);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background:
+    radial-gradient(
+      circle at 36% 28%,
+      color-mix(in srgb, var(--awake-orb-highlight) 34%, transparent),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at 68% 72%,
+      color-mix(in srgb, var(--awake-orb-glow) 16%, transparent),
+      transparent 62%
+    ),
+    color-mix(in srgb, var(--awake-surface) 88%, var(--awake-page-tint));
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1.55);
+  animation: awake-companion-expand 480ms var(--awake-ease-settle) both;
+}
+
+.awake-companion-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(100%, 42rem);
+  min-height: 100dvh;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-inline: auto;
+  padding:
+    max(3rem, env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right))
+    max(2rem, env(safe-area-inset-bottom))
+    max(1.25rem, env(safe-area-inset-left));
+  text-align: center;
+  animation: awake-companion-content-in 360ms 150ms var(--awake-ease-settle) both;
+}
+
+.awake-companion-content > div {
+  margin-block: auto;
+}
+
+.awake-companion-content h1 {
+  font-size: clamp(2rem, 7vw, 3.4rem);
+}
+
+.awake-companion-choice {
+  display: flex;
+  width: min(100%, 23rem);
+  min-height: 4.5rem;
+  align-items: center;
+  justify-content: center;
+  margin-inline: auto;
+  padding: 1rem 1.5rem;
+  border: 1px solid color-mix(in srgb, var(--awake-accent) 42%, var(--awake-border));
+  border-radius: var(--awake-radius-card);
+  background: color-mix(in srgb, var(--awake-surface-elevated) 74%, transparent);
+  box-shadow: var(--awake-shadow-card);
+  color: var(--awake-text);
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition:
+    border-color var(--awake-motion-settle) var(--awake-ease-settle),
+    background var(--awake-motion-settle) var(--awake-ease-settle),
+    transform var(--awake-motion-settle) var(--awake-ease-settle);
+}
+
+.awake-companion-choice:hover {
+  border-color: var(--awake-accent);
+  background: var(--awake-surface-elevated);
+  transform: translateY(-2px);
+}
+
+@keyframes awake-companion-expand {
+  from {
+    border-radius: 9999px;
+    opacity: 0.74;
+    transform: translate(-50%, -50%) scale(0.08);
+  }
+  to {
+    border-radius: 36%;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.55);
+  }
+}
+
+@keyframes awake-companion-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awake-home-responsive .awake-responsive-shell,
+  .awake-home-responsive > .mx-auto,
+  .awake-companion-surface,
+  .awake-companion-content,
+  .awake-companion-choice {
+    animation: none !important;
+    transition: none !important;
+  }
 }
 
 

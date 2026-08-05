@@ -4307,8 +4307,24 @@ button.awake-circle-focus:focus-visible {
   pointer-events: none;
   transform: translateX(-50%);
   animation:
-    awake-center-hint-arrive 900ms 650ms var(--awake-ease-settle) forwards,
-    awake-center-hint-breathe 3.8s 1.55s ease-in-out infinite;
+    awake-center-hint-arrive 900ms 2s var(--awake-ease-settle) forwards,
+    awake-center-hint-breathe 3.8s 2.9s ease-in-out infinite;
+}
+
+.awake-center-invitation:has(.awake-center-discovery-hint)::after {
+  position: absolute;
+  inset: -0.55rem;
+  z-index: -1;
+  border-radius: 9999px;
+  content: "";
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--awake-orb-glow) 25%, transparent),
+    transparent 68%
+  );
+  opacity: 0;
+  pointer-events: none;
+  animation: awake-center-invitation-pulse 4.2s 1.9s ease-in-out infinite;
 }
 
 .awake-world-footer {
@@ -4358,7 +4374,7 @@ button.awake-circle-focus:focus-visible {
 .awake-home-responsive .awake-appearance-panel {
   top: auto;
   right: max(0.75rem, env(safe-area-inset-right));
-  bottom: max(7.2rem, calc(env(safe-area-inset-bottom) + 6.4rem));
+  bottom: max(14rem, calc(env(safe-area-inset-bottom) + 13rem));
   left: max(0.75rem, env(safe-area-inset-left));
   max-height: min(64dvh, calc(100dvh - 9rem));
   margin-inline: auto;
@@ -4366,6 +4382,34 @@ button.awake-circle-focus:focus-visible {
 
 /* Compact profile: Fold fronts and other narrow phones. */
 @media (max-width: 419px) {
+  .awake-responsive-shell.is-world-only {
+    display: grid;
+    min-height: calc(
+      100dvh - max(1.25rem, env(safe-area-inset-top)) -
+        max(1.5rem, env(safe-area-inset-bottom))
+    );
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .awake-responsive-shell.is-world-only .awake-responsive-grid,
+  .awake-responsive-shell.is-world-only .awake-responsive-world {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+  }
+
+  .awake-responsive-shell.is-world-only .awake-responsive-world {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .awake-responsive-shell.is-world-only .awake-world-stage {
+    flex: none;
+    translate:
+      clamp(-0.45rem, calc(1.6vw - 0.72rem), 0rem)
+      clamp(0.35rem, 1.35dvh, 0.72rem);
+  }
+
   .awake-home-header {
     min-height: clamp(7.6rem, 15dvh, 8.7rem);
   }
@@ -4395,6 +4439,12 @@ button.awake-circle-focus:focus-visible {
 
 /* Comfort profile: standard phones. */
 @media (min-width: 420px) and (max-width: 767px) {
+  .awake-world-stage {
+    translate:
+      clamp(-0.22rem, calc(1vw - 0.42rem), 0rem)
+      clamp(0.12rem, 0.55dvh, 0.32rem);
+  }
+
   .awake-circle-of-fifths.home-foundation-ring {
     width: clamp(23rem, 94vw, 27rem) !important;
     height: clamp(24.5rem, 100vw, 29rem) !important;
@@ -4408,19 +4458,27 @@ button.awake-circle-focus:focus-visible {
 
 /* Immersive profile: unfolded devices, tablets, and desktop. */
 @media (min-width: 768px) {
+  .awake-world-stage {
+    translate: 0 clamp(0rem, 0.2dvh, 0.12rem);
+  }
+
   .awake-home-header {
     min-height: clamp(9rem, 14dvh, 10.5rem);
   }
 
   .awake-circle-of-fifths.home-foundation-ring {
-    width: clamp(31rem, min(68vw, 68dvh), 42rem) !important;
-    height: clamp(33rem, min(72vw, 72dvh), 45rem) !important;
+    width: clamp(31rem, min(68vw, 65dvh), 40rem) !important;
+    height: clamp(31rem, min(72vw, 59dvh), 38rem) !important;
   }
 
   .awake-world-footer {
     width: min(100%, 25rem);
-    gap: 0.9rem;
+    gap: 0.65rem;
     margin-top: -0.25rem;
+  }
+
+  .awake-world-footer .awake-key-selector {
+    min-height: 4.25rem;
   }
 
   .awake-world-footer .awake-circle-relationship {
@@ -4438,9 +4496,20 @@ button.awake-circle-focus:focus-visible {
   50% { opacity: 0.94; }
 }
 
+@keyframes awake-center-invitation-pulse {
+  0%, 34%, 100% { opacity: 0; transform: scale(0.92); }
+  48% { opacity: 0.42; transform: scale(1.08); }
+  64% { opacity: 0.08; transform: scale(1.16); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .awake-center-discovery-hint {
     opacity: 0.82;
+    animation: none !important;
+  }
+
+  .awake-center-invitation:has(.awake-center-discovery-hint)::after {
+    display: none;
     animation: none !important;
   }
 

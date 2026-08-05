@@ -1,8 +1,12 @@
 import { AWAKE_LEARNING_SYSTEMS_KEY } from "./storageKeys";
 import type {
+  CurriculumSection,
   KnowledgePack,
   KnowledgePackStage,
+  LearningLesson,
   LearningModule,
+  LessonPracticeActivity,
+  LessonResource,
   PracticeBlock,
   StageModification,
   UserLearningSystem,
@@ -42,6 +46,191 @@ function isStoredLearningSystem(value: unknown): value is UserLearningSystem {
   );
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+function normalizeActivity(
+  value: unknown,
+): LessonPracticeActivity | undefined {
+  if (!isRecord(value)) return undefined;
+  if (
+    typeof value.id !== "string" ||
+    typeof value.title !== "string" ||
+    typeof value.order !== "number"
+  ) return undefined;
+
+  return {
+    id: value.id,
+    title: value.title,
+    order: value.order,
+    ...(typeof value.description === "string"
+      ? { description: value.description }
+      : {}),
+    ...(typeof value.minutes === "number" && value.minutes > 0
+      ? { minutes: value.minutes }
+      : {}),
+  };
+}
+
+function normalizeResource(value: unknown): LessonResource | undefined {
+  if (!isRecord(value)) return undefined;
+  const validTypes = ["text", "video", "audio", "sheet-music", "link"];
+  if (
+    typeof value.id !== "string" ||
+    typeof value.title !== "string" ||
+    typeof value.type !== "string" ||
+    !validTypes.includes(value.type)
+  ) return undefined;
+
+  return {
+    id: value.id,
+    title: value.title,
+    type: value.type as LessonResource["type"],
+    ...(typeof value.reference === "string"
+      ? { reference: value.reference }
+      : {}),
+  };
+}
+
+function normalizeLesson(value: unknown): LearningLesson | undefined {
+  if (!isRecord(value)) return undefined;
+  if (
+    typeof value.id !== "string" ||
+    typeof value.title !== "string" ||
+    typeof value.order !== "number" ||
+    typeof value.estimatedMinutes !== "number" ||
+    !Array.isArray(value.focusHighlights) ||
+    !Array.isArray(value.practiceActivities)
+  ) return undefined;
+
+  const focusHighlights = value.focusHighlights
+    .filter((item): item is string => typeof item === "string" && item.length > 0)
+    .slice(0, 3);
+  const practiceActivities = value.practiceActivities
+    .map(normalizeActivity)
+    .filter((item): item is LessonPracticeActivity => Boolean(item))
+    .sort((a, b) => a.order - b.order);
+  if (focusHighlights.length === 0 || practiceActivities.length === 0) {
+    return undefined;
+  }
+
+  const readinessChecks = Array.isArray(value.readinessChecks)
+    ? value.readinessChecks.filter(
+        (item): item is string => typeof item === "string" && item.length > 0,
+      )
+    : undefined;
+  const resources = Array.isArray(value.resources)
+    ? value.resources
+        .map(normalizeResource)
+        .filter((item): item is LessonResource => Boolean(item))
+    : undefined;
+
+  return {
+    id: value.id,
+    title: value.title,
+    order: value.order,
+    estimatedMinutes: value.estimatedMinutes,
+    focusHighlights,
+    practiceActivities,
+    ...(typeof value.description === "string"
+      ? { description: value.description }
+      : {}),
+    ...(readinessChecks?.length ? { readinessChecks } : {}),
+    ...(resources?.length ? { resources } : {}),
+  };
+}
+
+function normalizeCurriculum(value: unknown): CurriculumSection[] {
+  if (!Array.isArray(value)) return [];
+
+  const sections: CurriculumSection[] = [];
+  for (const section of value) {
+    if (
+      !isRecord(section) ||
+      typeof section.id !== "string" ||
+      typeof section.title !== "string" ||
+      typeof section.order !== "number" ||
+      !Array.isArray(section.lessons)
+    ) continue;
+
+    const lessons = section.lessons
+      .map(normalizeLesson)
+      .filter((item): item is LearningLesson => Boolean(item))
+      .sort((a, b) => a.order - b.order);
+    if (lessons.length === 0) continue;
+
+    sections.push({
+      id: section.id,
+      title: section.title,
+      order: section.order,
+      lessons,
+      ...(typeof section.description === "string"
+        ? { description: section.description }
+        : {}),
+    });
+  }
+
+  return sections.sort((a, b) => a.order - b.order);
+}
+
+function fallbackCurriculum(system: UserLearningSystem): CurriculumSection[] {
+  const activities = system.practiceTemplate.map((block, index) => ({
+    id: `${system.id}-legacy-activity-${block.id}`,
+    title: block.title,
+    description: block.guidance,
+    minutes: block.minutes,
+    order: index + 1,
+  }));
+
+  return [{
+    id: `${system.id}-legacy-section`,
+    title: "Learning path",
+    description: "Your original journey, organized into lessons.",
+    order: 1,
+    lessons: system.learningPath.map((module, index) => ({
+      id: `${system.id}-legacy-lesson-${module.id}`,
+      title: module.title,
+      description: module.description,
+      order: index + 1,
+      estimatedMinutes: system.minutesPerSession,
+      focusHighlights: [module.title, ...module.outcomes].slice(0, 3),
+      practiceActivities: activities.map((item) => ({ ...item })),
+    })),
+  }];
+}
+
+export function normalizeLearningSystem(
+  system: UserLearningSystem,
+): UserLearningSystem {
+  const curriculumSections = normalizeCurriculum(system.curriculumSections);
+  const safeCurriculum = curriculumSections.length > 0
+    ? curriculumSections
+    : fallbackCurriculum(system);
+  const firstSection = safeCurriculum[0];
+  const section = safeCurriculum.find(
+    (item) => item.id === system.currentCurriculumSectionId,
+  ) ?? firstSection;
+  const lessonIds = new Set(
+    safeCurriculum.flatMap((item) => item.lessons.map((lesson) => lesson.id)),
+  );
+  const lesson = section?.lessons.find(
+    (item) => item.id === system.currentLessonId,
+  ) ?? section?.lessons[0];
+
+  return {
+    ...system,
+    curriculumSections: safeCurriculum,
+    currentCurriculumSectionId: section?.id ?? "",
+    currentLessonId: lesson?.id ?? "",
+    completedLessonIds: Array.isArray(system.completedLessonIds)
+      ? system.completedLessonIds.filter(
+          (id): id is string => typeof id === "string" && lessonIds.has(id),
+        )
+      : [],
+  };
+}
+
 export function loadLearningSystems(): UserLearningSystem[] {
   if (typeof window === "undefined") return [];
 
@@ -50,7 +239,7 @@ export function loadLearningSystems(): UserLearningSystem[] {
       localStorage.getItem(AWAKE_LEARNING_SYSTEMS_KEY) ?? "[]",
     );
     return Array.isArray(parsed)
-      ? parsed.filter(isStoredLearningSystem)
+      ? parsed.filter(isStoredLearningSystem).map(normalizeLearningSystem)
       : [];
   } catch {
     return [];
@@ -89,6 +278,25 @@ function copyModifications(
   }));
 }
 
+function copyCurriculum(
+  sections: readonly CurriculumSection[],
+): CurriculumSection[] {
+  return sections.map((section) => ({
+    ...section,
+    lessons: section.lessons.map((lesson) => ({
+      ...lesson,
+      focusHighlights: [...lesson.focusHighlights],
+      practiceActivities: lesson.practiceActivities.map((item) => ({ ...item })),
+      readinessChecks: lesson.readinessChecks
+        ? [...lesson.readinessChecks]
+        : undefined,
+      resources: lesson.resources
+        ? lesson.resources.map((resource) => ({ ...resource }))
+        : undefined,
+    })),
+  }));
+}
+
 export function createLearningSystem(
   pack: KnowledgePack,
   stage: KnowledgePackStage,
@@ -96,6 +304,13 @@ export function createLearningSystem(
   minutesPerSession: number,
 ): UserLearningSystem {
   const now = new Date().toISOString();
+  const curriculumSections = copyCurriculum(stage.curriculumSections);
+  const currentSection = [...curriculumSections].sort(
+    (a, b) => a.order - b.order,
+  )[0];
+  const currentLesson = currentSection
+    ? [...currentSection.lessons].sort((a, b) => a.order - b.order)[0]
+    : undefined;
 
   return {
     id: crypto.randomUUID(),
@@ -120,6 +335,10 @@ export function createLearningSystem(
     modifications: copyModifications(stage.modifications),
     currentModuleId: stage.learningPath[0]?.id ?? "",
     completedModuleIds: [],
+    curriculumSections,
+    currentCurriculumSectionId: currentSection?.id ?? "",
+    currentLessonId: currentLesson?.id ?? "",
+    completedLessonIds: [],
   };
 }
 

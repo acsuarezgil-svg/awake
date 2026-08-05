@@ -17,6 +17,14 @@ export default function PianoLearningPage() {
   const stage = pianoKnowledgePack.stages.find(
     (item) => item.level === selectedLevel,
   ) ?? pianoKnowledgePack.stages[0];
+  const lessonCount = stage.curriculumSections.reduce(
+    (total, section) => total + section.lessons.length,
+    0,
+  );
+  const firstLesson = [...stage.curriculumSections]
+    .sort((a, b) => a.order - b.order)[0]?.lessons
+    .slice()
+    .sort((a, b) => a.order - b.order)[0];
 
   return (
     <main className="px-4 py-6 sm:px-6 sm:py-10 lg:px-10">
@@ -93,23 +101,38 @@ export default function PianoLearningPage() {
               </section>
 
               <section aria-labelledby="path-title">
-                <h2 id="path-title">Learning path</h2>
-                <ol className="mt-6 space-y-7">
-                  {stage.learningPath.map((module, index) => (
-                    <li key={module.id} className="grid grid-cols-[2rem_1fr] gap-3">
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <h2 id="path-title">Curriculum</h2>
+                  <p className="text-sm text-[var(--awake-text-muted)]">
+                    {lessonCount} lessons
+                  </p>
+                </div>
+                <ol className="mt-6 space-y-5">
+                  {stage.curriculumSections.map((section, index) => (
+                    <li key={section.id} className="grid grid-cols-[2rem_1fr] gap-3">
                       <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--awake-accent-soft)] text-sm font-semibold text-[var(--awake-accent)]">
                         {index + 1}
                       </span>
                       <div>
-                        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                          <h3>{module.title}</h3>
-                          <span className="text-xs text-[var(--awake-text-muted)]">About {module.estimatedMinutes} min</span>
-                        </div>
-                        <p className="mt-2 text-sm leading-6 text-[var(--awake-text-secondary)]">{module.description}</p>
+                        <h3>{section.title}</h3>
+                        <p className="mt-1 text-sm text-[var(--awake-text-secondary)]">
+                          {section.lessons.length} {section.lessons.length === 1 ? "lesson" : "lessons"}
+                        </p>
                       </div>
                     </li>
                   ))}
                 </ol>
+                {firstLesson && (
+                  <div className="mt-8 border-l-2 border-[var(--awake-accent)] pl-4">
+                    <p className="awake-eyebrow">First lesson · {firstLesson.estimatedMinutes} min</p>
+                    <h3 className="mt-2">{firstLesson.title}</h3>
+                    <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-[var(--awake-text-secondary)]">
+                      {firstLesson.focusHighlights.map((highlight) => (
+                        <li key={highlight}>{highlight}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </section>
             </div>
 

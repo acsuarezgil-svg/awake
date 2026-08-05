@@ -248,7 +248,9 @@ export default function PianoSetupFlow({
                 </div>
                 <div className="py-5">
                   <dt className="text-xs uppercase tracking-wider text-[var(--awake-text-muted)]">Learning path</dt>
-                  <dd className="mt-1">{stage.learningPath.length} parts, beginning with “{stage.learningPath[0]?.title}”</dd>
+                  <dd className="mt-1">
+                    {stage.curriculumSections.reduce((total, section) => total + section.lessons.length, 0)} lessons, beginning with “{stage.curriculumSections[0]?.lessons[0]?.title}”
+                  </dd>
                 </div>
                 <div className="py-5">
                   <dt className="text-xs uppercase tracking-wider text-[var(--awake-text-muted)]">Each practice</dt>

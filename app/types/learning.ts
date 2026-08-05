@@ -18,6 +18,41 @@ export type PracticeBlock = {
   readonly guidance: string;
 };
 
+export type LessonPracticeActivity = {
+  readonly id: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly minutes?: number;
+  readonly order: number;
+};
+
+export type LessonResource = {
+  readonly id: string;
+  readonly title: string;
+  readonly type: "text" | "video" | "audio" | "sheet-music" | "link";
+  readonly reference?: string;
+};
+
+export type LearningLesson = {
+  readonly id: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly order: number;
+  readonly estimatedMinutes: number;
+  readonly focusHighlights: readonly string[];
+  readonly practiceActivities: readonly LessonPracticeActivity[];
+  readonly readinessChecks?: readonly string[];
+  readonly resources?: readonly LessonResource[];
+};
+
+export type CurriculumSection = {
+  readonly id: string;
+  readonly title: string;
+  readonly description?: string;
+  readonly order: number;
+  readonly lessons: readonly LearningLesson[];
+};
+
 export type StageModification = {
   readonly id: string;
   readonly title: string;
@@ -38,6 +73,7 @@ export type KnowledgePackStage = {
   readonly suggestedDays: readonly string[];
   readonly outcomes: readonly string[];
   readonly learningPath: readonly LearningModule[];
+  readonly curriculumSections: readonly CurriculumSection[];
   readonly practiceTemplate: readonly PracticeBlock[];
   readonly readinessChecks: readonly string[];
   readonly modifications: readonly StageModification[];
@@ -79,4 +115,8 @@ export type UserLearningSystem = {
   modifications: StageModification[];
   currentModuleId: string;
   completedModuleIds: string[];
+  curriculumSections?: CurriculumSection[];
+  currentCurriculumSectionId?: string;
+  currentLessonId?: string;
+  completedLessonIds?: string[];
 };

@@ -41,6 +41,7 @@ import PracticeSpace from "./practice/PracticeSpace";
 import ExpandedFoundationView from "./foundation/LivingFoundationView";
 import type { HomeViewState } from "./foundation/foundationExperience";
 import type { Language } from "../translations";
+import { AWAKE_CENTER_HINT_SEEN_KEY } from "../storageKeys";
 
 const HIDDEN_FOUNDATIONS_KEY = "awake-hidden-foundations";
 const SELECTED_KEY_STORAGE_KEY = "awake-circle-selected-key";
@@ -190,6 +191,7 @@ export default function SystemsOverview() {
     useState<AwakeSystem | null>(null);
   const [companionOpen, setCompanionOpen] = useState(false);
   const [practiceOpen, setPracticeOpen] = useState(false);
+  const [showCenterHint, setShowCenterHint] = useState(false);
   const [colorPreferences, setColorPreferences] =
     useState<AwakeColorPreferences>(defaultColorPreferences);
   const lastBackgroundTap = useRef(0);
@@ -212,6 +214,9 @@ export default function SystemsOverview() {
     if (savedKey && CIRCLE_OF_FIFTHS.some((key) => key.id === savedKey)) {
       setSelectedId(savedKey);
     }
+    setShowCenterHint(
+      localStorage.getItem(AWAKE_CENTER_HINT_SEEN_KEY) !== "true",
+    );
     const foundationId = new URL(window.location.href).searchParams.get(
       "foundation",
     );
@@ -355,6 +360,8 @@ export default function SystemsOverview() {
 
   function openCompanion() {
     if (companionOpen) return;
+    localStorage.setItem(AWAKE_CENTER_HINT_SEEN_KEY, "true");
+    setShowCenterHint(false);
     const url = new URL(window.location.href);
     url.searchParams.delete("foundation");
     url.searchParams.set("companion", "learning");
@@ -459,8 +466,14 @@ export default function SystemsOverview() {
               onSelectedChange={selectCircleKey}
               onOpenCompanion={openCompanion}
               onCenterLongPress={() => setPracticeOpen(true)}
-            />
-            {selectedCircleItem && (
+              centerHint={showCenterHint ? (
+                <p className="awake-center-discovery-hint" role="status">
+                  Tap the center to begin
+                </p>
+              ) : null}
+              footerContent={
+                <>
+                  {selectedCircleItem && (
               <div className="awake-key-selector" aria-label="Selected major key">
                 <div className="awake-key-selector-main">
                   <button
@@ -494,10 +507,7 @@ export default function SystemsOverview() {
                     : null}
                 </p>
               </div>
-            )}
-          </div>
-        }
-        primaryAction={
+                  )}
           <nav
             className="awake-card awake-home-navigation grid w-full max-w-[26rem] grid-cols-5 gap-1 p-1"
             aria-label="Home actions"
@@ -577,6 +587,10 @@ export default function SystemsOverview() {
               <HomeDockIcon name="about" />
             </Link>
           </nav>
+                </>
+              }
+            />
+          </div>
         }
       />
       {companionOpen && (

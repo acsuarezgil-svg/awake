@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type {
   CSSProperties,
   KeyboardEvent,
@@ -21,6 +21,8 @@ type Props = {
   onSelectedChange: (id: string) => void;
   onOpenCompanion: () => void;
   onCenterLongPress: () => void;
+  centerHint?: ReactNode;
+  footerContent?: ReactNode;
 };
 
 const CENTER_MOVE_THRESHOLD_PX = 7;
@@ -77,6 +79,8 @@ export default function AwakeCircleOfFifths({
   onSelectedChange,
   onOpenCompanion,
   onCenterLongPress,
+  centerHint,
+  footerContent,
 }: Props) {
   const holdTimer = useRef<number | null>(null);
   const centerPointer = useRef<{
@@ -178,25 +182,28 @@ export default function AwakeCircleOfFifths({
       centerInteractive
       itemsInteractive={false}
       centerContent={
-        <button
-          type="button"
-          className="awake-circle-focus"
-          aria-label="Open learning companion"
-          onPointerDown={beginCenterPress}
-          onPointerMove={moveCenterPress}
-          onPointerUp={finishCenterPress}
-          onPointerCancel={cancelCenterPress}
-          onKeyDown={handleCenterKeyDown}
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-        >
-          <strong className="awake-circle-focus-key">
-            {musicalGlyphs(selected.displayKey)}
-          </strong>
-          <small>{selected.awakeFoundationName}</small>
-        </button>
+        <div className="awake-center-invitation">
+          <button
+            type="button"
+            className="awake-circle-focus"
+            aria-label="Open learning companion"
+            onPointerDown={beginCenterPress}
+            onPointerMove={moveCenterPress}
+            onPointerUp={finishCenterPress}
+            onPointerCancel={cancelCenterPress}
+            onKeyDown={handleCenterKeyDown}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+          >
+            <strong className="awake-circle-focus-key">
+              {musicalGlyphs(selected.displayKey)}
+            </strong>
+            <small>{selected.awakeFoundationName}</small>
+          </button>
+          {centerHint}
+        </div>
       }
       renderItem={(item, { centered, index, angle }) => {
         const hue = getFoundationHue(
@@ -276,13 +283,16 @@ export default function AwakeCircleOfFifths({
         );
       }}
       />
-      <p className="awake-circle-relationship" aria-live="polite">
-        <strong>{musicalGlyphs(selected.displayKey)} major</strong>
-        <span aria-hidden="true">•</span>
-        <span>{minorName(selected.relativeMinor)} minor</span>
-        <span aria-hidden="true">•</span>
-        <span>companion</span>
-      </p>
+      <footer className="awake-world-footer">
+        <p className="awake-circle-relationship" aria-live="polite">
+          <strong>{musicalGlyphs(selected.displayKey)} major</strong>
+          <span aria-hidden="true">•</span>
+          <span>{minorName(selected.relativeMinor)} minor</span>
+          <span aria-hidden="true">•</span>
+          <span>companion</span>
+        </p>
+        {footerContent}
+      </footer>
     </>
   );
 }

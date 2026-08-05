@@ -1,9 +1,11 @@
 export const AWAKE_SYSTEMS_KEY = "awake-systems";
 export const AWAKE_LEARNING_SYSTEMS_KEY = "awake-learning-systems";
+export const AWAKE_CENTER_HINT_SEEN_KEY = "awake-center-hint-seen";
 
 export const awakeStorageKeys = [
   AWAKE_SYSTEMS_KEY,
   AWAKE_LEARNING_SYSTEMS_KEY,
+  AWAKE_CENTER_HINT_SEEN_KEY,
   "awake-system-reflections",
   "awake-focus-area-action-events",
   "awake-system-action-events",

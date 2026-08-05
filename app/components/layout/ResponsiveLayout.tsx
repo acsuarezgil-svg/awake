@@ -5,7 +5,7 @@ type Props = {
   world: ReactNode;
   leading?: ReactNode;
   supporting?: ReactNode;
-  primaryAction: ReactNode;
+  primaryAction?: ReactNode;
   overlay?: ReactNode;
 };
 
@@ -39,12 +39,16 @@ export default function ResponsiveLayout({
         <section className="awake-responsive-world" aria-label="Your World">
           {world}
         </section>
-        <aside className="awake-responsive-rail" aria-label="World support">
-          <div className="awake-responsive-action">{primaryAction}</div>
-          {supporting && (
-            <div className="awake-responsive-supporting">{supporting}</div>
-          )}
-        </aside>
+        {(primaryAction || supporting) && (
+          <aside className="awake-responsive-rail" aria-label="World support">
+            {primaryAction && (
+              <div className="awake-responsive-action">{primaryAction}</div>
+            )}
+            {supporting && (
+              <div className="awake-responsive-supporting">{supporting}</div>
+            )}
+          </aside>
+        )}
       </div>
     </div>
   );
